@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "185335059809",
+    "project_id": "mini-instagram-1",
+    "storage_bucket": "mini-instagram-1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185335059809:android:0161f118dc1f8951dd6120",
+        "android_client_info": {
+          "package_name": "com.example.miniinstagram"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "185335059809-03ggschi55lnv63cjb2te933bmkuhsep.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZJ0aTO-XQwRj9WR8pbDJXnWZzkZfFIUg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "185335059809-03ggschi55lnv63cjb2te933bmkuhsep.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
