@@ -3,6 +3,7 @@ package com.example.miniinstagram;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +17,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -36,9 +41,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button registerButton;
     TextView loginRegisterSwitchTextView;
     Boolean registerModeActive = true;
-    private static final String TAG = "SignInActivity";
+    private static final String TAG = "MainActivity";
 
-    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth auth;
     private DatabaseReference databaseReference;
 
     // when flag == 0. means not available or not success.
@@ -58,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         loginRegisterSwitchTextView = findViewById(R.id.loginRegisterSwitchTextView);
         loginRegisterSwitchTextView.setOnClickListener(this);
 
-        firebaseAuth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference();
     }
 
@@ -97,20 +102,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /*
      * check if user input correct forms of email, username and password.
      * If it's registeractive, user must input email, username and password. The password must be
-     * longer than 4 digits.
+     * at least 6 digits.
      * If it's login mode, username is not required
      */
     private boolean validateForm(String usernameStr, String emailStr, String passwordStr) {
-        boolean isInputValid = false;
-        if (TextUtils.isEmpty(emailStr) || TextUtils.isEmpty(passwordStr)) {
-            Toast.makeText(MainActivity.this, "Empty email or password", Toast.LENGTH_LONG).show();
-        } else if (registerModeActive && TextUtils.isEmpty(usernameStr)) {
-            Toast.makeText(MainActivity.this, "Empty username", Toast.LENGTH_LONG).show();
-        } else if (passwordStr.length() < 6) {
-            Toast.makeText(MainActivity.this, "Password must be more than 6 digits", Toast.LENGTH_LONG).show();
-        } else {
-            isInputValid = true;
-            return isInputValid;
+        boolean isInputValid = true;
+
+        if (TextUtils.isEmpty(emailStr)) {
+            emailEditText.setError("Email required");
+            emailEditText.requestFocus();
+            isInputValid = false;
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(emailStr).matches()) {
+            emailEditText.setError("Proper email required");
+            emailEditText.requestFocus();
+            isInputValid = false;
+        }
+        if (TextUtils.isEmpty(passwordStr) || passwordStr.length() < 6) {
+            passwordEditText.setError("Password required with at least 6 characters");
+            passwordEditText.requestFocus();
+            isInputValid = false;
+        }
+        if (registerModeActive && TextUtils.isEmpty(usernameStr)) {
+            usernameEditText.setError("Username required when register");
+            usernameEditText.requestFocus();
+            isInputValid = false;
         }
 
         return isInputValid;
@@ -118,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void registerNewUser(String usernameStr, String emailStr, String passwordStr) {
 
-        firebaseAuth.createUserWithEmailAndPassword(emailStr, passwordStr)
+        auth.createUserWithEmailAndPassword(emailStr, passwordStr)
                 .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -126,16 +141,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         // Toast.makeText(MainActivity.this, "Register processes", Toast.LENGTH_SHORT).show();
 
                         if (task.isSuccessful()) {
-                            //register success, update new user in database under branch "Users"
-                            onAuthSuccess(firebaseAuth.getCurrentUser(), usernameStr);
+                            //register success, then update new user in database under branch "Users"
+                            onAuthSuccess(auth.getCurrentUser(), usernameStr);
                         } else {
-                            //register fails, display a message to the user
-                            Toast.makeText(MainActivity.this,
-                                    "Can't register with the email and password",
-                                    Toast.LENGTH_SHORT).show();
+                            //register fails, display a message to the user according to error type
+                            FirebaseAuthException e = (FirebaseAuthException) task.getException();
+                            Log.d(TAG, "errorcheck" + e.getErrorCode());
+
+                            if (e.getErrorCode().equals("ERROR_EMAIL_ALREADY_IN_USE")) {
+                                emailEditText.setError("Email already in use");
+                                emailEditText.requestFocus();
+                            } else if (e.getErrorCode().equals("ERROR_INVALID_EMAIL")) {
+                                emailEditText.setError("Proper email is required");
+                                emailEditText.requestFocus();
+                            } else if (e.getErrorCode().equals("ERROR_OPERATION_NOT_ALLOWED")) {
+                                Toast.makeText(MainActivity.this, "Operation denied",
+                                        Toast.LENGTH_LONG).show();
+                            } else if (e.getErrorCode().equals("ERROR_WEAK_PASSWORD")) {
+                                passwordEditText.setError("Password is too weak");
+                                passwordEditText.requestFocus();
+                            }
                         }
                     }
                 });
+
     }
 
 
