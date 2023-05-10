@@ -143,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void onAuthSuccess(FirebaseUser user, String usernameStr) {
         //Write new user, if successful, return true, and new user stay logged in
         writeNewUser(user.getUid(), user.getEmail(), usernameStr);
+//        Toast.makeText(MainActivity.this, "on Auth success", Toast.LENGTH_LONG).show();
 
         //If write new user success, go to HomepageActivity
         if (writeNewUserSuccessFlag != 0) {
@@ -164,11 +165,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         userInfo.put("gender", "");
         userInfo.put("birthday", "");
 
-        newUserReference.setValue(userID).addOnCompleteListener(new OnCompleteListener<Void>() {
+        newUserReference.setValue(userInfo).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     writeNewUserSuccessFlag = 1;
+//                    Toast.makeText(MainActivity.this, "Write in database success", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(MainActivity.this, userID, Toast.LENGTH_LONG).show();
+
                 }
             }
         });
