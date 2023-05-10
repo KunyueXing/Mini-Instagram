@@ -5,8 +5,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +31,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.auth.User;
 
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -39,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText usernameEditText;
     private EditText passwordEditText;
     private Button registerButton;
+    private ListView listView;
     TextView loginRegisterSwitchTextView;
     Boolean registerModeActive = true;
     private static final String TAG = "MainActivity";
@@ -65,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         auth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference();
+
+        checkUsernameAvailability("jenny");
     }
 
     @Override
@@ -91,7 +98,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (validateForm(usernameStr, emailStr, passwordStr)) {
             if (registerModeActive) {
                 //Toast.makeText(MainActivity.this, "Register active", Toast.LENGTH_SHORT).show();
-                registerNewUser(usernameStr, emailStr, passwordStr);
+                if (checkUsernameAvailability(usernameStr)) {
+                    registerNewUser(usernameStr, emailStr, passwordStr);
+                }
+//                if (usernameAvailableFlag != 0) {
+//                    registerNewUser(usernameStr, emailStr, passwordStr);
+//                    Log.d(TAG, "errorcheck: in onclick "  + usernameAvailableFlag);
+//                }
             } else {
                 userLogin(emailStr, passwordStr);
             }
@@ -132,6 +145,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void registerNewUser(String usernameStr, String emailStr, String passwordStr) {
+        Log.d(TAG, "errorcheck: in register " + usernameAvailableFlag);
+
+//        usernameAvailableFlag = 0;
+//        if (usernameAvailableFlag == 0) {
+//            return;
+//        }
 
         auth.createUserWithEmailAndPassword(emailStr, passwordStr)
                 .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
@@ -167,7 +186,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    private boolean checkUsernameAvailability(String usernameStr) {
+        boolean isUsernameAvailable = true;
 
+        DatabaseReference allUsersReference = databaseReference.child("Users");
+
+        // read from database
+        allUsersReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d(TAG, "errorcheck" + dataSnapshot.getValue().toString());
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    HashMap<String, Object> userInfo = (HashMap<String, Object>) snapshot.getValue();
+                    Log.d(TAG, "errorcheck" + userInfo.get("username").toString());
+                    Log.d(TAG, "errorcheck" + usernameStr);
+                    if (usernameStr.equals(userInfo.get("username").toString())) {
+                        usernameAvailableFlag = 0;
+                        usernameEditText.setError("Username already taken");
+                        usernameEditText.requestFocus();
+                        Log.d(TAG, "errorcheck: in usernamecheck " + usernameAvailableFlag);
+                        return;
+                    }
+                }
+
+                usernameAvailableFlag = 1;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+
+        if (usernameAvailableFlag == 0) {
+            isUsernameAvailable = false;
+        }
+
+        return isUsernameAvailable;
+    }
 
     private void onAuthSuccess(FirebaseUser user, String usernameStr) {
         //Write new user, if successful, return true, and new user stay logged in
