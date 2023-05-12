@@ -1,41 +1,30 @@
-package com.example.miniinstagram;
+package com.example.miniinstagram.UI_Activity;
 
-import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.miniinstagram.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.auth.User;
 
-import java.sql.Array;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -161,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if (task.isSuccessful()) {
                             //on auth success, then need to update new user in database
                             onAuthSuccess(auth.getCurrentUser(), usernameStr);
+                            Toast.makeText(MainActivity.this, "Sign up success", Toast.LENGTH_LONG).show();
                         } else {
                             //register fails, display a message to the user according to error type
                             FirebaseAuthException e = (FirebaseAuthException) task.getException();
@@ -225,9 +215,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     writeNewUserSuccessFlag = 1;
-                    Toast.makeText(MainActivity.this, "Register success", Toast.LENGTH_LONG).show();
 //                    Toast.makeText(MainActivity.this, userID, Toast.LENGTH_LONG).show();
-
+                } else {
+                    Toast.makeText(MainActivity.this,
+                            "Error occur when accessing database", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -235,5 +226,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void userLogin(String emailStr, String passwordStr) {
 
+        auth.signInWithEmailAndPassword(emailStr, passwordStr)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(MainActivity.this, "Log in success.",
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.d(TAG, "errorcheck: signInWithEmail:failure " + task.getException().toString());
+                    Toast.makeText(MainActivity.this, "Authentication failed.",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
+
 }
