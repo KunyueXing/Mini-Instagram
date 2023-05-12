@@ -150,11 +150,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if (task.isSuccessful()) {
                             //on auth success, then need to update new user in database
                             onAuthSuccess(auth.getCurrentUser(), usernameStr);
-                            Toast.makeText(MainActivity.this, "Sign up success", Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this,
+                                    "Sign up authentication success", Toast.LENGTH_LONG).show();
                         } else {
                             //register fails, display a message to the user according to error type
                             FirebaseAuthException e = (FirebaseAuthException) task.getException();
-                            Log.d(TAG, "errorcheck" + e.getErrorCode());
+//                            Log.d(TAG, "errorcheck" + e.getErrorCode());
 
                             if (e.getErrorCode().equals("ERROR_EMAIL_ALREADY_IN_USE")) {
                                 emailEditText.setError("Email already in use");
@@ -235,9 +236,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Toast.LENGTH_LONG).show();
                 } else {
                     // If sign in fails, display a message to the user.
-                    Log.d(TAG, "errorcheck: signInWithEmail:failure " + task.getException().toString());
-                    Toast.makeText(MainActivity.this, "Authentication failed.",
+//                    Log.d(TAG, "errorcheck: signInWithEmail:failure " + task.getException().toString());
+                    Toast.makeText(MainActivity.this, "Log in authentication failed.",
                             Toast.LENGTH_LONG).show();
+
+                    FirebaseAuthException e = (FirebaseAuthException) task.getException();
+//                    Log.d(TAG, "errorcheck" + e.getErrorCode());
+
+                    if (e.getErrorCode().equals("ERROR_WRONG_PASSWORD")) {
+                        passwordEditText.setError("Password is incorrect");
+                        passwordEditText.requestFocus();
+                    } else if (e.getErrorCode().equals("ERROR_USER_NOT_FOUND")) {
+                        emailEditText.setError("User not found");
+                        emailEditText.requestFocus();
+                    }
                 }
             }
         });
