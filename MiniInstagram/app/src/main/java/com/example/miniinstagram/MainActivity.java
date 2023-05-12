@@ -1,5 +1,6 @@
 package com.example.miniinstagram;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -38,14 +39,11 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    //private ActivityMainBinding binding;
     private EditText emailEditText;
     private EditText usernameEditText;
     private EditText passwordEditText;
-    private Button registerButton;
-    private ListView listView;
+    private Button registerOrLogInButton;
     TextView loginRegisterSwitchTextView;
-    Boolean registerModeActive = true;
     private static final String TAG = "MainActivity";
 
     private FirebaseAuth auth;
@@ -53,7 +51,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     // when flag == 0. means not available or not success.
     private int writeNewUserSuccessFlag = 0;
-    private int usernameAvailableFlag = 1;
+    Boolean registerModeActive = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,32 +63,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         emailEditText = findViewById(R.id.emailEditText);
         usernameEditText = findViewById(R.id.UsernameEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
-        registerButton = findViewById(R.id.registerOrLoginButton);
+        registerOrLogInButton = findViewById(R.id.registerOrLoginButton);
         loginRegisterSwitchTextView = findViewById(R.id.loginRegisterSwitchTextView);
         loginRegisterSwitchTextView.setOnClickListener(this);
 
         auth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference();
-
-        checkUsernameAvailability("jenny");
     }
 
     @Override
-    //when click on the loginRegisterSwitchTextView, user can switch from login or signup mode
+    /*
+     * when click on the loginRegisterSwitchTextView, user can switch between login and signup mode.
+     * That is to say, the registerOrLogInButton will switch between login and signup mode.
+     */
     public void onClick(View view) {
         if (view.getId() == R.id.loginRegisterSwitchTextView) {
             if (registerModeActive) {
                 registerModeActive = !registerModeActive;
-                registerButton.setText("Log In");
+                registerOrLogInButton.setText("Log In");
                 loginRegisterSwitchTextView.setText("or, Sign Up");
             } else {
                 registerModeActive = !registerModeActive;
-                registerButton.setText("Sign Up");
+                registerOrLogInButton.setText("Sign Up");
                 loginRegisterSwitchTextView.setText("or, Log In");
             }
         }
     }
 
+    /*
+     * When registerOrLogInButton is clicked, system will validate the input format first, then
+     * execute login or register according to if register mode is active or not.
+     */
     public void registerOrLoginClicked(View view) {
         String usernameStr = usernameEditText.getText().toString();
         String emailStr = emailEditText.getText().toString();
@@ -97,26 +101,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (validateForm(usernameStr, emailStr, passwordStr)) {
             if (registerModeActive) {
-                //Toast.makeText(MainActivity.this, "Register active", Toast.LENGTH_SHORT).show();
-                if (checkUsernameAvailability(usernameStr)) {
-                    registerNewUser(usernameStr, emailStr, passwordStr);
-                }
-//                if (usernameAvailableFlag != 0) {
-//                    registerNewUser(usernameStr, emailStr, passwordStr);
-//                    Log.d(TAG, "errorcheck: in onclick "  + usernameAvailableFlag);
-//                }
+                registerNewUser(usernameStr, emailStr, passwordStr);
+//                Log.d(TAG, "errorcheck: in onclick "  + usernameAvailableFlag)；
             } else {
                 userLogin(emailStr, passwordStr);
             }
         }
+
     }
 
 
     /*
      * check if user input correct forms of email, username and password.
-     * If it's registeractive, user must input email, username and password. The password must be
-     * at least 6 digits.
-     * If it's login mode, username is not required
+     * If it's registeractive, user must input proper email, username and password. The password
+     * must be at least 6 digits. If it's login mode, username is not required.
      */
     private boolean validateForm(String usernameStr, String emailStr, String passwordStr) {
         boolean isInputValid = true;
@@ -144,14 +142,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return isInputValid;
     }
 
+    /*
+     * Register new user. First create a user in firebase authentication with email and password.
+     * If success, then execute onAuthSuccess() function.
+     * If failed, display error message to the user according to error type.
+     */
     private void registerNewUser(String usernameStr, String emailStr, String passwordStr) {
-        Log.d(TAG, "errorcheck: in register " + usernameAvailableFlag);
+//        Log.d(TAG, "errorcheck: in register " + usernameAvailableFlag);
 
-//        usernameAvailableFlag = 0;
-//        if (usernameAvailableFlag == 0) {
-//            return;
-//        }
-
+        // create user in firebase authentication with email and password.
         auth.createUserWithEmailAndPassword(emailStr, passwordStr)
                 .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -160,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         // Toast.makeText(MainActivity.this, "Register processes", Toast.LENGTH_SHORT).show();
 
                         if (task.isSuccessful()) {
-                            //register success, then update new user in database under branch "Users"
+                            //on auth success, then need to update new user in database
                             onAuthSuccess(auth.getCurrentUser(), usernameStr);
                         } else {
                             //register fails, display a message to the user according to error type
@@ -186,46 +185,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private boolean checkUsernameAvailability(String usernameStr) {
-        boolean isUsernameAvailable = true;
-
-        DatabaseReference allUsersReference = databaseReference.child("Users");
-
-        // read from database
-        allUsersReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.d(TAG, "errorcheck" + dataSnapshot.getValue().toString());
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
-                    HashMap<String, Object> userInfo = (HashMap<String, Object>) snapshot.getValue();
-                    Log.d(TAG, "errorcheck" + userInfo.get("username").toString());
-                    Log.d(TAG, "errorcheck" + usernameStr);
-                    if (usernameStr.equals(userInfo.get("username").toString())) {
-                        usernameAvailableFlag = 0;
-                        usernameEditText.setError("Username already taken");
-                        usernameEditText.requestFocus();
-                        Log.d(TAG, "errorcheck: in usernamecheck " + usernameAvailableFlag);
-                        return;
-                    }
-                }
-
-                usernameAvailableFlag = 1;
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
-
-        if (usernameAvailableFlag == 0) {
-            isUsernameAvailable = false;
-        }
-
-        return isUsernameAvailable;
-    }
-
+    /*
+     * After create user in firebase authentication. First create and write new user info in
+     * firebase database, then take user to the home page.
+     */
     private void onAuthSuccess(FirebaseUser user, String usernameStr) {
         //Write new user, if successful, return true, and new user stay logged in
         writeNewUser(user.getUid(), user.getEmail(), usernameStr);
@@ -237,6 +200,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /*
+     * All users are stored in database under branch "users", named with their user ID.
+     * Under each user ID, all information is stored as a hashmap.
+     * username is stored when register, other info is optional and will be updated later
+     * by user.
+     */
     private void writeNewUser(String userID, String emailStr, String usernameStr) {
         DatabaseReference newUserReference = databaseReference.child("Users").child(userID);
 
@@ -256,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     writeNewUserSuccessFlag = 1;
-//                    Toast.makeText(MainActivity.this, "Write in database success", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Register success", Toast.LENGTH_LONG).show();
 //                    Toast.makeText(MainActivity.this, userID, Toast.LENGTH_LONG).show();
 
                 }
