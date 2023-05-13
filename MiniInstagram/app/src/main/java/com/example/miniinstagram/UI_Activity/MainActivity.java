@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int writeNewUserSuccessFlag = 0;
     Boolean registerModeActive = true;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,9 +95,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 userLogin(emailStr, passwordStr);
             }
         }
-
     }
-
 
     /*
      * check if user input correct forms of email, username and password.
@@ -149,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         if (task.isSuccessful()) {
                             //on auth success, then need to update new user in database
-                            onAuthSuccess(auth.getCurrentUser(), usernameStr);
+                            registerOnAuthSuccess(auth.getCurrentUser(), usernameStr);
                             Toast.makeText(MainActivity.this,
                                     "Sign up authentication success", Toast.LENGTH_LONG).show();
                         } else {
@@ -173,21 +170,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                 });
-
     }
 
     /*
      * After create user in firebase authentication. First create and write new user info in
      * firebase database, then take user to the home page.
      */
-    private void onAuthSuccess(FirebaseUser user, String usernameStr) {
+    private void registerOnAuthSuccess(FirebaseUser user, String usernameStr) {
         //Write new user, if successful, return true, and new user stay logged in
         writeNewUser(user.getUid(), user.getEmail(), usernameStr);
 //        Toast.makeText(MainActivity.this, "on Auth success", Toast.LENGTH_LONG).show();
 
         //If write new user success, go to HomepageActivity
         if (writeNewUserSuccessFlag != 0) {
-
+            goToHomePage();
         }
     }
 
@@ -234,6 +230,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (task.isSuccessful()) {
                     Toast.makeText(MainActivity.this, "Log in success.",
                             Toast.LENGTH_LONG).show();
+                    goToHomePage();
                 } else {
                     // If sign in fails, display a message to the user.
 //                    Log.d(TAG, "errorcheck: signInWithEmail:failure " + task.getException().toString());
@@ -253,6 +250,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
+    }
+
+    private void goToHomePage() {
+        Intent intent = new Intent(MainActivity.this, HomepageActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
 }
