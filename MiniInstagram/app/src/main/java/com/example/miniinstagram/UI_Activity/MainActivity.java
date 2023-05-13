@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         writeNewUser(user.getUid(), user.getEmail(), usernameStr);
 //        Toast.makeText(MainActivity.this, "on Auth success", Toast.LENGTH_LONG).show();
 
-        //If write new user success, go to HomepageActivity
+        //If write new user success, go to Homepage
         if (writeNewUserSuccessFlag != 0) {
             goToHomePage();
         }
@@ -221,6 +221,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    /*
+     * User log in function.
+     * Validate user's email and password in Firebase authentication. If success, go to Homepage.
+     * If failed, display error message to user according to error type.
+     */
     private void userLogin(String emailStr, String passwordStr) {
 
         auth.signInWithEmailAndPassword(emailStr, passwordStr)
@@ -252,6 +257,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    // When user login or register success, go to Homepage
     private void goToHomePage() {
         Intent intent = new Intent(MainActivity.this, HomepageActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
