@@ -28,13 +28,13 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:src="@drawable/ic_close"
-                    android:id="@+id/close"/>
+                    android:id="@+id/closeImageView"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Post"
-                    android:id="@+id/post"
+                    android:id="@+id/postTextView"
                     android:textSize="18sp"
                     android:layout_alignParentEnd="true"
                     android:layout_marginRight="15dp"
@@ -54,7 +54,7 @@
         android:padding="10dp">
 
         <ImageView
-            android:id="@+id/add_image"
+            android:id="@+id/addImageImageView"
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:layout_alignParentStart="true"
@@ -65,10 +65,10 @@
             android:src="@drawable/ic_add_photo_png" />
 
         <TextView
-            android:id="@+id/post_text"
+            android:id="@+id/postContentTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/add_image"
+            android:layout_below="@+id/addImageImageView"
             android:layout_alignParentBottom="true"
             android:hint="Write a caption..."
             android:layout_gravity="center"
