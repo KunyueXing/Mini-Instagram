@@ -1,8 +1,12 @@
 package com.example.miniinstagram.model;
 
+import static com.example.miniinstagram.model.PrivacySetting.PRIVACY_SETTING_PUBLIC;
+
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Post {
     private String postID;
@@ -17,16 +21,31 @@ public class Post {
     public Post() {
     }
 
-    public Post(String postID, String description, String postImageUrl, int likesCount,
-                String authorID, PrivacySetting postPrivacySetting, List<Comment> listOfComments) {
+    // create Post with postID, content, imageUrl, authorID, the default privacy setting is public
+    public Post(String postID, String description, String postImageUrl, String authorID) {
         this.postID = postID;
         this.description = description;
         this.postImageUrl = postImageUrl;
-        this.likesCount = likesCount;
+        this.authorID = authorID;
+
+        this.likesCount = 0;
+        this.PostPrivacySetting = PRIVACY_SETTING_PUBLIC;
+        this.createTime = new Date(System.currentTimeMillis());
+        this.listOfComments = new ArrayList<>();
+    }
+
+    // create Post with additional privacy setting
+    public Post(String postID, String description, String postImageUrl, int likesCount,
+                String authorID, PrivacySetting postPrivacySetting) {
+        this.postID = postID;
+        this.description = description;
+        this.postImageUrl = postImageUrl;
         this.authorID = authorID;
         PostPrivacySetting = postPrivacySetting;
+
+        this.likesCount = 0;
         this.createTime = new Date(System.currentTimeMillis());
-        this.listOfComments = listOfComments;
+        this.listOfComments = new ArrayList<>();
     }
 
     public String getPostID() {
@@ -103,5 +122,20 @@ public class Post {
 
     public void deleteLikes() {
         likesCount--;
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("postID", postID);
+        result.put("authorID", authorID);
+        result.put("content", description);
+        result.put("imageUrl", postImageUrl);
+        result.put("likes", likesCount);
+        result.put("post privacy", PostPrivacySetting);
+        result.put("createTime", createTime);
+        result.put("comments on post", listOfComments);
+
+        return result;
     }
 }
