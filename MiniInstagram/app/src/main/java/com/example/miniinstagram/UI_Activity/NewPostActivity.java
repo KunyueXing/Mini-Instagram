@@ -1,13 +1,19 @@
 package com.example.miniinstagram.UI_Activity;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
@@ -27,6 +33,7 @@ import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,8 +49,10 @@ public class NewPostActivity extends AppCompatActivity {
     private StorageTask downloadUrlFromStorage;
     private DatabaseReference databaseReference;
     private Uri imageUri;
+    private Bitmap bitmap;
     private FirebaseAuth auth;
     private String uriStr;
+    private ActivityResultLauncher<String> choosePhoto;
     private String TAG = "new post activity";
 
 
@@ -60,6 +69,18 @@ public class NewPostActivity extends AppCompatActivity {
         storageReference = FirebaseStorage.getInstance().getReference("Posts_Image");
         databaseReference = FirebaseDatabase.getInstance().getReference();
 
+        choosePhoto = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
+                new ActivityResultCallback<Uri>() {
+                    @Override
+                    public void onActivityResult(Uri result) {
+                        imageUri = result;
+                        Log.d(TAG, "errorcheck: " + imageUri);
+
+                        updateUISelectedImage();
+                    }
+                });
+
         //when user click on close, will go back to homepage
         close.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,7 +90,12 @@ public class NewPostActivity extends AppCompatActivity {
             }
         });
 
-
+        addImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                choosePhoto.launch("image/*");
+            }
+        });
 
         postTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,6 +103,16 @@ public class NewPostActivity extends AppCompatActivity {
                 uploadImageToStorage();
             }
         });
+    }
+
+    private void updateUISelectedImage() {
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),
+                    imageUri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        addImageView.setImageBitmap(bitmap);
     }
 
     private void uploadImageToStorage() {
@@ -137,8 +173,8 @@ public class NewPostActivity extends AppCompatActivity {
         Map<String, Object> postValues = post.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/posts/" + postID, postValues);
-        childUpdates.put("/user-posts/" + authorID + "/" + postID, postValues);
+        childUpdates.put("/Posts/" + postID, postValues);
+        childUpdates.put("/User-Posts/" + authorID + "/" + postID, postValues);
 
         databaseReference.updateChildren(childUpdates);
     }
