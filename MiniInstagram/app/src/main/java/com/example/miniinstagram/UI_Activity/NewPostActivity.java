@@ -69,6 +69,11 @@ public class NewPostActivity extends AppCompatActivity {
         storageReference = FirebaseStorage.getInstance().getReference("Posts_Image");
         databaseReference = FirebaseDatabase.getInstance().getReference();
 
+        /*
+         * set an activity of choosing a photo from device, saving result in variable imageUri and
+         * showing the chosen image in UI. When user click addImage field, this activity will be
+         * launched.
+         */
         choosePhoto = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 new ActivityResultCallback<Uri>() {
@@ -90,6 +95,7 @@ public class NewPostActivity extends AppCompatActivity {
             }
         });
 
+        // When user click addImage field, launch choose image from the device activity.
         addImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
