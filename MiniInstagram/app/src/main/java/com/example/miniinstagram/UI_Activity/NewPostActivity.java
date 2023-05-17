@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -68,8 +69,10 @@ public class NewPostActivity extends AppCompatActivity {
         postTextView = findViewById(R.id.postTextView);
         postContentEditText = findViewById(R.id.postContentEditText);
 
+        // Images will be stored in Firebase Storage, under "Posts_Image"
         storageReference = FirebaseStorage.getInstance().getReference("Posts_Image");
         databaseReference = FirebaseDatabase.getInstance().getReference();
+        auth = FirebaseAuth.getInstance();
 
         /*
          * set an activity of choosing a photo from device, saving result in variable imageUri and
@@ -186,11 +189,21 @@ public class NewPostActivity extends AppCompatActivity {
     }
 
     private void uploadPostToDatabase(String downloadUriStr) {
-        DatabaseReference postRef = databaseReference.child("Posts");
-        String authorID = auth.getCurrentUser().getUid();
-        String postID = postRef.push().getKey();
-        String postContent = postContentEditText.getText().toString();
+//        Log.d(TAG, "KX: Begin to update database");
 
+        String postID = databaseReference.child("Posts").push().getKey();
+//        Log.d(TAG, "KX: postID " + postID);
+
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            Log.d(TAG, "KX: can't get current author");
+        }
+
+        String authorID = user.getUid();
+//        Log.d(TAG, "KX: authorId " + authorID);
+
+        String postContent = postContentEditText.getText().toString();
+//        Log.d(TAG, "KX: content" + postContent);
 
         Post post = new Post(postID, postContent, downloadUriStr, authorID);
         Map<String, Object> postValues = post.toMap();
