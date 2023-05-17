@@ -19,6 +19,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +49,7 @@ public class NewPostActivity extends AppCompatActivity {
     private ImageView addImageView;
     private TextView postTextView;
     private EditText postContentEditText;
+    private ProgressBar progressBar;
 
     private StorageReference storageReference;
     private StorageTask uploadImageTask;
@@ -68,6 +70,7 @@ public class NewPostActivity extends AppCompatActivity {
         addImageView = findViewById(R.id.addImageImageView);
         postTextView = findViewById(R.id.postTextView);
         postContentEditText = findViewById(R.id.postContentEditText);
+        progressBar = findViewById(R.id.progressBar);
 
         // Images will be stored in Firebase Storage, under "Posts_Image"
         storageReference = FirebaseStorage.getInstance().getReference("Posts_Image");
@@ -134,6 +137,8 @@ public class NewPostActivity extends AppCompatActivity {
             return;
         }
 
+        progressBar.setVisibility(View.VISIBLE);
+
         String imageExt = getImageExtension(imageUri);
         final StorageReference imageRef = storageReference
                 .child(System.currentTimeMillis() + "." + imageExt);
@@ -152,6 +157,7 @@ public class NewPostActivity extends AppCompatActivity {
                 } else {
                     StorageException e = (StorageException) task.getException();
 
+                    progressBar.setVisibility(View.INVISIBLE);
                     Toast.makeText(NewPostActivity.this,
                             "Can't upload image to cloud storage", Toast.LENGTH_LONG).show();
                     Log.d(TAG, "KX: upload " + String.valueOf(e.getErrorCode()));
@@ -180,6 +186,7 @@ public class NewPostActivity extends AppCompatActivity {
                 } else {
                     StorageException e = (StorageException) task.getException();
 
+                    progressBar.setVisibility(View.INVISIBLE);
                     Toast.makeText(NewPostActivity.this,
                             "Can't Download image from cloud storage", Toast.LENGTH_LONG).show();
                     Log.d(TAG, "KX: download " + String.valueOf(e.getErrorCode()));
@@ -218,11 +225,13 @@ public class NewPostActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
+                    progressBar.setVisibility(View.INVISIBLE);
                     Toast.makeText(NewPostActivity.this,
                             "Post success", Toast.LENGTH_LONG).show();
 
                     goBackHomepage();
                 } else {
+                    progressBar.setVisibility(View.INVISIBLE);
                     DatabaseException e = (DatabaseException) task.getException();
 
                     Log.d(TAG, "KX: update realtime databsae error - " + e.getMessage().toString());
