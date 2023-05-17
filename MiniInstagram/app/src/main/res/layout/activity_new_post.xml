@@ -64,8 +64,8 @@
             android:scaleType="centerInside"
             android:src="@drawable/ic_add_photo_png" />
 
-        <TextView
-            android:id="@+id/postContentTextView"
+        <EditText
+            android:id="@+id/postContentEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/addImageImageView"

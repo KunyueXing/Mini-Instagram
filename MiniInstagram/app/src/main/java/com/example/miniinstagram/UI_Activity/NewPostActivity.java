@@ -17,6 +17,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,15 +46,14 @@ public class NewPostActivity extends AppCompatActivity {
     private ImageView close;
     private ImageView addImageView;
     private TextView postTextView;
-    private TextView postContentTextView;
+    private EditText postContentEditText;
 
     private StorageReference storageReference;
     private StorageTask uploadImageTask;
     private DatabaseReference databaseReference;
+    private FirebaseAuth auth;
     private Uri imageUri;
     private Bitmap bitmap;
-    private FirebaseAuth auth;
-    private String uriStr;
     private ActivityResultLauncher<String> choosePhoto;
     private String TAG = "new post activity";
 
@@ -66,7 +66,7 @@ public class NewPostActivity extends AppCompatActivity {
         close = findViewById(R.id.closeImageView);
         addImageView = findViewById(R.id.addImageImageView);
         postTextView = findViewById(R.id.postTextView);
-        postContentTextView = findViewById(R.id.postContentTextView);
+        postContentEditText = findViewById(R.id.postContentEditText);
 
         storageReference = FirebaseStorage.getInstance().getReference("Posts_Image");
         databaseReference = FirebaseDatabase.getInstance().getReference();
@@ -189,9 +189,10 @@ public class NewPostActivity extends AppCompatActivity {
         DatabaseReference postRef = databaseReference.child("Posts");
         String authorID = auth.getCurrentUser().getUid();
         String postID = postRef.push().getKey();
-        String content = postContentTextView.getText().toString();
+        String postContent = postContentEditText.getText().toString();
 
-        Post post = new Post(postID, content, downloadUriStr, authorID);
+
+        Post post = new Post(postID, postContent, downloadUriStr, authorID);
         Map<String, Object> postValues = post.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
@@ -199,21 +200,23 @@ public class NewPostActivity extends AppCompatActivity {
         childUpdates.put("/Posts/" + postID, postValues);
         childUpdates.put("/User-Posts/" + authorID + "/" + postID, postValues);
 
-        databaseReference.updateChildren(childUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    Toast.makeText(NewPostActivity.this,
-                            "Update database success", Toast.LENGTH_LONG).show();
+        databaseReference.updateChildren(childUpdates);
 
-//                    goBackHomepage();
-                } else {
-                    DatabaseException e = (DatabaseException) task.getException();
-
-                    Log.d(TAG, "KX: update realtime databsae error - " + e.getMessage().toString());
-                }
-            }
-        });
+//                .addOnCompleteListener(new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull Task<Void> task) {
+//                if (task.isSuccessful()) {
+//                    Toast.makeText(NewPostActivity.this,
+//                            "Update database success", Toast.LENGTH_LONG).show();
+//
+////                    goBackHomepage();
+//                } else {
+//                    DatabaseException e = (DatabaseException) task.getException();
+//
+//                    Log.d(TAG, "KX: update realtime databsae error - " + e.getMessage().toString());
+//                }
+//            }
+//        });
     }
 
     private void goBackHomepage() {
