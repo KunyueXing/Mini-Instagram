@@ -111,6 +111,10 @@ public class NewPostActivity extends AppCompatActivity {
             }
         });
 
+        /*
+         * When user click Post, the image will be uploaded to Firebase Storage, and the post will
+         * be saved to realtime database.
+         */
         postTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -119,16 +123,22 @@ public class NewPostActivity extends AppCompatActivity {
         });
     }
 
+    // When user choose a photo from device, it will be shown in the UI.
     private void updateUISelectedImage() {
         try {
-            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),
-                    imageUri);
+            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
         } catch (IOException e) {
             e.printStackTrace();
         }
         addImageView.setImageBitmap(bitmap);
     }
 
+    /*
+     * After user has chosen a photo, upload the image to Firebase Storage. The image will be
+     * stored under "Posts_Image" branch in storage.
+     * After uploading success, download the imageURL from storage by calling
+     * downloadImageUrlFromStorage()
+     */
     private void uploadImageToStorage() {
         // First check if there is a selected image
         if (imageUri == null) {
@@ -137,8 +147,10 @@ public class NewPostActivity extends AppCompatActivity {
             return;
         }
 
+        // show progress bar
         progressBar.setVisibility(View.VISIBLE);
 
+        // get the extension of image, e.g., jpg
         String imageExt = getImageExtension(imageUri);
         final StorageReference imageRef = storageReference
                 .child(System.currentTimeMillis() + "." + imageExt);
@@ -164,9 +176,13 @@ public class NewPostActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
+    /*
+     * After upload image success, download imageURL from storage. The imageURL will be used to
+     * reference the image and stored as post info in database.
+     * Once download success, save post info by calling uploadPostToDatabase();
+     */
     private void downloadImageUrlFromStorage(final StorageReference imageRef) {
 
         imageRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener() {
@@ -195,6 +211,13 @@ public class NewPostActivity extends AppCompatActivity {
         });
     }
 
+    /*
+     * save post info in realtime database. The post info include postID, authorID, imageURL,
+     * content and so on.
+     * The post info will be saved under 2 root directory in database. One named "Posts", under
+     * the postID. The other one is "User-Posts", under the authorID, and further postID.
+     * Once success, show success message to user and go back to homepage.
+     */
     private void uploadPostToDatabase(String downloadUriStr) {
 //        Log.d(TAG, "KX: Begin to update database");
 
@@ -213,10 +236,12 @@ public class NewPostActivity extends AppCompatActivity {
 //        Log.d(TAG, "KX: content" + postContent);
 
         Post post = new Post(postID, postContent, downloadUriStr, authorID);
+        // store post info in a coressponding hashmap
         Map<String, Object> postValues = post.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
 
+        // To save post info under 2 root directories in database.
         childUpdates.put("/Posts/" + postID, postValues);
         childUpdates.put("/User-Posts/" + authorID + "/" + postID, postValues);
 
@@ -240,11 +265,13 @@ public class NewPostActivity extends AppCompatActivity {
         });
     }
 
+    // Back to homepage
     private void goBackHomepage() {
         startActivity(new Intent(NewPostActivity.this , HomepageActivity.class));
         finish();
     }
 
+    // Get the extension of a image, e.g., jpg, png, etc.
     private String getImageExtension(Uri uri) {
         ContentResolver contentResolver = getContentResolver();
         MimeTypeMap mime = MimeTypeMap.getSingleton();
