@@ -23,9 +23,12 @@ import android.widget.Toast;
 
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.Post;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -45,8 +48,7 @@ public class NewPostActivity extends AppCompatActivity {
     private TextView postContentTextView;
 
     private StorageReference storageReference;
-    private StorageTask unloadImageTask;
-    private StorageTask downloadUrlFromStorage;
+    private StorageTask uploadImageTask;
     private DatabaseReference databaseReference;
     private Uri imageUri;
     private Bitmap bitmap;
@@ -80,7 +82,7 @@ public class NewPostActivity extends AppCompatActivity {
                     @Override
                     public void onActivityResult(Uri result) {
                         imageUri = result;
-                        Log.d(TAG, "errorcheck: " + imageUri);
+                        Log.d(TAG, "KX: " + imageUri);
 
                         updateUISelectedImage();
                     }
@@ -133,37 +135,51 @@ public class NewPostActivity extends AppCompatActivity {
         final StorageReference imageRef = storageReference
                 .child(System.currentTimeMillis() + "." + imageExt);
 
-        unloadImageTask = imageRef.putFile(imageUri);
-        unloadImageTask.addOnCompleteListener(new OnCompleteListener() {
+        uploadImageTask = imageRef.putFile(imageUri);
+        uploadImageTask.addOnCompleteListener(new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull Task task) {
                 if (task.isSuccessful()) {
+                    Toast.makeText(NewPostActivity.this,
+                            "Upload image to cloud storage successful",
+                            Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "KX: upload image to storage successful");
+
                     downloadImageUrlFromStorage(imageRef);
                 } else {
                     StorageException e = (StorageException) task.getException();
-                    e.getErrorCode();
-                    Log.d(TAG, "errorcheck: " + String.valueOf(e.getErrorCode()));
+
+                    Toast.makeText(NewPostActivity.this,
+                            "Can't upload image to cloud storage", Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "KX: upload " + String.valueOf(e.getErrorCode()));
                 }
             }
         });
 
-
     }
 
     private void downloadImageUrlFromStorage(final StorageReference imageRef) {
-        downloadUrlFromStorage = (StorageTask) imageRef.getDownloadUrl();
-        downloadUrlFromStorage.addOnCompleteListener(new OnCompleteListener() {
+
+        imageRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull Task task) {
                 if (task.isSuccessful()) {
+                    Toast.makeText(NewPostActivity.this,
+                            "Download image from cloud storage successful",
+                            Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "KX: Download image from storage successful");
+
                     Uri downloadUri = (Uri) task.getResult();
                     String downloadUriStr = downloadUri.toString();
+                    Log.d(TAG, "KX: Download image " + downloadUriStr);
+
                     uploadPostToDatabase(downloadUriStr);
-//                    goBackHomepage();
                 } else {
                     StorageException e = (StorageException) task.getException();
-                    e.getErrorCode();
-                    Log.d(TAG, "errorcheck: " + String.valueOf(e.getErrorCode()));
+
+                    Toast.makeText(NewPostActivity.this,
+                            "Can't Download image from cloud storage", Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "KX: download " + String.valueOf(e.getErrorCode()));
                 }
             }
         });
@@ -179,10 +195,25 @@ public class NewPostActivity extends AppCompatActivity {
         Map<String, Object> postValues = post.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
+
         childUpdates.put("/Posts/" + postID, postValues);
         childUpdates.put("/User-Posts/" + authorID + "/" + postID, postValues);
 
-        databaseReference.updateChildren(childUpdates);
+        databaseReference.updateChildren(childUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(NewPostActivity.this,
+                            "Update database success", Toast.LENGTH_LONG).show();
+
+//                    goBackHomepage();
+                } else {
+                    DatabaseException e = (DatabaseException) task.getException();
+
+                    Log.d(TAG, "KX: update realtime databsae error - " + e.getMessage().toString());
+                }
+            }
+        });
     }
 
     private void goBackHomepage() {
@@ -194,6 +225,8 @@ public class NewPostActivity extends AppCompatActivity {
         ContentResolver contentResolver = getContentResolver();
         MimeTypeMap mime = MimeTypeMap.getSingleton();
 
-        return mime.getExtensionFromMimeType(contentResolver.getType(uri));
+        String extension = mime.getExtensionFromMimeType(contentResolver.getType(uri));
+        Log.d(TAG, "KX: get extension " + extension);
+        return extension;
     }
 }
