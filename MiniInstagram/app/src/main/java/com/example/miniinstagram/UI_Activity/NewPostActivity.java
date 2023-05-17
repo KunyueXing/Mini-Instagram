@@ -143,10 +143,10 @@ public class NewPostActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(NewPostActivity.this,
-                            "Upload image to cloud storage successful",
-                            Toast.LENGTH_LONG).show();
-                    Log.d(TAG, "KX: upload image to storage successful");
+//                    Toast.makeText(NewPostActivity.this,
+//                            "Upload image to cloud storage successful",
+//                            Toast.LENGTH_LONG).show();
+//                    Log.d(TAG, "KX: upload image to storage successful");
 
                     downloadImageUrlFromStorage(imageRef);
                 } else {
@@ -167,14 +167,14 @@ public class NewPostActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(NewPostActivity.this,
-                            "Download image from cloud storage successful",
-                            Toast.LENGTH_LONG).show();
-                    Log.d(TAG, "KX: Download image from storage successful");
+//                    Toast.makeText(NewPostActivity.this,
+//                            "Download image from cloud storage successful",
+//                            Toast.LENGTH_LONG).show();
+//                    Log.d(TAG, "KX: Download image from storage successful");
 
                     Uri downloadUri = (Uri) task.getResult();
                     String downloadUriStr = downloadUri.toString();
-                    Log.d(TAG, "KX: Download image " + downloadUriStr);
+//                    Log.d(TAG, "KX: Download image " + downloadUriStr);
 
                     uploadPostToDatabase(downloadUriStr);
                 } else {
@@ -213,23 +213,22 @@ public class NewPostActivity extends AppCompatActivity {
         childUpdates.put("/Posts/" + postID, postValues);
         childUpdates.put("/User-Posts/" + authorID + "/" + postID, postValues);
 
-        databaseReference.updateChildren(childUpdates);
+        databaseReference.updateChildren(childUpdates)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(NewPostActivity.this,
+                            "Post success", Toast.LENGTH_LONG).show();
 
-//                .addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//                if (task.isSuccessful()) {
-//                    Toast.makeText(NewPostActivity.this,
-//                            "Update database success", Toast.LENGTH_LONG).show();
-//
-////                    goBackHomepage();
-//                } else {
-//                    DatabaseException e = (DatabaseException) task.getException();
-//
-//                    Log.d(TAG, "KX: update realtime databsae error - " + e.getMessage().toString());
-//                }
-//            }
-//        });
+                    goBackHomepage();
+                } else {
+                    DatabaseException e = (DatabaseException) task.getException();
+
+                    Log.d(TAG, "KX: update realtime databsae error - " + e.getMessage().toString());
+                }
+            }
+        });
     }
 
     private void goBackHomepage() {
