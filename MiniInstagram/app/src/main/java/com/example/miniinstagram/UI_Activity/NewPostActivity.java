@@ -147,6 +147,7 @@ public class NewPostActivity extends AppCompatActivity {
             return;
         }
 
+        setUneditable();
         // show progress bar
         progressBar.setVisibility(View.VISIBLE);
 
@@ -170,6 +171,7 @@ public class NewPostActivity extends AppCompatActivity {
                     StorageException e = (StorageException) task.getException();
 
                     progressBar.setVisibility(View.INVISIBLE);
+                    setEditable();
                     Toast.makeText(NewPostActivity.this,
                             "Can't upload image to cloud storage", Toast.LENGTH_LONG).show();
                     Log.d(TAG, "KX: upload " + String.valueOf(e.getErrorCode()));
@@ -185,6 +187,7 @@ public class NewPostActivity extends AppCompatActivity {
      */
     private void downloadImageUrlFromStorage(final StorageReference imageRef) {
 
+        setUneditable();
         imageRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull Task task) {
@@ -203,6 +206,7 @@ public class NewPostActivity extends AppCompatActivity {
                     StorageException e = (StorageException) task.getException();
 
                     progressBar.setVisibility(View.INVISIBLE);
+                    setEditable();
                     Toast.makeText(NewPostActivity.this,
                             "Can't Download image from cloud storage", Toast.LENGTH_LONG).show();
                     Log.d(TAG, "KX: download " + String.valueOf(e.getErrorCode()));
@@ -220,6 +224,8 @@ public class NewPostActivity extends AppCompatActivity {
      */
     private void uploadPostToDatabase(String downloadUriStr) {
 //        Log.d(TAG, "KX: Begin to update database");
+
+        setUneditable();
 
         String postID = databaseReference.child("Posts").push().getKey();
 //        Log.d(TAG, "KX: postID " + postID);
@@ -257,6 +263,7 @@ public class NewPostActivity extends AppCompatActivity {
                     goBackHomepage();
                 } else {
                     progressBar.setVisibility(View.INVISIBLE);
+                    setEditable();
                     DatabaseException e = (DatabaseException) task.getException();
 
                     Log.d(TAG, "KX: update realtime databsae error - " + e.getMessage().toString());
@@ -279,5 +286,45 @@ public class NewPostActivity extends AppCompatActivity {
         String extension = mime.getExtensionFromMimeType(contentResolver.getType(uri));
         Log.d(TAG, "KX: get extension " + extension);
         return extension;
+    }
+
+    // All editable views in this page will be set to uneditable.
+    private void setUneditable() {
+        // close view can't be selected and focused, and can't be edited.
+        close.setFocusable(false);
+        // user touches widget on phone with touch screen
+        close.setFocusableInTouchMode(false);
+        close.setClickable(false);
+
+        addImageView.setFocusable(false);
+        addImageView.setClickable(false);
+        addImageView.setFocusableInTouchMode(false);
+
+        postTextView.setFocusable(false);
+        postTextView.setClickable(false);
+        postTextView.setFocusableInTouchMode(false);
+
+        postContentEditText.setFocusable(false);
+        postContentEditText.setClickable(false);
+        postContentEditText.setFocusableInTouchMode(false);
+    }
+
+    // All editable views in this page will be set back to editable.
+    private void setEditable() {
+        close.setFocusable(true);
+        close.setFocusableInTouchMode(true);
+        close.setClickable(true);
+
+        addImageView.setFocusable(true);
+        addImageView.setClickable(true);
+        addImageView.setFocusableInTouchMode(true);
+
+        postTextView.setFocusable(true);
+        postTextView.setClickable(true);
+        postTextView.setFocusableInTouchMode(true);
+
+        postContentEditText.setFocusable(true);
+        postContentEditText.setClickable(true);
+        postContentEditText.setFocusableInTouchMode(true);
     }
 }
