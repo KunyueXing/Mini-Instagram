@@ -22,10 +22,15 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -36,6 +41,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ProgressBar progressBar;
     TextView loginRegisterSwitchTextView;
     private static final String TAG = "MainActivity";
+
+    private String usernameStr;
+    private String emailStr;
+    private String passwordStr;
 
     private FirebaseAuth auth;
     private DatabaseReference databaseReference;
@@ -84,18 +93,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * execute login or register according to if register mode is active or not.
      */
     public void registerOrLoginClicked(View view) {
-        String usernameStr = usernameEditText.getText().toString();
-        String emailStr = emailEditText.getText().toString();
-        String passwordStr = passwordEditText.getText().toString();
+        usernameStr = usernameEditText.getText().toString();
+        emailStr = emailEditText.getText().toString();
+        passwordStr = passwordEditText.getText().toString();
 
-        if (validateForm(usernameStr, emailStr, passwordStr)) {
+        if (validateForm()) {
             progressBar.setVisibility(View.VISIBLE);
 
             if (registerModeActive) {
-                registerNewUser(usernameStr, emailStr, passwordStr);
+//                registerNewUser();
 //                Log.d(TAG, "errorcheck: in onclick "  + usernameAvailableFlag)；
+
+                checkUsernameAvailability();
             } else {
-                userLogin(emailStr, passwordStr);
+                userLogin();
             }
         }
     }
@@ -105,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * If it's register active, user must input proper email, username and password. The password
      * must be at least 6 digits. If it's login mode, username is not required.
      */
-    private boolean validateForm(String usernameStr, String emailStr, String passwordStr) {
+    private boolean validateForm() {
         boolean isInputValid = true;
 
         if (TextUtils.isEmpty(emailStr)) {
@@ -131,12 +142,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return isInputValid;
     }
 
+    private void checkUsernameAvailability() {
+        DatabaseReference allUsersReference = databaseReference.child("Users");
+
+        // read from database
+        Query query = allUsersReference.orderByChild("username").equalTo(usernameStr);
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    progressBar.setVisibility(View.INVISIBLE);
+                    usernameEditText.setError("Username already taken");
+                    usernameEditText.requestFocus();
+
+                    Log.d(TAG, "errorcheck: in usernamecheck, username already exists");
+
+                    return;
+                } else {
+                    registerNewUser();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+    }
+
     /*
      * Register new user. First create a user in firebase authentication with email and password.
      * If success, then save new userinfo in database by calling writeNewUser().
      * If failed, display error message to the user according to error type.
      */
-    private void registerNewUser(String usernameStr, String emailStr, String passwordStr) {
+    private void registerNewUser() {
 //        Log.d(TAG, "errorcheck: in register " + usernameAvailableFlag);
 
         // create user in firebase authentication with email and password.
@@ -220,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Validate user's email and password in Firebase authentication. If success, go to Homepage.
      * If failed, display error message to user according to error type.
      */
-    private void userLogin(String emailStr, String passwordStr) {
+    private void userLogin() {
 
         auth.signInWithEmailAndPassword(emailStr, passwordStr)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
