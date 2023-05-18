@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /*
      * When registerOrLogInButton is clicked, system will validate the input format first, then
      * execute login or register according to if register mode is active or not.
+     * If in register mode, first check username uniqueness by calling checkUsernameAvailability().
      */
     public void registerOrLoginClicked(View view) {
         usernameStr = usernameEditText.getText().toString();
@@ -101,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             progressBar.setVisibility(View.VISIBLE);
 
             if (registerModeActive) {
-//                registerNewUser();
 //                Log.d(TAG, "errorcheck: in onclick "  + usernameAvailableFlag)；
 
                 checkUsernameAvailability();
@@ -142,21 +142,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return isInputValid;
     }
 
+    /*
+     * Check username uniqueness. It must be unique to continue register process.
+     */
     private void checkUsernameAvailability() {
         DatabaseReference allUsersReference = databaseReference.child("Users");
 
-        // read from database
+        // read from database, get the instance where username is equal to input usernameStr
         Query query = allUsersReference.orderByChild("username").equalTo(usernameStr);
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // if the instance exists, show error message. Otherwise, continue register process
                 if (snapshot.exists()) {
                     progressBar.setVisibility(View.INVISIBLE);
                     usernameEditText.setError("Username already taken");
                     usernameEditText.requestFocus();
 
-                    Log.d(TAG, "errorcheck: in usernamecheck, username already exists");
-
+//                    Log.d(TAG, "errorcheck: in usernamecheck, username already exists");
                     return;
                 } else {
                     registerNewUser();
