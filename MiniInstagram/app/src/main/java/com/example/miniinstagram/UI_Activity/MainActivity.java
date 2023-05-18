@@ -38,8 +38,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FirebaseAuth auth;
     private DatabaseReference databaseReference;
 
-    // when flag == 0. means not available or not success.
-    private int writeNewUserSuccessFlag = 0;
     Boolean registerModeActive = true;
 
     @Override
@@ -99,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /*
      * check if user input correct forms of email, username and password.
-     * If it's registeractive, user must input proper email, username and password. The password
+     * If it's register active, user must input proper email, username and password. The password
      * must be at least 6 digits. If it's login mode, username is not required.
      */
     private boolean validateForm(String usernameStr, String emailStr, String passwordStr) {
@@ -130,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /*
      * Register new user. First create a user in firebase authentication with email and password.
-     * If success, then execute onAuthSuccess() function.
+     * If success, then save new userinfo in database by calling writeNewUser().
      * If failed, display error message to the user according to error type.
      */
     private void registerNewUser(String usernameStr, String emailStr, String passwordStr) {
@@ -141,14 +139,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "createUser:onComplete:" + task.isSuccessful());
-                        // Toast.makeText(MainActivity.this, "Register processes", Toast.LENGTH_SHORT).show();
+//                        Log.d(TAG, "createUser:onComplete:" + task.isSuccessful());
+//                        Toast.makeText(MainActivity.this, "Register processes", Toast.LENGTH_SHORT).show();
 
                         if (task.isSuccessful()) {
-                            //on auth success, then need to update new user in database
-                            registerOnAuthSuccess(auth.getCurrentUser(), usernameStr);
-                            Toast.makeText(MainActivity.this,
-                                    "Sign up authentication success", Toast.LENGTH_LONG).show();
+                            //on auth success, then need to save new user in database
+                            FirebaseUser user = auth.getCurrentUser();
+                            writeNewUser(user.getUid(), user.getEmail(), usernameStr);
+
+//                            Toast.makeText(MainActivity.this,
+//                                    "Sign up authentication success", Toast.LENGTH_SHORT).show();
                         } else {
                             //register fails, display a message to the user according to error type
                             FirebaseAuthException e = (FirebaseAuthException) task.getException();
@@ -173,24 +173,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /*
-     * After create user in firebase authentication. First create and write new user info in
-     * firebase database, then take user to the home page.
-     */
-    private void registerOnAuthSuccess(FirebaseUser user, String usernameStr) {
-        //Write new user, if successful, return true, and new user stay logged in
-        writeNewUser(user.getUid(), user.getEmail(), usernameStr);
-//        Toast.makeText(MainActivity.this, "on Auth success", Toast.LENGTH_LONG).show();
-
-        //If write new user success, go to Homepage
-        if (writeNewUserSuccessFlag != 0) {
-            goToHomePage();
-        }
-    }
-
-    /*
-     * All users are stored in database under branch "users", named with their user ID.
-     * Under each user ID, all information is stored as a hashmap.
-     * username is stored when register, other info is optional and will be updated later
+     * All users are stored in database under root directory "users", under their user ID.
+     * All user information is stored as a hashmap.
+     * Username is stored when register, other info is optional and can be updated later
      * by user.
      */
     private void writeNewUser(String userID, String emailStr, String usernameStr) {
@@ -211,8 +196,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    writeNewUserSuccessFlag = 1;
-//                    Toast.makeText(MainActivity.this, userID, Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Register success",
+                            Toast.LENGTH_LONG).show();
+
+                    goToHomePage();
                 } else {
                     Toast.makeText(MainActivity.this,
                             "Error occur when accessing database", Toast.LENGTH_LONG).show();
@@ -257,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    // When user login or register success, go to Homepage
+    // Go to Homepage
     private void goToHomePage() {
         Intent intent = new Intent(MainActivity.this, HomepageActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
