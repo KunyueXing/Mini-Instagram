@@ -8,6 +8,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText usernameEditText;
     private EditText passwordEditText;
     private Button registerOrLogInButton;
+    private ProgressBar progressBar;
     TextView loginRegisterSwitchTextView;
     private static final String TAG = "MainActivity";
 
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         passwordEditText = findViewById(R.id.passwordEditText);
         registerOrLogInButton = findViewById(R.id.registerOrLoginButton);
         loginRegisterSwitchTextView = findViewById(R.id.loginRegisterSwitchTextView);
+        progressBar = findViewById(R.id.progressBar);
         loginRegisterSwitchTextView.setOnClickListener(this);
 
         auth = FirebaseAuth.getInstance();
@@ -86,6 +89,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String passwordStr = passwordEditText.getText().toString();
 
         if (validateForm(usernameStr, emailStr, passwordStr)) {
+            progressBar.setVisibility(View.VISIBLE);
+
             if (registerModeActive) {
                 registerNewUser(usernameStr, emailStr, passwordStr);
 //                Log.d(TAG, "errorcheck: in onclick "  + usernameAvailableFlag)；
@@ -152,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         } else {
                             //register fails, display a message to the user according to error type
                             FirebaseAuthException e = (FirebaseAuthException) task.getException();
+                            progressBar.setVisibility(View.INVISIBLE);
 //                            Log.d(TAG, "errorcheck" + e.getErrorCode());
 
                             if (e.getErrorCode().equals("ERROR_EMAIL_ALREADY_IN_USE")) {
@@ -201,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     goToHomePage();
                 } else {
+                    progressBar.setVisibility(View.INVISIBLE);
                     Toast.makeText(MainActivity.this,
                             "Error occur when accessing database", Toast.LENGTH_LONG).show();
                 }
@@ -226,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else {
                     // If sign in fails, display a message to the user.
 //                    Log.d(TAG, "errorcheck: signInWithEmail:failure " + task.getException().toString());
+                    progressBar.setVisibility(View.INVISIBLE);
                     Toast.makeText(MainActivity.this, "Log in authentication failed.",
                             Toast.LENGTH_LONG).show();
 

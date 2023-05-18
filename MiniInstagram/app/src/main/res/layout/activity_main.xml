@@ -87,4 +87,11 @@
         android:textColor="@color/teal_700"
         android:textSize="18sp" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_marginTop="300dp"/>
+
 </RelativeLayout>
