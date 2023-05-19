@@ -98,8 +98,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         emailStr = emailEditText.getText().toString();
         passwordStr = passwordEditText.getText().toString();
 
+
         if (validateForm()) {
             progressBar.setVisibility(View.VISIBLE);
+//            setViewsEditable(false);
 
             if (registerModeActive) {
 //                Log.d(TAG, "errorcheck: in onclick "  + usernameAvailableFlag)；
@@ -156,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // if the instance exists, show error message. Otherwise, continue register process
                 if (snapshot.exists()) {
                     progressBar.setVisibility(View.INVISIBLE);
+//                    setViewsEditable(true);
                     usernameEditText.setError("Username already taken");
                     usernameEditText.requestFocus();
 
@@ -200,6 +203,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             //register fails, display a message to the user according to error type
                             FirebaseAuthException e = (FirebaseAuthException) task.getException();
                             progressBar.setVisibility(View.INVISIBLE);
+//                            setViewsEditable(true);
 //                            Log.d(TAG, "errorcheck" + e.getErrorCode());
 
                             if (e.getErrorCode().equals("ERROR_EMAIL_ALREADY_IN_USE")) {
@@ -250,6 +254,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     goToHomePage();
                 } else {
                     progressBar.setVisibility(View.INVISIBLE);
+//                    setViewsEditable(true);
                     Toast.makeText(MainActivity.this,
                             "Error occur when accessing database", Toast.LENGTH_LONG).show();
                 }
@@ -276,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     // If sign in fails, display a message to the user.
 //                    Log.d(TAG, "errorcheck: signInWithEmail:failure " + task.getException().toString());
                     progressBar.setVisibility(View.INVISIBLE);
+//                    setViewsEditable(true);
                     Toast.makeText(MainActivity.this, "Log in authentication failed.",
                             Toast.LENGTH_LONG).show();
 
@@ -301,5 +307,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(intent);
         finish();
     }
-
 }

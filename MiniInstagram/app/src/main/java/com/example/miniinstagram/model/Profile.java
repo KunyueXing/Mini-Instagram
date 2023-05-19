@@ -3,6 +3,7 @@ package com.example.miniinstagram.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class Profile {
 
@@ -12,6 +13,12 @@ public class Profile {
     private GenderChoice gender;
     private Date birthday;
     private List<Link> links;
+
+    public Profile(String profilePicUriStr, String bio, String phone) {
+        this.profilePicUriStr = profilePicUriStr;
+        this.bio = bio;
+        this.phone = phone;
+    }
 
     public Profile(String profilePicUriStr, String bio, String phone, GenderChoice gender, Date birthday, List<Link> links) {
         this.profilePicUriStr = profilePicUriStr;
