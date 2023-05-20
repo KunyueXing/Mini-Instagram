@@ -2,6 +2,7 @@ package com.example.miniinstagram.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,13 +15,24 @@ public class Profile {
     private Date birthday;
     private List<Link> links;
 
+    public Profile(String profilePicUriStr) {
+        this.profilePicUriStr = profilePicUriStr;
+
+        this.gender = GenderChoice.GENDER_CHOICE_DEFAULT;
+        this.links = new ArrayList<>();
+    }
+
     public Profile(String profilePicUriStr, String bio, String phone) {
         this.profilePicUriStr = profilePicUriStr;
         this.bio = bio;
         this.phone = phone;
+
+        this.gender = GenderChoice.GENDER_CHOICE_DEFAULT;
+        this.links = new ArrayList<>();
     }
 
-    public Profile(String profilePicUriStr, String bio, String phone, GenderChoice gender, Date birthday, List<Link> links) {
+    public Profile(String profilePicUriStr, String bio, String phone, GenderChoice gender,
+                   Date birthday, List<Link> links) {
         this.profilePicUriStr = profilePicUriStr;
         this.bio = bio;
         this.phone = phone;
@@ -79,5 +91,18 @@ public class Profile {
         }
 
         this.links.add(link);
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("profile pic", profilePicUriStr);
+        result.put("bio", bio);
+        result.put("phone", phone);
+        result.put("gender", gender);
+        result.put("birthday", birthday);
+        result.put("links", links);
+
+        return result;
     }
 }

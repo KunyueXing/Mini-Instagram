@@ -1,5 +1,7 @@
 package com.example.miniinstagram.model;
 
+import java.util.Map;
+
 public abstract class Person {
     private String name;
     private Account account;
@@ -26,5 +28,9 @@ public abstract class Person {
 
     public void setAccount(Account account) {
         this.account = account;
+    }
+
+    public Map<String, Object> toMap() {
+        return account.toMap();
     }
 }

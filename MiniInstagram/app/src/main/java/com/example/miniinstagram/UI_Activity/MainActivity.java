@@ -16,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.miniinstagram.R;
+import com.example.miniinstagram.model.Account;
+import com.example.miniinstagram.model.Profile;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -29,7 +31,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -195,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if (task.isSuccessful()) {
                             //on auth success, then need to save new user in database
                             FirebaseUser user = auth.getCurrentUser();
-                            writeNewUser(user.getUid(), user.getEmail(), usernameStr);
+                            writeNewUser(user.getUid());
 
 //                            Toast.makeText(MainActivity.this,
 //                                    "Sign up authentication success", Toast.LENGTH_SHORT).show();
@@ -230,36 +235,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Username is stored when register, other info is optional and can be updated later
      * by user.
      */
-    private void writeNewUser(String userID, String emailStr, String usernameStr) {
-        DatabaseReference newUserReference = databaseReference.child("Users").child(userID);
+    private void writeNewUser(String userID) {
+        Profile profile = new Profile("default");
+        Account account = new Account(emailStr, usernameStr, userID);
 
-        // User's profile include id, username, bio, image, link, phone, gender, birthday
-        HashMap<String, Object> userInfo = new HashMap<>();
-        userInfo.put("id", userID);
-        userInfo.put("username", usernameStr);
-        userInfo.put("bio", "");
-        userInfo.put("imageurl", "default");
-        userInfo.put("link", "");
-        userInfo.put("phone", "");
-        userInfo.put("gender", "");
-        userInfo.put("birthday", "");
+        Map<String, Object> userinfo = account.toMap();
+        userinfo.putAll(profile.toMap());
 
-        newUserReference.setValue(userInfo).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    Toast.makeText(MainActivity.this, "Register success",
-                            Toast.LENGTH_LONG).show();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/Users/" + userID, userinfo);
 
-                    goToHomePage();
-                } else {
-                    progressBar.setVisibility(View.INVISIBLE);
-//                    setViewsEditable(true);
-                    Toast.makeText(MainActivity.this,
-                            "Error occur when accessing database", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
+        databaseReference.updateChildren(childUpdates)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(MainActivity.this, "Register success",
+                                    Toast.LENGTH_LONG).show();
+
+                            goToHomePage();
+                        } else {
+                            progressBar.setVisibility(View.INVISIBLE);
+//                            setViewsEditable(true);
+                            Toast.makeText(MainActivity.this,
+                                    "Error occur when accessing database", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
     }
 
     /*
