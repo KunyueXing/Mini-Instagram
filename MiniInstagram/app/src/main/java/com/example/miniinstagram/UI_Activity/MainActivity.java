@@ -157,7 +157,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // read from database, get the instance where username is equal to input usernameStr
         Query query = allUsersReference.orderByChild("username").equalTo(usernameStr);
-        query.addValueEventListener(new ValueEventListener() {
+
+        // define the eventlistener. If event exists, show error message, otherwise continue register
+        ValueEventListener eventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 // if the instance exists, show error message. Otherwise, continue register process
@@ -172,13 +174,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else {
                     registerNewUser();
                 }
+                // end the eventlistener, otherwise it will execute on and on at backstage
+                query.removeEventListener(this);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.w(TAG, "Failed to read value.", error.toException());
+                query.removeEventListener(this);
             }
-        });
+        };
+
+        query.addValueEventListener(eventListener);
     }
 
     /*
