@@ -230,10 +230,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /*
-     * All users are stored in database under root directory "users", under their user ID.
+     * All users are stored in database under root directory "Users", under their user ID.
      * All user information is stored as a hashmap.
-     * Username is stored when register, other info is optional and can be updated later
-     * by user.
+     * Username is stored when register, profile picture is set as default, other info is optional
+     * and can be updated later by user.
+     * After saving success, the whole register process finished. To go homepage.
      */
     private void writeNewUser(String userID) {
         Profile profile = new Profile("default");
@@ -242,9 +243,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Map<String, Object> userinfo = account.toMap();
         userinfo.putAll(profile.toMap());
 
+        // update userinfo under root directory -- Users, and under userID
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/Users/" + userID, userinfo);
-
         databaseReference.updateChildren(childUpdates)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
