@@ -24,7 +24,8 @@ public class ProfileTest {
     public Profile profile;
     @Before
     public void setup() {
-        profile = new Profile("default", "I like swimming", GENDER_CHOICE_NONE_BINARY, 95, 5, 21, new ArrayList<Link>());
+        profile = new Profile("default", "I like swimming",
+                GENDER_CHOICE_NONE_BINARY, 95, 5, 21, new ArrayList<Link>());
     }
 
     @Test
@@ -49,14 +50,14 @@ public class ProfileTest {
     }
 
     @Test
-    public void getGender() {
+    public void getAndSetGender() {
         GenderChoice gender = GENDER_CHOICE_NONE_BINARY;
         profile.setGender(gender);
         assertEquals(gender, profile.getGender());
     }
 
     @Test
-    public void getBirthday() {
+    public void getAndSetBirthday() {
         int year = 81;
         int month = 1;
         int day = 14;
@@ -75,7 +76,7 @@ public class ProfileTest {
      * Test addLink(). When user add a link via this func, check if the links is added successfully.
      */
     @Test
-    public void addLink() {
+    public void addAndGetLink() {
         Link testLink = new Link("https://www.google.com/", "google");
         profile.addLink(testLink);
 
@@ -85,6 +86,10 @@ public class ProfileTest {
         assertThat(profile.getLinks(), is(links));
     }
 
+    /*
+     * Test toMap() func. When user called this func, it will store the fields in a hashmap.
+     * Check if the hashmap is correctly stored.
+     */
     @Test
     public void toMap() {
         String pic = "default";
