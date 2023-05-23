@@ -1,6 +1,7 @@
 package com.example.miniinstagram.model;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,9 @@ public class Profile {
     private GenderChoice gender;
     private Date birthday;
     private List<Link> links;
+
+    public Profile(String aDefault, String i_like_swimming, GenderChoice genderChoiceNoneBinary, int i, int i1, int i2, ArrayList<Link> links) {
+    }
 
     public Profile(String profilePicUriStr) {
         this.profilePicUriStr = profilePicUriStr;
@@ -32,13 +36,24 @@ public class Profile {
     }
 
     public Profile(String profilePicUriStr, String bio, String phone, GenderChoice gender,
-                   Date birthday, List<Link> links) {
+                   int year, int month, int day, List<Link> links) {
         this.profilePicUriStr = profilePicUriStr;
         this.bio = bio;
         this.phone = phone;
         this.gender = gender;
-        this.birthday = birthday;
         this.links = links;
+
+        initBirthday(year, month, day);
+    }
+
+    private void initBirthday(int year, int month, int day) {
+        if (year > 0 && month > 0 && day > 0) {
+            Calendar calendar = Calendar.getInstance();
+            // year, month, day of month, hour, minute, second.
+            // january is 0!
+            calendar.set(year, month - 1, day, 0, 0, 0);
+            this.birthday = calendar.getTime();
+        }
     }
 
     public String getProfilePicUriStr() {
@@ -77,8 +92,8 @@ public class Profile {
         return birthday;
     }
 
-    public void setBirthday(Date birthday) {
-        this.birthday = birthday;
+    public void setBirthday(int year, int month, int day) {
+        initBirthday(year, month, day);
     }
 
     public List<Link> getLinks() {
