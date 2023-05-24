@@ -64,8 +64,12 @@ The database has eight "root" nodes
 
 
 ### Database Rules
-
-
+Below listed some of the rules that limit access and validate data:
+1. User profile are only readable/writable by the user who owns it.
+2. Posts and Comments can be read by anyone but only written by logged-in users.
+3. User posts can be read by anyone but only written by the user that owns it, and with a matching UID
+4. User-following list can be read by anyone, but only written by the user that owns it.
+5. User-followed list can be read by anyone. can be written by the user who owns it.
 
 
 ## References
