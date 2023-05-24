@@ -6,6 +6,14 @@
 
 
 ## User Interface Design
+1. User register / login page
+<br>
+<picture>
+ <img alt="register and login" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Floggin.jpeg?alt=media&token=cce0dde0-8c7f-482b-90c8-8789e310bdff" width="500" height="1000">
+</picture>
+<br>
+
+
 
 
 ## Data model
