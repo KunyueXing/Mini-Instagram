@@ -3,7 +3,7 @@
 - Requirements and Object-oriented Design
   - Requirements
   - Class diagram
-  - Use case
+  - Use case analysis
 - User Interface Design
 - Data model
   - Database Rules
@@ -28,6 +28,33 @@
 11. Users should be able to check their own or any other users’ followers list and following list
 12. Users should be able to check their own or any other users’ posts list.
 
+
+
+### User case analysis
+#### Actors
+- Primary actors:
+    - User, who can create a profile of themselves with personal info. They can create posts with pics and words. They can interact with other users, e.g., follow/unfollow others, block others, group following, comment and like other users’ posts and comments.
+- Secondary actors: 
+    - System, responsible for sending out notifications for new followers, comments, likes, etc.  
+#### User cases
+- User
+    - add/ update profile: add or update information such as avatar, username, and bio.
+    - set account privacy
+    - follow/ unfollow / group following / unfollow other users 
+    - remove follower / block other users
+    - set / edit the group of their following users
+    - add/ delete post: To add a new post, or delete an existing post
+    - set post privacy
+    - like / comment post: to like a post, comment on a post
+    - add / delete / like comment: To add a new comment, like a particular comment, or delete a comment
+    - Search users: To search for other users
+    - check follower / following list
+    - check posts list
+ - System
+    - send new follower notification
+    - send new comment notifications
+    - send new like notification
+    - send new following request notification
 
 ## User Interface Design
 1. User register / login page
