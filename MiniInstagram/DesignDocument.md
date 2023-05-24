@@ -15,7 +15,7 @@ The data model design uses some of the Firebase best practices, It has some trad
 \
 The database has eight "root" nodes
 1. `Users`
-   - a list of `User` objects,
+   - a list of `User` objects
    - key: user ID, `<ID>`
    - value: a hashmap of user profile, e.g. `/users/<ID>/email` is the email of the user with id=`<ID>`
       | key       |     value     |
@@ -23,8 +23,21 @@ The database has eight "root" nodes
       | email     |               |
       |username   |               |
       |profile pic|               |
+      |   ...     |               |
 2. `Posts`
     - a list of `Post` objects
+    - key: randomly generated push ID, `<POST-ID>`
+    - value: a hashmap contain information such as authorID, content, imageURL, etc.
+      | key       |     value     |
+      |-----:     |---------------|
+      | UID       |               |
+      |content    |               |
+      |authorID   |               |
+      |   ...     |               |
+3. `Comments`
+     - a list of `Comment` objects
+     - key: randomly generated push ID, `<Comment-ID>`
+     - value: a hashmap contain information such as authorID, content, etc.
 
 
 ### Database Rules
