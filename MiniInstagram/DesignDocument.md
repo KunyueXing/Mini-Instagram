@@ -24,7 +24,20 @@
  <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fnewpost.jpg?alt=media&token=3e28ef14-cc97-4c3d-9a2b-5ed9d05888d1" width="400" height="800">
 </picture>
 <br>
-
+4. Person fragment
+<br>
+   User's own page:
+<br>
+<picture>
+ <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fperson_edit.png?alt=media&token=2506b0bc-0aee-4adb-8087-42aeb0b90f6e" width="400" height="800">
+</picture>
+<br>
+    When checking other users page, there's a menu pop up when clicking follow/following
+<br>
+<picture>
+ <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2FOther%20users%20page_edit.jpg?alt=media&token=7003d9a2-1281-4061-908f-eba27316d260" width="1200" height="1000">
+</picture>
+<br>
 
 
 ## Data model
