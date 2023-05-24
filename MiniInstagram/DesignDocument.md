@@ -12,7 +12,12 @@
  <img alt="register and login" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Floggin.jpeg?alt=media&token=cce0dde0-8c7f-482b-90c8-8789e310bdff" width="500" height="1000">
 </picture>
 <br>
-
+2. Home page, home fragment
+<br>
+<picture>
+ <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fhomepage-edit.jpg?alt=media&token=32fbffe6-59f5-407e-8334-3807b7726242" width="400" height="800">
+</picture>
+<br>
 
 
 
