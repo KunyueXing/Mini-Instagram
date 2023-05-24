@@ -32,12 +32,21 @@
  <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fperson_edit.png?alt=media&token=2506b0bc-0aee-4adb-8087-42aeb0b90f6e" width="400" height="800">
 </picture>
 <br>
+<br>
     When checking other users page, there's a menu pop up when clicking follow/following
 <br>
+<br>
 <picture>
- <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2FOther%20users%20page_edit.jpg?alt=media&token=7003d9a2-1281-4061-908f-eba27316d260" width="1200" height="1000">
+ <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2FOther%20users%20page_edit.jpg?alt=media&token=7003d9a2-1281-4061-908f-eba27316d260" width="1100" height="800">
 </picture>
 <br>
+5. following / follower list
+<br>
+<picture>
+ <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Ffollowing%20list_edit.png?alt=media&token=9ebd09e3-3441-4c99-b5e0-079cbd6cb0fe" width="400" height="800">
+</picture>
+<br>
+
 
 
 ## Data model
