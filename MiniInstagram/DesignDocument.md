@@ -28,19 +28,13 @@
 11. Users should be able to check their own or any other users’ followers list and following list
 12. Users should be able to check their own or any other users’ posts list.
 
-### Class diagram
-<br>
-<picture>
- <img alt="class diagram" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fins.drawio.png?alt=media&token=4d0c1764-9248-44b3-9911-991d30ffe115">
-</picture>
-<br>
-
 ### User case analysis
 #### Actors
 - Primary actors:
     - User, who can create a profile of themselves with personal info. They can create posts with pics and words. They can interact with other users, e.g., follow/unfollow others, block others, group following, comment and like other users’ posts and comments.
 - Secondary actors: 
     - System, responsible for sending out notifications for new followers, comments, likes, etc.  
+
 #### User cases
 - User
     - add/ update profile: add or update information such as avatar, username, and bio.
@@ -60,6 +54,13 @@
     - send new comment notifications
     - send new like notification
     - send new following request notification
+
+### Class diagram
+<br>
+<picture>
+ <img alt="class diagram" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fins.drawio.png?alt=media&token=4d0c1764-9248-44b3-9911-991d30ffe115">
+</picture>
+<br>
 
 ## User Interface Design
 1. User register / login page
