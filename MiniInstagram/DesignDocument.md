@@ -46,8 +46,26 @@
  <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Ffollowing%20list_edit.png?alt=media&token=9ebd09e3-3441-4c99-b5e0-079cbd6cb0fe" width="400" height="800">
 </picture>
 <br>
+6. Search fragment
+<br>
+<picture>
+ <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fsearch%20page.png?alt=media&token=5c9aac09-c0fd-42c3-9797-91a8da4eb06c" width="400" height="800">
+</picture>
+<br>
 
+7. Notification fragment
+<br>
+<picture>
+ <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fnoti%20page.png?alt=media&token=0ff1b940-b62d-4321-a5b0-5dc2a6f82985" width="400" height="800">
+</picture>
+<br>
 
+8. User profile setting page
+<br>
+<picture>
+ <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fprofile%20setting%20.png?alt=media&token=a5cabc80-bd9d-4db3-8e41-2a7b4e4758c9" width="400" height="800">
+</picture>
+<br>
 
 ## Data model
 The images of the application stored in Firebase Storage. All data is stored in Firebase realtime database.\
