@@ -73,3 +73,10 @@ Below listed some of the rules that limit access and validate data:
 
 
 ## References
+### Firebase
+- [Firebase official docs](https://firebase.google.com/docs/guides?hl=en&authuser=0)
+- [Add firebase to your Android project](https://firebase.google.com/docs/android/setup)
+- [Firebase YouTube channel](https://www.youtube.com/@Firebase/playlists)
+- [Quick start of firebase-android, google official](https://github.com/firebase/quickstart-android)
+   - [Firebase realtime database - android ]( https://github.com/firebase/quickstart-android/blob/master/database/README.md)
+   - [Firebase Storage - android](https://github.com/firebase/quickstart-android/tree/master/storage)
