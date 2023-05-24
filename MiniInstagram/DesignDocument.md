@@ -1,13 +1,13 @@
 ## Outline
 - [Design Considerations](https://github.com/KunyueXing/Mini-Instagram/blob/main/MiniInstagram/DesignDocument.md#design-considerations)
-- Requirements and Object-oriented Design
-  - Requirements
-  - Class diagram
-  - Use case analysis
-- User Interface Design
-- Data model
-  - Database Rules
-- References
+- [Requirements and Object-oriented Design](https://github.com/KunyueXing/Mini-Instagram/blob/main/MiniInstagram/DesignDocument.md#requirements-and-object-oriented-design)
+  - [Requirements](https://github.com/KunyueXing/Mini-Instagram/blob/main/MiniInstagram/DesignDocument.md#requirements)  
+  - [Use case analysis](https://github.com/KunyueXing/Mini-Instagram/blob/main/MiniInstagram/DesignDocument.md#user-case-analysis)
+  - [Class diagram](https://github.com/KunyueXing/Mini-Instagram/blob/main/MiniInstagram/DesignDocument.md#class-diagram)
+- [User Interface Design](https://github.com/KunyueXing/Mini-Instagram/blob/main/MiniInstagram/DesignDocument.md#user-interface-design)
+- [Data model](https://github.com/KunyueXing/Mini-Instagram/blob/main/MiniInstagram/DesignDocument.md#data-model)
+  - [Database Rules](https://github.com/KunyueXing/Mini-Instagram/blob/main/MiniInstagram/DesignDocument.md#database-rules)
+- [References](https://github.com/KunyueXing/Mini-Instagram/blob/main/MiniInstagram/DesignDocument.md#references)
 
 ## Design Considerations
 1. System Environment
