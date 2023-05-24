@@ -14,6 +14,19 @@
 
 
 ## Requirements and Object-oriented Design
+### Requirements
+1. Users should be able to create an account with email, username and password. Users can update password.
+2. Users should be able to create their profile page, add and update information such as avatar, links, and bio.
+3. Users should be able to set their accounts’ privacy, public or private. If it’s private, the follower request must be approved by the user.
+4. Users of our system should be able to search for other users.
+5. Users should be able to write a new post and set its privacy. The post must be a image, with or without text.
+6. Users should be able to follow and group other users. Users should also be able to remove followers or block other users.
+7. Users should be able to check new posts from home page according to timeline, or any groups they set.
+8. Users should be able to like and comment on a post. 
+9. Users should also be able to like or comment on an existing comment.
+10. The system should send the user a notification whenever there has been an interaction with them, such as receiving a comment or a like on their post or comment, a new follower, a following request.
+11. Users should be able to check their own or any other users’ followers list and following list
+12. Users should be able to check their own or any other users’ posts list.
 
 
 ## User Interface Design
