@@ -28,7 +28,12 @@
 11. Users should be able to check their own or any other users’ followers list and following list
 12. Users should be able to check their own or any other users’ posts list.
 
-
+### Class diagram
+<br>
+<picture>
+ <img alt="class diagram" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fins.drawio.png?alt=media&token=4d0c1764-9248-44b3-9911-991d30ffe115">
+</picture>
+<br>
 
 ### User case analysis
 #### Actors
@@ -72,7 +77,7 @@
 3. New post page
 <br>
 <picture>
- <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fnewpost.jpg?alt=media&token=3e28ef14-cc97-4c3d-9a2b-5ed9d05888d1" width="400" height="800">
+ <img alt="new post page" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fnewpost.jpg?alt=media&token=3e28ef14-cc97-4c3d-9a2b-5ed9d05888d1" width="400" height="800">
 </picture>
 <br>
 4. Person fragment
@@ -80,7 +85,7 @@
    User's own page:
 <br>
 <picture>
- <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fperson_edit.png?alt=media&token=2506b0bc-0aee-4adb-8087-42aeb0b90f6e" width="400" height="800">
+ <img alt="person" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fperson_edit.png?alt=media&token=2506b0bc-0aee-4adb-8087-42aeb0b90f6e" width="400" height="800">
 </picture>
 <br>
 <br>
@@ -88,33 +93,33 @@
 <br>
 <br>
 <picture>
- <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2FOther%20users%20page_edit.jpg?alt=media&token=7003d9a2-1281-4061-908f-eba27316d260" width="1100" height="800">
+ <img alt="person" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2FOther%20users%20page_edit.jpg?alt=media&token=7003d9a2-1281-4061-908f-eba27316d260" width="1100" height="800">
 </picture>
 <br>
 5. following / follower list
 <br>
 <picture>
- <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Ffollowing%20list_edit.png?alt=media&token=9ebd09e3-3441-4c99-b5e0-079cbd6cb0fe" width="400" height="800">
+ <img alt="following list" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Ffollowing%20list_edit.png?alt=media&token=9ebd09e3-3441-4c99-b5e0-079cbd6cb0fe" width="400" height="800">
 </picture>
 <br>
 6. Search fragment
 <br>
 <picture>
- <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fsearch%20page.png?alt=media&token=5c9aac09-c0fd-42c3-9797-91a8da4eb06c" width="400" height="800">
+ <img alt="search" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fsearch%20page.png?alt=media&token=5c9aac09-c0fd-42c3-9797-91a8da4eb06c" width="400" height="800">
 </picture>
 <br>
 
 7. Notification fragment
 <br>
 <picture>
- <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fnoti%20page.png?alt=media&token=0ff1b940-b62d-4321-a5b0-5dc2a6f82985" width="400" height="800">
+ <img alt="notification" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fnoti%20page.png?alt=media&token=0ff1b940-b62d-4321-a5b0-5dc2a6f82985" width="400" height="800">
 </picture>
 <br>
 
 8. User profile setting page
 <br>
 <picture>
- <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fprofile%20setting%20.png?alt=media&token=a5cabc80-bd9d-4db3-8e41-2a7b4e4758c9" width="400" height="800">
+ <img alt="profile setting" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fprofile%20setting%20.png?alt=media&token=a5cabc80-bd9d-4db3-8e41-2a7b4e4758c9" width="400" height="800">
 </picture>
 <br>
 
