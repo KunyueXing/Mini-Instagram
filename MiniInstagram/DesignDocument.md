@@ -9,13 +9,19 @@
 1. User register / login page
 <br>
 <picture>
- <img alt="register and login" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Floggin.jpeg?alt=media&token=cce0dde0-8c7f-482b-90c8-8789e310bdff" width="500" height="1000">
+ <img alt="register and login" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Floggin.jpeg?alt=media&token=cce0dde0-8c7f-482b-90c8-8789e310bdff" width="400" height="800">
 </picture>
 <br>
 2. Home page, home fragment
 <br>
 <picture>
  <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fhomepage-edit.jpg?alt=media&token=32fbffe6-59f5-407e-8334-3807b7726242" width="400" height="800">
+</picture>
+<br>
+3. New post page
+<br>
+<picture>
+ <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fnewpost.jpg?alt=media&token=3e28ef14-cc97-4c3d-9a2b-5ed9d05888d1" width="400" height="800">
 </picture>
 <br>
 
