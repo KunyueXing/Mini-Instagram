@@ -80,3 +80,14 @@ Below listed some of the rules that limit access and validate data:
 - [Quick start of firebase-android, google official](https://github.com/firebase/quickstart-android)
    - [Firebase realtime database - android ]( https://github.com/firebase/quickstart-android/blob/master/database/README.md)
    - [Firebase Storage - android](https://github.com/firebase/quickstart-android/tree/master/storage)
+
+### Tutorials about Android and Object-oriented Design
+- [YouTube: Create a Complete Android App with Firebase Start to End](https://www.youtube.com/watch?v=7kzttk9lj3U)
+- [The Complete Android Oreo Developer Course - Build 23 Apps! ](https://www.udemy.com/course/the-complete-android-oreo-developer-course/)
+- [Grokking object oriented design interview](https://www.educative.io/courses/grokking-the-low-level-design-interview-using-ood-principles)
+- [Android Developers Youtube Channel](https://www.youtube.com/user/androiddevelopers)
+- [YouTube: Testing on Android](https://www.youtube.com/watch?v=EkfVL5vCDmo&list=PLQkwcJG4YTCSYJ13G4kVIJ10X5zisB2Lq)
+
+### Gatech Courses taken
+- [CS 6300: Software Development Process](https://omscs.gatech.edu/cs-6300-software-development-process)
+- [CS 6310: Software Architecture and Design](https://omscs.gatech.edu/cs-6310-software-architecture-design)
