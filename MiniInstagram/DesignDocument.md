@@ -38,6 +38,29 @@ The database has eight "root" nodes
      - a list of `Comment` objects
      - key: randomly generated push ID, `<Comment-ID>`
      - value: a hashmap contain information such as authorID, content, etc.
+4. `User-posts`
+     - a list of posts posted by the user
+     - key: user ID, 
+     - `/User-posts/<USER-ID>/` is a list of all posts made by a certain user, keyed by the same push ID usded in the `Posts` tree.
+     - This makes it easy to query "all posts by a specific user" without filtering through all `Post` objects.
+5. `Post-comments`
+     - a list of comments under the post
+     - key: post ID, 
+     - `/Post-comments/<POST-ID>/` is a list of all comments on a certain post with id `<POST-ID>`, keyed by the same push ID usded in the `Comments` tree.
+     - Similarly, this is designed to accelerate query "all comments under a specific user" without filtering through all `Comment` objects. By keeping this data in its own tree rather than nesting it under `Posts`, we make it possible to load a post without loading all comments while still having a known path to access all comments for a particular post.
+6. `Comment-Comments`
+     - a list of comments under the comment
+     - key: comment ID
+     - `/Comment-comments/<Comment-ID>/` is a list of all comments under a certain comment, keyed by the same push ID usded in the `Comments` tree.
+7. `User-following`
+     - a list of users followed by the user
+     - key: userID
+        - key: groupID, 
+        - `/User-following/<USER-ID>/<GROUP-ID>`, is a list of users followed by a specific user and group under a certain group, keyed by the user ID
+     - This makes it easy to query "all users followed by a specific user", " a list of users followed and grouped by a specific user", etc.
+8. `User-followed`
+     - a list of users following the specific user
+     - key: userID
 
 
 ### Database Rules
