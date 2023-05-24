@@ -1,3 +1,14 @@
+## Outline
+- Design Considerations
+- Requirements and Object-oriented Design
+  - Requirements
+  - Class diagram
+  - Use case
+- User Interface Design
+- Data model
+  - Database Rules
+- References
+
 ## Design Considerations
 1. System Environment
 
