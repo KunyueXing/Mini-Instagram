@@ -1,5 +1,5 @@
 ## Outline
-- Design Considerations
+- [Design Considerations](https://github.com/KunyueXing/Mini-Instagram/blob/main/MiniInstagram/DesignDocument.md#design-considerations)
 - Requirements and Object-oriented Design
   - Requirements
   - Class diagram
