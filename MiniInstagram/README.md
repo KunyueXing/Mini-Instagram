@@ -10,32 +10,41 @@
 - [References](https://github.com/KunyueXing/Mini-Instagram/blob/main/MiniInstagram/DesignDocument.md#references)
 
 ## Design Considerations
-1. System Environment
-
+   This application is developed in Android Studio using Android API level 31.
 
 ## Requirements and Object-oriented Design
 ### Requirements
-1. Users should be able to create an account with email, username and password. Users can update password.
-2. Users should be able to create their profile page, add and update information such as avatar, links, and bio.
-3. Users should be able to set their accounts’ privacy, public or private. If it’s private, the follower request must be approved by the user.
-4. Users of our system should be able to search for other users.
-5. Users should be able to write a new post and set its privacy. The post must be a image, with or without text.
-6. Users should be able to follow and group other users. Users should also be able to remove followers or block other users.
-7. Users should be able to check new posts from home page according to timeline, or any groups they set.
-8. Users should be able to like and comment on a post. 
-9. Users should also be able to like or comment on an existing comment.
-10. The system should send the user a notification whenever there has been an interaction with them, such as receiving a comment or a like on their post or comment, a new follower, a following request.
-11. Users should be able to check their own or any other users’ followers list and following list
-12. Users should be able to check their own or any other users’ posts list.
+1. A user can create an account with email, username and password. 
+2. A user can edit profile, e.g. add or update avatar, links, biography, etc.
+3. A user can set account visibility to public or private. 
+4. A user can follow another user. 
+5. A user can unfollow another user.
+6. A user can remove a follower.
+7. A user can block another user.
+8. A user can create a Following Group. 
+9. A user can delete a Following Group.
+10. A user can add a Following to an existing group.
+11. A user can remove a Following from an existing group.
+12. When trying to follow a private User A, User B must send a Follow Request to User A. User B can follow User A only if User A approves the Follow Request.
+15. A user can search for another user by username.
+16. A user can create a post along with an image and optional texts.
+17. A user can choose to show posts from all Followings or from a specific Following Group, in chronological order.
+19. A user can like a post. 
+20. A user can comment on a post.
+21. A user can like a comment. 
+22. A user can reply to a comment.
+23. An in-app notification is sent to User A when User B follows User A, User B sends a Follow Request to User A, User B approves User A's Follow Request, User B likes or comments on one of User A's posts or comments.
+24. A user can check her own or another user's Followers list and Following list
+25. A user can check her own or another user's posts list.
 
-### User case analysis
+### Use case analysis
 #### Actors
 - Primary actors:
     - User, who can create a profile of themselves with personal info. They can create posts with pics and words. They can interact with other users, e.g., follow/unfollow others, block others, group following, comment and like other users’ posts and comments.
 - Secondary actors: 
     - System, responsible for sending out notifications for new followers, comments, likes, etc.  
 
-#### User cases
+#### Use cases
 - User
     - add/ update profile: add or update information such as avatar, username, and bio.
     - set account privacy
