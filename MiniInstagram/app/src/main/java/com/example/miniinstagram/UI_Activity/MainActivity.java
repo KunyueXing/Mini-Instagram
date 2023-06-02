@@ -31,21 +31,18 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity {
 
     private EditText emailEditText;
     private EditText usernameEditText;
     private EditText passwordEditText;
-    private Button registerOrLogInButton;
+    private Button registerOrLoginButton;
     private ProgressBar progressBar;
-    TextView loginRegisterSwitchTextView;
-    private static final String TAG = "MainActivity";
+    private TextView loginRegisterSwitchTextView;
+    private static final String LOG_TAG = "MainActivity";
 
     private String usernameStr;
     private String emailStr;
@@ -54,7 +51,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FirebaseAuth auth;
     private DatabaseReference databaseReference;
 
-    Boolean registerModeActive = true;
+    private enum MAIN_ACTIVITY_MODE {
+        LOGIN,
+        REGISTER
+    }
+
+    private MAIN_ACTIVITY_MODE mainActivityMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,83 +67,76 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         emailEditText = findViewById(R.id.emailEditText);
         usernameEditText = findViewById(R.id.UsernameEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
-        registerOrLogInButton = findViewById(R.id.registerOrLoginButton);
+        registerOrLoginButton = findViewById(R.id.registerOrLoginButton);
         loginRegisterSwitchTextView = findViewById(R.id.loginRegisterSwitchTextView);
         progressBar = findViewById(R.id.progressBar);
-        loginRegisterSwitchTextView.setOnClickListener(this);
+        mainActivityMode = MAIN_ACTIVITY_MODE.REGISTER;
 
         auth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference();
     }
 
-    @Override
     /*
-     * when click on the loginRegisterSwitchTextView, user can switch between login and signup mode.
-     * That is to say, the registerOrLogInButton will switch between login and signup mode.
+     * Invoked when loginRegisterSwitchTextView is clicked. Set the texts of registerOrLoginButton
+     * and loginRegisterSwitchTextView according to mainActivityMode.
      */
-    public void onClick(View view) {
-        if (view.getId() == R.id.loginRegisterSwitchTextView) {
-            if (registerModeActive) {
-                registerModeActive = !registerModeActive;
-                registerOrLogInButton.setText("Log In");
-                loginRegisterSwitchTextView.setText("or, Sign Up");
-            } else {
-                registerModeActive = !registerModeActive;
-                registerOrLogInButton.setText("Sign Up");
-                loginRegisterSwitchTextView.setText("or, Log In");
-            }
+    public void loginRegisterSwitchTextViewOnClick(View view) {
+        if (mainActivityMode == MAIN_ACTIVITY_MODE.REGISTER) {
+            mainActivityMode = MAIN_ACTIVITY_MODE.LOGIN;
+            registerOrLoginButton.setText("Log In");
+            loginRegisterSwitchTextView.setText("or, Sign Up");
+            usernameEditText.setVisibility(View.INVISIBLE);
+        } else {
+            mainActivityMode = MAIN_ACTIVITY_MODE.REGISTER;
+            registerOrLoginButton.setText("Sign Up");
+            loginRegisterSwitchTextView.setText("or, Log In");
+            usernameEditText.setVisibility(View.VISIBLE);
         }
     }
 
     /*
-     * When registerOrLogInButton is clicked, system will validate the input format first, then
-     * execute login or register according to if register mode is active or not.
-     * If in register mode, first check username uniqueness by calling checkUsernameAvailability().
+     * Invoked when registerOrLogInButton is clicked.
      */
-    public void registerOrLoginClicked(View view) {
+    public void registerOrLoginButtonOnClick(View view) {
+        if (!validateUserInput()) {
+            return;
+        }
+
+        progressBar.setVisibility(View.VISIBLE);
+
+        if (mainActivityMode == MAIN_ACTIVITY_MODE.REGISTER) {
+//                Log.d(TAG, "errorcheck: in onclick "  + usernameAvailableFlag)；
+            register();
+        } else {
+            login();
+        }
+    }
+
+    /*
+     * Check if username, email and password are valid.
+     */
+    private boolean validateUserInput() {
+        boolean isInputValid = true;
         usernameStr = usernameEditText.getText().toString();
         emailStr = emailEditText.getText().toString();
         passwordStr = passwordEditText.getText().toString();
-
-
-        if (validateForm()) {
-            progressBar.setVisibility(View.VISIBLE);
-//            setViewsEditable(false);
-
-            if (registerModeActive) {
-//                Log.d(TAG, "errorcheck: in onclick "  + usernameAvailableFlag)；
-
-                checkUsernameAvailability();
-            } else {
-                userLogin();
-            }
-        }
-    }
-
-    /*
-     * check if user input correct forms of email, username and password.
-     * If it's register active, user must input proper email, username and password. The password
-     * must be at least 6 digits. If it's login mode, username is not required.
-     */
-    private boolean validateForm() {
-        boolean isInputValid = true;
 
         if (TextUtils.isEmpty(emailStr)) {
             emailEditText.setError("Email required");
             emailEditText.requestFocus();
             isInputValid = false;
         } else if (!Patterns.EMAIL_ADDRESS.matcher(emailStr).matches()) {
-            emailEditText.setError("Proper email required");
+            emailEditText.setError("Email address invalid");
             emailEditText.requestFocus();
             isInputValid = false;
         }
         if (TextUtils.isEmpty(passwordStr) || passwordStr.length() < 6) {
-            passwordEditText.setError("Password required with at least 6 characters");
+            passwordEditText.setError("Password needs to be at least 6 characters");
             passwordEditText.requestFocus();
             isInputValid = false;
         }
-        if (registerModeActive && TextUtils.isEmpty(usernameStr)) {
-            usernameEditText.setError("Username required when register");
+        if (mainActivityMode == MAIN_ACTIVITY_MODE.REGISTER && TextUtils.isEmpty(usernameStr)) {
+            usernameEditText.setError("Username required");
             usernameEditText.requestFocus();
             isInputValid = false;
         }
@@ -150,37 +145,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /*
-     * Check username uniqueness. It must be unique to continue register process.
+     * Register this user if the same username doesn't exist.
      */
-    private void checkUsernameAvailability() {
+    private void register() {
         DatabaseReference allUsersReference = databaseReference.child("Users");
 
-        // read from database, get the instance where username is equal to input usernameStr
+        // Query Users table with the username provided.
         Query query = allUsersReference.orderByChild("username").equalTo(usernameStr);
 
-        // define the eventlistener. If event exists, show error message, otherwise continue register
+        // Define an event listener associated with the query.
         ValueEventListener eventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                // if the instance exists, show error message. Otherwise, continue register process
                 if (snapshot.exists()) {
+                    // If we find a user with the same username, display an error message and return.
                     progressBar.setVisibility(View.INVISIBLE);
-//                    setViewsEditable(true);
-                    usernameEditText.setError("Username already taken");
+                    usernameEditText.setError("Username already exists");
                     usernameEditText.requestFocus();
 
 //                    Log.d(TAG, "errorcheck: in usernamecheck, username already exists");
                     return;
-                } else {
-                    registerNewUser();
                 }
-                // end the eventlistener, otherwise it will execute on and on at backstage
+
+                createUser();
+                // onDataChange can be invoked for other scenarios. Since we only need to execute
+                // this logic once, remove the listener from the query when we are done.
                 query.removeEventListener(this);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.w(TAG, "Failed to read value.", error.toException());
+                Log.w(LOG_TAG, "Failed to read value.", error.toException());
                 query.removeEventListener(this);
             }
         };
@@ -193,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * If success, then save new userinfo in database by calling writeNewUser().
      * If failed, display error message to the user according to error type.
      */
-    private void registerNewUser() {
+    private void createUser() {
 //        Log.d(TAG, "errorcheck: in register " + usernameAvailableFlag);
 
         // create user in firebase authentication with email and password.
@@ -207,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if (task.isSuccessful()) {
                             //on auth success, then need to save new user in database
                             FirebaseUser user = auth.getCurrentUser();
-                            writeNewUser(user.getUid());
+                            pushUserInfoToDatabase(user.getUid());
 
 //                            Toast.makeText(MainActivity.this,
 //                                    "Sign up authentication success", Toast.LENGTH_SHORT).show();
@@ -215,7 +210,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             //register fails, display a message to the user according to error type
                             FirebaseAuthException e = (FirebaseAuthException) task.getException();
                             progressBar.setVisibility(View.INVISIBLE);
-//                            setViewsEditable(true);
 //                            Log.d(TAG, "errorcheck" + e.getErrorCode());
 
                             if (e.getErrorCode().equals("ERROR_EMAIL_ALREADY_IN_USE")) {
@@ -243,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * and can be updated later by user.
      * After saving success, the whole register process finished. To go homepage.
      */
-    private void writeNewUser(String userID) {
+    private void pushUserInfoToDatabase(String userID) {
         Profile profile = new Profile("default");
         Account account = new Account(emailStr, usernameStr, userID);
 
@@ -277,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Validate user's email and password in Firebase authentication. If success, go to Homepage.
      * If failed, display error message to user according to error type.
      */
-    private void userLogin() {
+    private void login() {
 
         auth.signInWithEmailAndPassword(emailStr, passwordStr)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
