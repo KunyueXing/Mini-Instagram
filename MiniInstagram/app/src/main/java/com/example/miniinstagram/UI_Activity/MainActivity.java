@@ -30,6 +30,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.rpc.context.AttributeContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -184,124 +185,127 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /*
-     * Register new user. First create a user in firebase authentication with email and password.
-     * If success, then save new userinfo in database by calling writeNewUser().
-     * If failed, display error message to the user according to error type.
+     * Register this user with provided email and password.
+     *
+     * First, create this user in Authentication. If it succeeds, save this user in database.
+     * Otherwise, display the error message.
      */
     private void createUser() {
 //        Log.d(TAG, "errorcheck: in register " + usernameAvailableFlag);
 
-        // create user in firebase authentication with email and password.
+        OnCompleteListener<AuthResult> listener = new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+//                Log.d(TAG, "createUser:onComplete:" + task.isSuccessful());
+//                Toast.makeText(MainActivity.this, "Register processes", Toast.LENGTH_SHORT).show();
+
+                if (task.isSuccessful()) {
+                    // We've created this user in Authentication. Now save this user to database.
+                    FirebaseUser user = auth.getCurrentUser();
+                    pushUserInfoToDatabase(user.getUid());
+                    return;
+                }
+
+                FirebaseAuthException e = (FirebaseAuthException) task.getException();
+                progressBar.setVisibility(View.INVISIBLE);
+//                Log.d(TAG, "errorcheck" + e.getErrorCode());
+
+                if (e.getErrorCode().equals("ERROR_EMAIL_ALREADY_IN_USE")) {
+                    emailEditText.setError("Email already exists");
+                    emailEditText.requestFocus();
+                } else if (e.getErrorCode().equals("ERROR_INVALID_EMAIL")) {
+                    emailEditText.setError("Email address invalid");
+                    emailEditText.requestFocus();
+                } else if (e.getErrorCode().equals("ERROR_OPERATION_NOT_ALLOWED")) {
+                    Toast.makeText(MainActivity.this,
+                              "Operation denied",
+                                   Toast.LENGTH_LONG).show();
+                } else if (e.getErrorCode().equals("ERROR_WEAK_PASSWORD")) {
+                    passwordEditText.setError("Password is too weak");
+                    passwordEditText.requestFocus();
+                }
+            }
+        };
+
+        // Create this user in Authentication with provided email and password.
         auth.createUserWithEmailAndPassword(emailStr, passwordStr)
-                .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-//                        Log.d(TAG, "createUser:onComplete:" + task.isSuccessful());
-//                        Toast.makeText(MainActivity.this, "Register processes", Toast.LENGTH_SHORT).show();
-
-                        if (task.isSuccessful()) {
-                            //on auth success, then need to save new user in database
-                            FirebaseUser user = auth.getCurrentUser();
-                            pushUserInfoToDatabase(user.getUid());
-
-//                            Toast.makeText(MainActivity.this,
-//                                    "Sign up authentication success", Toast.LENGTH_SHORT).show();
-                        } else {
-                            //register fails, display a message to the user according to error type
-                            FirebaseAuthException e = (FirebaseAuthException) task.getException();
-                            progressBar.setVisibility(View.INVISIBLE);
-//                            Log.d(TAG, "errorcheck" + e.getErrorCode());
-
-                            if (e.getErrorCode().equals("ERROR_EMAIL_ALREADY_IN_USE")) {
-                                emailEditText.setError("Email already in use");
-                                emailEditText.requestFocus();
-                            } else if (e.getErrorCode().equals("ERROR_INVALID_EMAIL")) {
-                                emailEditText.setError("Proper email is required");
-                                emailEditText.requestFocus();
-                            } else if (e.getErrorCode().equals("ERROR_OPERATION_NOT_ALLOWED")) {
-                                Toast.makeText(MainActivity.this, "Operation denied",
-                                        Toast.LENGTH_LONG).show();
-                            } else if (e.getErrorCode().equals("ERROR_WEAK_PASSWORD")) {
-                                passwordEditText.setError("Password is too weak");
-                                passwordEditText.requestFocus();
-                            }
-                        }
-                    }
-                });
+            .addOnCompleteListener(MainActivity.this, listener);
     }
 
     /*
-     * All users are stored in database under root directory "Users", under their user ID.
-     * All user information is stored as a hashmap.
-     * Username is stored when register, profile picture is set as default, other info is optional
-     * and can be updated later by user.
-     * After saving success, the whole register process finished. To go homepage.
+     * Save the user information in database once this user has been created in authentication,
+     * and initiate the user's homepage
      */
     private void pushUserInfoToDatabase(String userID) {
         Profile profile = new Profile("default");
         Account account = new Account(emailStr, usernameStr, userID);
-
-        Map<String, Object> userinfo = account.toMap();
-        userinfo.putAll(profile.toMap());
-
-        // update userinfo under root directory -- Users, and under userID
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/Users/" + userID, userinfo);
-        databaseReference.updateChildren(childUpdates)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(MainActivity.this, "Register success",
-                                    Toast.LENGTH_LONG).show();
+        Map<String, Object> userinfo = account.toMap();
 
-                            goToHomePage();
-                        } else {
-                            progressBar.setVisibility(View.INVISIBLE);
-//                            setViewsEditable(true);
-                            Toast.makeText(MainActivity.this,
-                                    "Error occur when accessing database", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
+        // User info is saved under /Users/, {key: userID, value: userInfo}
+        userinfo.putAll(profile.toMap());
+        childUpdates.put("/Users/" + userID, userinfo);
+
+        OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(MainActivity.this,
+                              "Register success",
+                                   Toast.LENGTH_LONG).show();
+
+                    goToHomePage();
+                    return;
+                }
+
+                progressBar.setVisibility(View.INVISIBLE);
+                Toast.makeText(MainActivity.this,
+                          "Error occur when accessing database",
+                               Toast.LENGTH_LONG).show();
+            }
+        };
+
+        databaseReference.updateChildren(childUpdates)
+                         .addOnCompleteListener(listener);
     }
 
     /*
-     * User log in function.
-     * Validate user's email and password in Firebase authentication. If success, go to Homepage.
-     * If failed, display error message to user according to error type.
+     * Log in with provided email and password. If the email and password are valid, initiate the
+     * user's homepage. Otherwise, display the error message.
      */
     private void login() {
-
-        auth.signInWithEmailAndPassword(emailStr, passwordStr)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        OnCompleteListener<AuthResult> listener = new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     Toast.makeText(MainActivity.this, "Log in success.",
                             Toast.LENGTH_LONG).show();
                     goToHomePage();
-                } else {
-                    // If sign in fails, display a message to the user.
-//                    Log.d(TAG, "errorcheck: signInWithEmail:failure " + task.getException().toString());
-                    progressBar.setVisibility(View.INVISIBLE);
-//                    setViewsEditable(true);
-                    Toast.makeText(MainActivity.this, "Log in authentication failed.",
-                            Toast.LENGTH_LONG).show();
+                    return;
+                }
 
-                    FirebaseAuthException e = (FirebaseAuthException) task.getException();
-//                    Log.d(TAG, "errorcheck" + e.getErrorCode());
+                // If sign in fails, display a message to the user.
+//                Log.d(TAG, "errorcheck: signInWithEmail:failure " + task.getException().toString());
+                progressBar.setVisibility(View.INVISIBLE);
 
-                    if (e.getErrorCode().equals("ERROR_WRONG_PASSWORD")) {
-                        passwordEditText.setError("Password is incorrect");
-                        passwordEditText.requestFocus();
-                    } else if (e.getErrorCode().equals("ERROR_USER_NOT_FOUND")) {
-                        emailEditText.setError("User not found");
-                        emailEditText.requestFocus();
-                    }
+                Toast.makeText(MainActivity.this, "Log in authentication failed.",
+                        Toast.LENGTH_LONG).show();
+
+                FirebaseAuthException e = (FirebaseAuthException) task.getException();
+//                Log.d(TAG, "errorcheck" + e.getErrorCode());
+
+                if (e.getErrorCode().equals("ERROR_WRONG_PASSWORD")) {
+                    passwordEditText.setError("Password is incorrect");
+                    passwordEditText.requestFocus();
+                } else if (e.getErrorCode().equals("ERROR_USER_NOT_FOUND")) {
+                    emailEditText.setError("User not found");
+                    emailEditText.requestFocus();
                 }
             }
-        });
+        };
+
+        auth.signInWithEmailAndPassword(emailStr, passwordStr)
+            .addOnCompleteListener(listener);
     }
 
     // Go to Homepage
