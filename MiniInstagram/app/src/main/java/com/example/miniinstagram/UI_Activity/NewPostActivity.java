@@ -6,11 +6,9 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -25,11 +23,9 @@ import android.widget.Toast;
 
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.Post;
-import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
@@ -45,7 +41,7 @@ import java.util.Map;
 
 public class NewPostActivity extends AppCompatActivity {
 
-    private ImageView close;
+    private ImageView closeImageView;
     private ImageView addImageView;
     private TextView postTextView;
     private EditText postContentEditText;
@@ -56,8 +52,8 @@ public class NewPostActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private FirebaseAuth auth;
     private Uri imageUri;
-    private Bitmap bitmap;
     private ActivityResultLauncher<String> choosePhoto;
+
     private String TAG = "new post activity";
 
 
@@ -66,7 +62,7 @@ public class NewPostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_post);
 
-        close = findViewById(R.id.closeImageView);
+        closeImageView = findViewById(R.id.closeImageView);
         addImageView = findViewById(R.id.addImageImageView);
         postTextView = findViewById(R.id.postTextView);
         postContentEditText = findViewById(R.id.postContentEditText);
@@ -82,55 +78,47 @@ public class NewPostActivity extends AppCompatActivity {
          * showing the chosen image in UI. When user click addImage field, this activity will be
          * launched.
          */
+        ActivityResultCallback<Uri> choosePhotoCallback = new ActivityResultCallback<Uri>() {
+            @Override
+            public void onActivityResult(Uri result) {
+                updateUISelectedImage(result);
+            }
+        };
+
         choosePhoto = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
-                new ActivityResultCallback<Uri>() {
-                    @Override
-                    public void onActivityResult(Uri result) {
-                        imageUri = result;
-                        Log.d(TAG, "KX: " + imageUri);
+                choosePhotoCallback);
+    }
 
-                        updateUISelectedImage();
-                    }
-                });
+    /*
+     * When user click Post, the image will be uploaded to Firebase Storage, and the post will
+     * be saved to realtime database.
+     */
+    public void postTextViewOnClick(View view) {
+        uploadImageToStorage();
+    }
 
-        //when user click on close, will go back to homepage
-        close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(NewPostActivity.this, HomepageActivity.class));
-                finish();
-            }
-        });
+    // When user click addImage field, launch choose image from the device activity.
+    public void addImageViewOnClick(View view) {
+        choosePhoto.launch("image/*");
+    }
 
-        // When user click addImage field, launch choose image from the device activity.
-        addImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                choosePhoto.launch("image/*");
-            }
-        });
-
-        /*
-         * When user click Post, the image will be uploaded to Firebase Storage, and the post will
-         * be saved to realtime database.
-         */
-        postTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                uploadImageToStorage();
-            }
-        });
+    //When user click on close, will go back to homepage
+    public void closeImageViewOnClick(View view) {
+        startActivity(new Intent(NewPostActivity.this, HomepageActivity.class));
+        finish();
     }
 
     // When user choose a photo from device, it will be shown in the UI.
-    private void updateUISelectedImage() {
+    private void updateUISelectedImage(Uri result) {
+        Log.d(TAG, "KX: " + result);
+        imageUri = result;
         try {
-            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+            addImageView.setImageBitmap(bitmap);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        addImageView.setImageBitmap(bitmap);
     }
 
     /*
@@ -147,7 +135,7 @@ public class NewPostActivity extends AppCompatActivity {
             return;
         }
 
-        setUneditable();
+        setEditable(false);
         // show progress bar
         progressBar.setVisibility(View.VISIBLE);
 
@@ -171,7 +159,7 @@ public class NewPostActivity extends AppCompatActivity {
                     StorageException e = (StorageException) task.getException();
 
                     progressBar.setVisibility(View.INVISIBLE);
-                    setEditable();
+                    setEditable(true);
                     Toast.makeText(NewPostActivity.this,
                             "Can't upload image to cloud storage", Toast.LENGTH_LONG).show();
                     Log.d(TAG, "KX: upload " + String.valueOf(e.getErrorCode()));
@@ -187,7 +175,7 @@ public class NewPostActivity extends AppCompatActivity {
      */
     private void downloadImageUrlFromStorage(final StorageReference imageRef) {
 
-        setUneditable();
+        setEditable(false);
         imageRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull Task task) {
@@ -206,7 +194,7 @@ public class NewPostActivity extends AppCompatActivity {
                     StorageException e = (StorageException) task.getException();
 
                     progressBar.setVisibility(View.INVISIBLE);
-                    setEditable();
+                    setEditable(true);
                     Toast.makeText(NewPostActivity.this,
                             "Can't Download image from cloud storage", Toast.LENGTH_LONG).show();
                     Log.d(TAG, "KX: download " + String.valueOf(e.getErrorCode()));
@@ -225,7 +213,7 @@ public class NewPostActivity extends AppCompatActivity {
     private void uploadPostToDatabase(String downloadUriStr) {
 //        Log.d(TAG, "KX: Begin to update database");
 
-        setUneditable();
+        setEditable(false);
 
         String postID = databaseReference.child("Posts").push().getKey();
 //        Log.d(TAG, "KX: postID " + postID);
@@ -263,7 +251,7 @@ public class NewPostActivity extends AppCompatActivity {
                     goBackHomepage();
                 } else {
                     progressBar.setVisibility(View.INVISIBLE);
-                    setEditable();
+                    setEditable(true);
                     DatabaseException e = (DatabaseException) task.getException();
 
                     Log.d(TAG, "KX: update realtime databsae error - " + e.getMessage().toString());
@@ -288,43 +276,24 @@ public class NewPostActivity extends AppCompatActivity {
         return extension;
     }
 
-    // All editable views in this page will be set to uneditable.
-    private void setUneditable() {
-        // close view can't be selected and focused, and can't be edited.
-        close.setFocusable(false);
+    // When isEditable is false, user can't edit in this page.
+    private void setEditable(boolean isEditable) {
+        // when isEditable is false, close view can't be selected and focused, and can't be edited.
+        closeImageView.setFocusable(isEditable);
         // user touches widget on phone with touch screen
-        close.setFocusableInTouchMode(false);
-        close.setClickable(false);
+        closeImageView.setFocusableInTouchMode(isEditable);
+        closeImageView.setClickable(isEditable);
 
-        addImageView.setFocusable(false);
-        addImageView.setClickable(false);
-        addImageView.setFocusableInTouchMode(false);
+        addImageView.setFocusable(isEditable);
+        addImageView.setClickable(isEditable);
+        addImageView.setFocusableInTouchMode(isEditable);
 
-        postTextView.setFocusable(false);
-        postTextView.setClickable(false);
-        postTextView.setFocusableInTouchMode(false);
+        postTextView.setFocusable(isEditable);
+        postTextView.setClickable(isEditable);
+        postTextView.setFocusableInTouchMode(isEditable);
 
-        postContentEditText.setFocusable(false);
-        postContentEditText.setClickable(false);
-        postContentEditText.setFocusableInTouchMode(false);
-    }
-
-    // All editable views in this page will be set back to editable.
-    private void setEditable() {
-        close.setFocusable(true);
-        close.setFocusableInTouchMode(true);
-        close.setClickable(true);
-
-        addImageView.setFocusable(true);
-        addImageView.setClickable(true);
-        addImageView.setFocusableInTouchMode(true);
-
-        postTextView.setFocusable(true);
-        postTextView.setClickable(true);
-        postTextView.setFocusableInTouchMode(true);
-
-        postContentEditText.setFocusable(true);
-        postContentEditText.setClickable(true);
-        postContentEditText.setFocusableInTouchMode(true);
+        postContentEditText.setFocusable(isEditable);
+        postContentEditText.setClickable(isEditable);
+        postContentEditText.setFocusableInTouchMode(isEditable);
     }
 }
