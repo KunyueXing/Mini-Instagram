@@ -51,6 +51,7 @@ public class NewPostActivity extends AppCompatActivity {
     private StorageTask uploadImageTask;
     private DatabaseReference databaseReference;
     private FirebaseAuth auth;
+    private FirebaseUser user;
     private Uri imageUri;
     private ActivityResultLauncher<String> choosePhoto;
 
@@ -68,20 +69,24 @@ public class NewPostActivity extends AppCompatActivity {
         postContentEditText = findViewById(R.id.postContentEditText);
         progressBar = findViewById(R.id.progressBar);
 
-        // Images will be stored in Firebase Storage, under "Posts_Image"
+        // Images are stored in "Posts_Image" on Firebase Storage.
         storageReference = FirebaseStorage.getInstance().getReference("Posts_Image");
         databaseReference = FirebaseDatabase.getInstance().getReference();
         auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
+
+        if (user == null) {
+            Log.e(TAG, "KX: can't get current user");
+            goToHomepage();
+        }
 
         /*
-         * set an activity of choosing a photo from device, saving result in variable imageUri and
-         * showing the chosen image in UI. When user click addImage field, this activity will be
-         * launched.
+         * Set up a callback when a user have selected an image.
          */
         ActivityResultCallback<Uri> choosePhotoCallback = new ActivityResultCallback<Uri>() {
             @Override
             public void onActivityResult(Uri result) {
-                updateUISelectedImage(result);
+                displayPhoto(result);
             }
         };
 
@@ -90,27 +95,23 @@ public class NewPostActivity extends AppCompatActivity {
                 choosePhotoCallback);
     }
 
-    /*
-     * When user click Post, the image will be uploaded to Firebase Storage, and the post will
-     * be saved to realtime database.
-     */
     public void postTextViewOnClick(View view) {
         uploadImageToStorage();
     }
 
-    // When user click addImage field, launch choose image from the device activity.
     public void addImageViewOnClick(View view) {
         choosePhoto.launch("image/*");
     }
 
-    //When user click on close, will go back to homepage
     public void closeImageViewOnClick(View view) {
-        startActivity(new Intent(NewPostActivity.this, HomepageActivity.class));
-        finish();
+        goToHomepage();
     }
 
-    // When user choose a photo from device, it will be shown in the UI.
-    private void updateUISelectedImage(Uri result) {
+    /*
+     * Once an image has been selected, display it on addImageView and save the URI in imageUri,
+     * which will be used later when we upload the image.
+     */
+    private void displayPhoto(Uri result) {
         Log.d(TAG, "KX: " + result);
         imageUri = result;
         try {
@@ -122,13 +123,10 @@ public class NewPostActivity extends AppCompatActivity {
     }
 
     /*
-     * After user has chosen a photo, upload the image to Firebase Storage. The image will be
-     * stored under "Posts_Image" branch in storage.
-     * After uploading success, download the imageURL from storage by calling
-     * downloadImageUrlFromStorage()
+     * Upload the image to Firebase Storage. If it succeeds, download the URL of this image.
      */
     private void uploadImageToStorage() {
-        // First check if there is a selected image
+        // If there is no image selected, just return.
         if (imageUri == null) {
             Toast.makeText(NewPostActivity.this,
                     "No image selected", Toast.LENGTH_LONG).show();
@@ -136,16 +134,16 @@ public class NewPostActivity extends AppCompatActivity {
         }
 
         setEditable(false);
-        // show progress bar
         progressBar.setVisibility(View.VISIBLE);
 
         // get the extension of image, e.g., jpg
         String imageExt = getImageExtension(imageUri);
-        final StorageReference imageRef = storageReference
-                .child(System.currentTimeMillis() + "." + imageExt);
+        final StorageReference imageRef =
+                storageReference.child(System.currentTimeMillis() + "." + imageExt);
 
         uploadImageTask = imageRef.putFile(imageUri);
-        uploadImageTask.addOnCompleteListener(new OnCompleteListener() {
+
+        OnCompleteListener listener = new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull Task task) {
                 if (task.isSuccessful()) {
@@ -155,28 +153,29 @@ public class NewPostActivity extends AppCompatActivity {
 //                    Log.d(TAG, "KX: upload image to storage successful");
 
                     downloadImageUrlFromStorage(imageRef);
-                } else {
-                    StorageException e = (StorageException) task.getException();
-
-                    progressBar.setVisibility(View.INVISIBLE);
-                    setEditable(true);
-                    Toast.makeText(NewPostActivity.this,
-                            "Can't upload image to cloud storage", Toast.LENGTH_LONG).show();
-                    Log.d(TAG, "KX: upload " + String.valueOf(e.getErrorCode()));
+                    return;
                 }
+
+                StorageException e = (StorageException) task.getException();
+                progressBar.setVisibility(View.INVISIBLE);
+                setEditable(true);
+                Toast.makeText(NewPostActivity.this,
+                        "Can't upload image to cloud storage", Toast.LENGTH_LONG).show();
+                Log.e(TAG, "KX: upload " + String.valueOf(e.getErrorCode()));
             }
-        });
+        };
+
+        uploadImageTask.addOnCompleteListener(listener);
     }
 
     /*
-     * After upload image success, download imageURL from storage. The imageURL will be used to
-     * reference the image and stored as post info in database.
-     * Once download success, save post info by calling uploadPostToDatabase();
+     * Download the URL of previously uploaded image. If it succeeds, we'll go ahead and upload
+     * user's post.
      */
     private void downloadImageUrlFromStorage(final StorageReference imageRef) {
+//        setEditable(false);
 
-        setEditable(false);
-        imageRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener() {
+        OnCompleteListener listener = new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task task) {
                 if (task.isSuccessful()) {
@@ -185,62 +184,48 @@ public class NewPostActivity extends AppCompatActivity {
 //                            Toast.LENGTH_LONG).show();
 //                    Log.d(TAG, "KX: Download image from storage successful");
 
-                    Uri downloadUri = (Uri) task.getResult();
-                    String downloadUriStr = downloadUri.toString();
-//                    Log.d(TAG, "KX: Download image " + downloadUriStr);
-
-                    uploadPostToDatabase(downloadUriStr);
-                } else {
-                    StorageException e = (StorageException) task.getException();
-
-                    progressBar.setVisibility(View.INVISIBLE);
-                    setEditable(true);
-                    Toast.makeText(NewPostActivity.this,
-                            "Can't Download image from cloud storage", Toast.LENGTH_LONG).show();
-                    Log.d(TAG, "KX: download " + String.valueOf(e.getErrorCode()));
+                    uploadPostToDatabase(task);
+                    return;
                 }
+
+                StorageException e = (StorageException) task.getException();
+                progressBar.setVisibility(View.INVISIBLE);
+                setEditable(true);
+                Toast.makeText(NewPostActivity.this,
+                        "Can't Download image from cloud storage", Toast.LENGTH_LONG).show();
+                Log.e(TAG, "KX: download " + String.valueOf(e.getErrorCode()));
             }
-        });
+        };
+
+        imageRef.getDownloadUrl()
+                .addOnCompleteListener(listener);
     }
 
     /*
-     * save post info in realtime database. The post info include postID, authorID, imageURL,
-     * content and so on.
-     * The post info will be saved under 2 root directory in database. One named "Posts", under
-     * the postID. The other one is "User-Posts", under the authorID, and further postID.
-     * Once success, show success message to user and go back to homepage.
+     * Upload user's post to database.
      */
-    private void uploadPostToDatabase(String downloadUriStr) {
+    private void uploadPostToDatabase(Task task) {
 //        Log.d(TAG, "KX: Begin to update database");
 
-        setEditable(false);
-
+        String imageUrl = task.getResult().toString();
         String postID = databaseReference.child("Posts").push().getKey();
-//        Log.d(TAG, "KX: postID " + postID);
-
-        FirebaseUser user = auth.getCurrentUser();
-        if (user == null) {
-            Log.d(TAG, "KX: can't get current author");
-        }
-
         String authorID = user.getUid();
-//        Log.d(TAG, "KX: authorId " + authorID);
-
         String postContent = postContentEditText.getText().toString();
-//        Log.d(TAG, "KX: content" + postContent);
-
-        Post post = new Post(postID, postContent, downloadUriStr, authorID);
-        // store post info in a coressponding hashmap
+        Post post = new Post(postID, postContent, imageUrl, authorID);
         Map<String, Object> postValues = post.toMap();
-
         Map<String, Object> childUpdates = new HashMap<>();
 
-        // To save post info under 2 root directories in database.
+//        Log.d(TAG, "KX: Download image " + imageUrl);
+//        setEditable(false);
+//        Log.d(TAG, "KX: postID " + postID);
+//        Log.d(TAG, "KX: authorId " + authorID);
+//        Log.d(TAG, "KX: content" + postContent);
+
+        // Insert the post to 2 tables, one indexed by postID and another one indexed by authorID.
         childUpdates.put("/Posts/" + postID, postValues);
         childUpdates.put("/User-Posts/" + authorID + "/" + postID, postValues);
 
-        databaseReference.updateChildren(childUpdates)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
+        OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
@@ -248,25 +233,28 @@ public class NewPostActivity extends AppCompatActivity {
                     Toast.makeText(NewPostActivity.this,
                             "Post success", Toast.LENGTH_LONG).show();
 
-                    goBackHomepage();
-                } else {
-                    progressBar.setVisibility(View.INVISIBLE);
-                    setEditable(true);
-                    DatabaseException e = (DatabaseException) task.getException();
-
-                    Log.d(TAG, "KX: update realtime databsae error - " + e.getMessage().toString());
+                    goToHomepage();
+                    return;
                 }
+
+                progressBar.setVisibility(View.INVISIBLE);
+                setEditable(true);
+                DatabaseException e = (DatabaseException) task.getException();
+                Log.e(TAG, "KX: update realtime databsae error-" + e.getMessage().toString());
             }
-        });
+        };
+
+        databaseReference.updateChildren(childUpdates)
+                         .addOnCompleteListener(listener);
     }
 
     // Back to homepage
-    private void goBackHomepage() {
+    private void goToHomepage() {
         startActivity(new Intent(NewPostActivity.this , HomepageActivity.class));
         finish();
     }
 
-    // Get the extension of a image, e.g., jpg, png, etc.
+    // Get the extension of a file, e.g., jpg, png, etc.
     private String getImageExtension(Uri uri) {
         ContentResolver contentResolver = getContentResolver();
         MimeTypeMap mime = MimeTypeMap.getSingleton();

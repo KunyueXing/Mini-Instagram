@@ -26,8 +26,11 @@ public class HomepageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_homepage);
 
         bottomNaviView = findViewById(R.id.bottom_navigation);
-        // Be default, we start home fragment.
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+        // Be default, we start Home Fragment.
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new HomeFragment())
+                .commit();
 
         // Connect to search, add new post, notification and profile fragmentpage in navigation bar.
         bottomNaviView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -38,8 +41,10 @@ public class HomepageActivity extends AppCompatActivity {
 
                 // go to the corresponding page
                 if (selectedFragment != null) {
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, selectedFragment).commit();
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, selectedFragment)
+                            .commit();
                 }
 
                 return true;
