@@ -150,7 +150,6 @@ public class NewPostActivity extends AppCompatActivity {
 //                    Toast.makeText(NewPostActivity.this,
 //                            "Upload image to cloud storage successful",
 //                            Toast.LENGTH_LONG).show();
-//                    Log.d(TAG, "KX: upload image to storage successful");
 
                     downloadImageUrlFromStorage(imageRef);
                     return;
