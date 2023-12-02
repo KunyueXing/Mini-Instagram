@@ -173,7 +173,7 @@ The database has eight "root" nodes
      - key: post ID, 
      - `/Post-comments/<POST-ID>/` is a list of all comments on a certain post with id `<POST-ID>`, keyed by the same push ID usded in the `Comments` tree.
      - Similarly, this is designed to accelerate query "all comments under a specific user" without filtering through all `Comment` objects. By keeping this data in its own tree rather than nesting it under `Posts`, we make it possible to load a post without loading all comments while still having a known path to access all comments for a particular post.
-6. `Comment-Comments`
+6. `Comment-comments`
      - a list of comments under the comment
      - key: comment ID
      - `/Comment-comments/<Comment-ID>/` is a list of all comments under a certain comment, keyed by the same push ID usded in the `Comments` tree.
@@ -183,7 +183,7 @@ The database has eight "root" nodes
         - key: groupID, 
         - `/User-following/<USER-ID>/<GROUP-ID>`, is a list of users followed by a specific user and group under a certain group, keyed by the user ID
      - This makes it easy to query "all users followed by a specific user", " a list of users followed and grouped by a specific user", etc.
-8. `User-followed`
+8. `User-followedby`
      - a list of users following the specific user
      - key: userID
 
