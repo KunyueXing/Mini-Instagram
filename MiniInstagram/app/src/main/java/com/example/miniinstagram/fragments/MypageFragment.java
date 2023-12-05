@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.User;
+import com.example.miniinstagram.model.Post;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +27,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.protobuf.Value;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -46,8 +50,9 @@ public class MypageFragment extends Fragment {
     private FirebaseUser fbUser;
     private StorageReference storageReference;
     private DatabaseReference databaseReference;
-
     private String profileID;
+
+    private List<Post> postList;
 
     private String TAG = "User profile fragment: ";
 
@@ -73,6 +78,8 @@ public class MypageFragment extends Fragment {
         bioTextView = view.findViewById(R.id.bio);
         usernameTextView = view.findViewById(R.id.username);
 
+        postList = new ArrayList<>();
+
         showUserBasicContent();
 
 
@@ -82,8 +89,37 @@ public class MypageFragment extends Fragment {
     // Fetch and show basic content of user profile. such as info, number of followers and following, user posts, etc
     private void showUserBasicContent() {
         getUserInfo();
+
+        // get number of followers and following, now leave empty at this moment
+
+        getPosts();
+
+
     }
 
+    private void getPosts() {
+        DatabaseReference postsReference = databaseReference.child("User-Posts").child(profileID);
+        int numOfPosts = 0;
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                postsTextView.setText(String.valueOf(snapshot.getChildrenCount()));
+
+                postsReference.removeEventListener(this);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Failed to read value when get posts from user-posts.", error.toException());
+                postsReference.removeEventListener(this);
+            }
+        };
+
+        postsReference.addValueEventListener(listener);
+    }
+
+    // Retrieve username， name， bio from database and show them on user profile
     private void getUserInfo() {
         DatabaseReference usersReference = databaseReference.child("Users").child(profileID);
 
@@ -119,7 +155,7 @@ public class MypageFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.w(TAG, "Failed to read value.", error.toException());
+                Log.w(TAG, "Failed to read value when get user info from users.", error.toException());
                 usersReference.removeEventListener(this);
             }
         };
