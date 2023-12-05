@@ -16,7 +16,7 @@ public class Profile {
     private Date birthday;
     private List<Link> links;
 
-    public Profile(String aDefault, String i_like_swimming, GenderChoice genderChoiceNoneBinary, int i, int i1, int i2, ArrayList<Link> links) {
+    public Profile(String Default, String i_like_swimming, GenderChoice genderChoiceNoneBinary, int i, int i1, int i2, ArrayList<Link> links) {
     }
 
     public Profile(String profilePicUriStr) {

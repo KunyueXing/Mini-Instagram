@@ -1,10 +1,23 @@
 package com.example.miniinstagram.model;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class User extends Person{
     private String userID;
+    private String email;
+    private String username;
+    private String name;
+    private String profilePicUriStr;
+    private String bio;
+    private GenderChoice gender;
+    private Date birthday;
+    private AccountStatus status;
+
     private List<String> listOfFollowers;
     private List<String> listOfFollowing;
     private List<String> listOfPosts;
@@ -19,6 +32,17 @@ public class User extends Person{
         this.listOfPosts = listOfPosts;
         this.profile = profile;
         this.followingGroups = followingGroups;
+    }
+
+    public User(String email, String username, String userID) {
+        this.email = email;
+        this.username = username;
+        this.userID = userID;
+
+        this.profilePicUriStr = "default";
+        this.gender = GenderChoice.GENDER_CHOICE_DEFAULT;
+
+        status = AccountStatus.ACCOUNT_STATUS_PUBLIC;
     }
 
     public String getUserID() {
@@ -53,6 +77,32 @@ public class User extends Person{
         this.profile = profile;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
     public void addFollowers(String userID) {
         if (this.listOfFollowers == null) {
             this.listOfFollowers = new ArrayList<>();
@@ -83,5 +133,64 @@ public class User extends Person{
         }
 
         this.followingGroups.add(groupID);
+    }
+
+    public String getProfilePicUriStr() {
+        return profilePicUriStr;
+    }
+
+    public void setProfilePicUriStr(String profilePicUriStr) {
+        this.profilePicUriStr = profilePicUriStr;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public GenderChoice getGender() {
+        return gender;
+    }
+
+    public void setGender(GenderChoice gender) {
+        this.gender = gender;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(int year, int month, int day) {
+        initBirthday(year, month, day);
+    }
+
+    private void initBirthday(int year, int month, int day) {
+        if (year > 0 && month > 0 && day > 0) {
+            Calendar calendar = Calendar.getInstance();
+            // year, month, day of month, hour, minute, second.
+            // january is 0!
+            calendar.set(year, month - 1, day, 0, 0, 0);
+            this.birthday = calendar.getTime();
+        }
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("email", email);
+        result.put("username", username);
+        result.put("userID", userID);
+        result.put("status", status);
+        result.put("name", name);
+
+        result.put("profilePicUriStr", profilePicUriStr);
+        result.put("bio", bio);
+        result.put("gender", gender);
+        result.put("birthday", birthday);
+
+        return result;
     }
 }

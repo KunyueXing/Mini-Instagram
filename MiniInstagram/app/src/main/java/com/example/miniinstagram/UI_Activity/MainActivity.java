@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.Account;
 import com.example.miniinstagram.model.Profile;
+import com.example.miniinstagram.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -237,13 +238,11 @@ public class MainActivity extends AppCompatActivity {
      * and initiate the user's homepage
      */
     private void pushUserInfoToDatabase(String userID) {
-        Profile profile = new Profile("default");
-        Account account = new Account(emailStr, usernameStr, userID);
+        User user = new User(emailStr, usernameStr, userID);
         Map<String, Object> childUpdates = new HashMap<>();
-        Map<String, Object> userinfo = account.toMap();
+        Map<String, Object> userinfo = user.toMap();
 
         // User info is saved under /Users/, {key: userID, value: userInfo}
-        userinfo.putAll(profile.toMap());
         childUpdates.put("/Users/" + userID, userinfo);
 
         OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
