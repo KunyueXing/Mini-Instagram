@@ -24,6 +24,10 @@ public class User extends Person{
     private Profile profile;
     private List<String> followingGroups;
 
+    public User() {
+
+    }
+
     public User(String userID, List<String> listOfFollowers, List<String> listOfFollowing,
                 List<String> listOfPosts, Profile profile, List<String> followingGroups) {
         this.userID = userID;
@@ -69,10 +73,6 @@ public class User extends Person{
         return followingGroups;
     }
 
-    public void setUserID(String userID) {
-        this.userID = userID;
-    }
-
     public void setProfile(Profile profile) {
         this.profile = profile;
     }
@@ -101,6 +101,10 @@ public class User extends Person{
     @Override
     public String getName() {
         return name;
+    }
+
+    public AccountStatus getAccountStatus() {
+        return status;
     }
 
     public void addFollowers(String userID) {

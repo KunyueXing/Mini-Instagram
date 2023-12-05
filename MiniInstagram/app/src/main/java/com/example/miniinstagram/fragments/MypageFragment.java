@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,6 +49,8 @@ public class MypageFragment extends Fragment {
 
     private String profileID;
 
+    private String TAG = "User profile fragment: ";
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -82,7 +85,7 @@ public class MypageFragment extends Fragment {
     }
 
     private void getUserInfo() {
-        DatabaseReference dbReference = databaseReference.child("Users").child(profileID);
+        DatabaseReference usersReference = databaseReference.child("Users").child(profileID);
 
         ValueEventListener listener = new ValueEventListener() {
             @Override
@@ -92,12 +95,35 @@ public class MypageFragment extends Fragment {
                 }
 
                 User user = snapshot.getValue(User.class);
+                Picasso.get()
+                       .load(user.getProfilePicUriStr())
+                       .placeholder(R.drawable.default_avatar)
+                       .into(profileImageCircleImageView);
+//                Log.d(TAG, "onDataChange: username: " + user.getUsername());
+//                Log.d(TAG, "onDataChange: email: " + user.getEmail());
+//                Log.d(TAG, "onDataChange: status: " + user.getAccountStatus());
+//                Log.d(TAG, "onDataChange: userId: " + user.getUserID());
+
+                usernameTextView.setText(user.getUsername());
+
+                if (user.getName() != null && user.getName().length() != 0) {
+                    nameTextView.setText(user.getName());
+                }
+
+                if (user.getBio() != null && user.getBio().length() != 0) {
+                    bioTextView.setText(user.getBio());
+                }
+
+                usersReference.removeEventListener(this);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                Log.w(TAG, "Failed to read value.", error.toException());
+                usersReference.removeEventListener(this);
             }
         };
+
+        usersReference.addValueEventListener(listener);
     }
 }
