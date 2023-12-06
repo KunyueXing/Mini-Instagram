@@ -42,7 +42,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="30dp"
-        android:id="@+id/btn_follow"
+        android:id="@+id/follow_button"
         android:layout_alignParentEnd="true"
         android:visibility="gone">
 
