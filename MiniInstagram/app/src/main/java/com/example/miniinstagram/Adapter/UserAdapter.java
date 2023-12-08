@@ -115,10 +115,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
      */
     private void isFollowed(final String userID, final Button button) {
         // firebaseUser.getUid() -- current user,
-        // The users she is following are stored in "User-Following" in database
+        // The users she is following are stored in "User-Following" and in a "default" group in database
         DatabaseReference userFollowingRef = FirebaseDatabase.getInstance()
                                                              .getReference()
                                                              .child("User-Following")
+                                                             .child("default")
                                                              .child(firebaseUser.getUid());
 
         ValueEventListener listener = new ValueEventListener() {
