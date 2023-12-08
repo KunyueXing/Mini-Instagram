@@ -1,6 +1,7 @@
 package com.example.miniinstagram.Adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.ContentInfo;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,11 @@ import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -30,8 +36,17 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     private List<User> mUsers;
     private boolean isFragment;
     private FirebaseUser firebaseUser;
+    private String TAG = "UserAdapter: ";
 
-    // We'll user UserAdapter both in fragment and activity, so we have a boolean param.
+    /**
+     * Initialize the dataset of the Adapter
+     *
+     * @param mUsers List<User> containing the data to populate views to be used
+     * by RecyclerView
+     * @param isFragment boolean is used to check if this adapter is used in a fragment or not.
+     * Since we'll also use it in an activity
+     * @param mContext
+     */
     public UserAdapter(Context mContext, List<User> mUsers, boolean isFragment) {
         this.mContext = mContext;
         this.mUsers = mUsers;
@@ -94,9 +109,38 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         return mUsers.size();
     }
 
-    // To check if a user is followed by the current user and show corresponding results on button
+    /**
+     * To check if a user (its id is passed in as @param userID) is followed by the current user
+     * and show corresponding results on button
+     */
     private void isFollowed(final String userID, final Button button) {
+        // firebaseUser.getUid() -- current user,
+        // The users she is following are stored in "User-Following" in database
+        DatabaseReference userFollowingRef = FirebaseDatabase.getInstance()
+                                                             .getReference()
+                                                             .child("User-Following")
+                                                             .child(firebaseUser.getUid());
 
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.child(userID).exists()) {
+                    button.setText("following");
+                } else {
+                    button.setText("follow");
+                }
+
+                userFollowingRef.removeEventListener(this);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Failed to read value when get User-following", error.toException());
+                userFollowingRef.removeEventListener(this);
+            }
+        };
+
+        userFollowingRef.addValueEventListener(listener);
     }
 
 
