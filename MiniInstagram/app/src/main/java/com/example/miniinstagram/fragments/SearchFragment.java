@@ -111,6 +111,10 @@ public class SearchFragment extends Fragment {
         userDatabaseRef.addValueEventListener(listener);
     }
 
+    /**
+     * User can search for other users, existed hashtags, etc.
+     * Currently only implemented feature of searching for other users, by calling searchUser
+     */
     private void search() {
         TextWatcher txtWatcher = new TextWatcher() {
             @Override
@@ -132,6 +136,10 @@ public class SearchFragment extends Fragment {
         searchBarTextView.addTextChangedListener(txtWatcher);
     }
 
+    /**
+     * Search for other users using username
+     * @param target
+     */
     private void searchUser(String target) {
         recyclerView.setVisibility(View.VISIBLE);
 
