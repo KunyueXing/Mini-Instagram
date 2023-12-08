@@ -74,6 +74,17 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         }
     }
 
+    /**
+     * RecyclerView calls this method whenever it needs to create a new ViewHolder. The method
+     * creates and initializes the ViewHolder and its associated View, but does not fill in the
+     * view's contents—the ViewHolder has not yet been bound to specific data.
+     *
+     * @param parent The ViewGroup into which the new View will be added after it is bound to
+     *               an adapter position.
+     * @param viewType The view type of the new View.
+     *
+     * @return
+     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -81,7 +92,16 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         return new UserAdapter.ViewHolder(view);
     }
 
-    // Replace the contents of a view (invoked by the layout manager)
+    /**
+     * RecyclerView calls this method to associate a ViewHolder with data. The method fetches the
+     * appropriate data and uses the data to fill in the view holder's layout. For example, if the
+     * RecyclerView displays a list of names, the method might find the appropriate name in the
+     * list and fill in the view holder's TextView widget.
+     *
+     * @param holder The ViewHolder which should be updated to represent the contents of the
+     *        item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -103,7 +123,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         }
     }
 
-    // Return the size of user list, which is the search results (invoked by the layout manager)
+    /**
+     * RecyclerView calls this method to get the size of the dataset. For example, in an address
+     * book app, this might be the total number of addresses. RecyclerView uses this to determine
+     * when there are no more items that can be displayed.
+     *
+     * @return
+     */
     @Override
     public int getItemCount() {
         return mUsers.size();
