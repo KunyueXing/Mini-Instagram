@@ -210,9 +210,14 @@ Below listed some of the rules that limit access and validate data:
 ## References
 ### Firebase
 - [Firebase official docs](https://firebase.google.com/docs/guides?hl=en&authuser=0)
+  - [Read and Write Data on Android](https://firebase.google.com/docs/database/android/read-and-write)
+  - [Work with Lists of Data on Android](https://firebase.google.com/docs/database/android/lists-of-data) 
 - [Add firebase to your Android project](https://firebase.google.com/docs/android/setup)
-- [Firebase YouTube channel](https://www.youtube.com/@Firebase/playlists)
-- [Quick start of firebase-android, google official](https://github.com/firebase/quickstart-android)
+- [Youtube: Firebase YouTube channel](https://www.youtube.com/@Firebase/playlists)
+  -  [SQL Databases and the Firebase Database](https://www.youtube.com/watch?v=WacqhiI-g_o&list=PLl-K7zZEsYLlP-k-RKFa7RyNPa9_wCH2s)
+  -  [Introducing Firebase Realtime Database](https://www.youtube.com/watch?v=U5aeM5dvUpA&list=PLl-K7zZEsYLmgdxMEHar35Wo26fLWm9BI)
+  -  [Getting started with Firebase Authentication on Android](https://www.youtube.com/watch?v=wm626abfMM8)
+- [Github: Quick start of firebase-android, google official](https://github.com/firebase/quickstart-android)
    - [Firebase realtime database - android ]( https://github.com/firebase/quickstart-android/blob/master/database/README.md)
    - [Firebase Storage - android](https://github.com/firebase/quickstart-android/tree/master/storage)
 
