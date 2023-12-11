@@ -180,13 +180,23 @@ The database has eight "root" nodes
 7. `User-following`
      - a list of users followed by the user
      - key: userID
-        - key: groupID, 
+        - key: userID,
+        - value: true 
         - `/User-following/<USER-ID>/<GROUP-ID>`, is a list of users followed by a specific user and group under a certain group, keyed by the user ID
-     - This makes it easy to query "all users followed by a specific user", " a list of users followed and grouped by a specific user", etc.
+     - This makes it easy to query "all users followed by a specific user", etc.
 8. `User-followedby`
      - a list of users following the specific user
      - key: userID
-
+       - key: userID
+       - value: true      
+9. `User-group`
+     - a list of users following the specific user under a certain group
+     - key: userID
+       - key: groupID
+         - key: userID
+         - value:true    
+    - This makes it easy to query " a list of users followed and grouped by a specific user", etc.
+  
 
 ### Database Rules
 Below listed some of the rules that limit access and validate data:
