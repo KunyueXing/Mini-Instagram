@@ -227,6 +227,11 @@ Below listed some of the rules that limit access and validate data:
 - [Grokking object oriented design interview](https://www.educative.io/courses/grokking-the-low-level-design-interview-using-ood-principles)
 - [Android Developers Youtube Channel](https://www.youtube.com/user/androiddevelopers)
 - [YouTube: Testing on Android](https://www.youtube.com/watch?v=EkfVL5vCDmo&list=PLQkwcJG4YTCSYJ13G4kVIJ10X5zisB2Lq)
+- Android Official Doc
+  - [Test apps on Android](https://developer.android.com/training/testing)
+  - [Create dynamic lists with RecyclerView](https://developer.android.com/develop/ui/views/layout/recyclerview)
+  - [App architecture](https://developer.android.com/topic/architecture/intro)
+  - [App resources overview](https://developer.android.com/guide/topics/resources/providing-resources) 
 
 ### Gatech Courses taken
 - [CS 6300: Software Development Process](https://omscs.gatech.edu/cs-6300-software-development-process)
