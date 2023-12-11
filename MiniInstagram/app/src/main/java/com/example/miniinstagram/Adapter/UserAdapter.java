@@ -146,7 +146,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                     addUserFollowedBy(user);
                 } else {
                     removeUserFollowing(user);
-
+                    removeUserFollowedBy(user);
                 }
             }
         });
@@ -262,7 +262,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         // The users she is following are stored in "User-Following" in database
         DatabaseReference userFollowingRef = FirebaseDatabase.getInstance()
                                                              .getReference()
-                                                             .child("User-Following")
+                                                             .child("User-following")
                                                              .child(firebaseUser.getUid());
 
         ValueEventListener listener = new ValueEventListener() {
@@ -273,14 +273,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 } else {
                     button.setText("follow");
                 }
-
-                userFollowingRef.removeEventListener(this);
+                //userFollowingRef.removeEventListener(this);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.w(TAG, "Failed to read value when get User-following", error.toException());
-                userFollowingRef.removeEventListener(this);
+                //userFollowingRef.removeEventListener(this);
             }
         };
 
