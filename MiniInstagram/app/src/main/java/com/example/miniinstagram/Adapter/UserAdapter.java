@@ -131,10 +131,19 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             holder.followButton.setVisibility(View.GONE);
         }
 
+        // User can click on the button to follow or unfollow
         followOrNot(holder, user);
 
     }
 
+    /**
+     * When the button has text "follow", when user click it, she will follow the account.
+     * When it shows "following", when user click it, she will unfollow the account.
+     * The corresponding relationship will be saved / removed from database
+     *
+     * @param holder
+     * @param user
+     */
     private void followOrNot(@NonNull ViewHolder holder, User user) {
         holder.followButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -194,6 +203,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 .addOnCompleteListener(listener);
     }
 
+    /**
+     * When the current user choose to follow another user. Another user's ID will be saved in
+     * /User-following/current userID/ another user's ID, and its value is set to be true
+     *
+     * @param user
+     */
     private void addUserFollowing(User user) {
 //        Map<String, Object> childUpdates = new HashMap<>();
 //        String path = "/User-following/" + firebaseUser.getUid() + "/" + user.getUserID();
@@ -219,6 +234,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                          .addOnCompleteListener(completeListener);
     }
 
+    /**
+     * When the current user choose to follow another user. The database will update in
+     * /User-followedby/another user's ID/current userID, and its value is set to be true
+     *
+     * @param user
+     */
     private void addUserFollowedBy(User user) {
 
         OnCompleteListener completeListener = new OnCompleteListener() {
