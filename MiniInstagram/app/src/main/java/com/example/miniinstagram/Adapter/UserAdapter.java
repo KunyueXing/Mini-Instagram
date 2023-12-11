@@ -14,16 +14,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -36,6 +43,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     private List<User> mUsers;
     private boolean isFragment;
     private FirebaseUser firebaseUser;
+    private DatabaseReference databaseReference;
     private String TAG = "UserAdapter: ";
 
     /**
@@ -105,6 +113,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        databaseReference = FirebaseDatabase.getInstance().getReference();
 
         final User user = mUsers.get(position);
         holder.followButton.setVisibility(View.VISIBLE);
@@ -121,6 +130,115 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         if (user.getUserID().equals(firebaseUser.getUid())) {
             holder.followButton.setVisibility(View.GONE);
         }
+
+        followOrNot(holder, user);
+
+    }
+
+    private void followOrNot(@NonNull ViewHolder holder, User user) {
+        holder.followButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String textOnBtn = holder.followButton.getText().toString();
+
+                if (textOnBtn.equals("follow")) {
+                    addUserFollowing(user);
+                    addUserFollowedBy(user);
+                } else {
+                    removeUserFollowing(user);
+
+                }
+            }
+        });
+    }
+
+    private void removeUserFollowing(User user) {
+        OnCompleteListener listener = new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull Task task) {
+                if (task.isSuccessful()) {
+                    Log.i(TAG, "onComplete: remove from user-following");
+                    return;
+                }
+
+                DatabaseException exception = (DatabaseException) task.getException();
+                Log.e(TAG, "Fail removing from user-following: " + exception.toString());
+            }
+        };
+
+        databaseReference.child("User-following")
+                .child(firebaseUser.getUid())
+                .child(user.getUserID())
+                .removeValue()
+                .addOnCompleteListener(listener);
+    }
+
+    private void removeUserFollowedBy(User user) {
+        OnCompleteListener listener = new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull Task task) {
+                if (task.isSuccessful()) {
+                    Log.i(TAG, "onSuccess: remove user-followedby!");
+                    return;
+                }
+
+                DatabaseException exception = (DatabaseException) task.getException();
+                Log.e(TAG, "Fail removing from user-followedby: " + exception.toString());
+            }
+        };
+
+        databaseReference.child("User-followedby")
+                .child(user.getUserID())
+                .child(firebaseUser.getUid())
+                .removeValue()
+                .addOnCompleteListener(listener);
+    }
+
+    private void addUserFollowing(User user) {
+//        Map<String, Object> childUpdates = new HashMap<>();
+//        String path = "/User-following/" + firebaseUser.getUid() + "/" + user.getUserID();
+//        childUpdates.put(path, user.toMap());
+
+        OnCompleteListener completeListener = new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull Task task) {
+                if (task.isSuccessful()) {
+                    Log.i(TAG, "onSuccess: added to user-following!");
+                    return;
+                }
+
+                DatabaseException exception = (DatabaseException) task.getException();
+                Log.e(TAG, "Fail adding to user-following: " + exception.toString());
+            }
+        };
+
+        databaseReference.child("User-following")
+                         .child(firebaseUser.getUid())
+                         .child(user.getUserID())
+                         .setValue(true)
+                         .addOnCompleteListener(completeListener);
+    }
+
+    private void addUserFollowedBy(User user) {
+
+        OnCompleteListener completeListener = new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull Task task) {
+                if (task.isSuccessful()) {
+                    Log.i(TAG, "onSuccess: added to user-followedby!");
+                    return;
+                }
+
+                DatabaseException exception = (DatabaseException) task.getException();
+                Log.e(TAG, "Fail adding to user-followedby: " + exception.toString());
+            }
+        };
+
+        databaseReference.child("User-followedby")
+                         .child(user.getUserID())
+                         .child(firebaseUser.getUid())
+                         .setValue(true)
+                         .addOnCompleteListener(completeListener);
     }
 
     /**
@@ -141,11 +259,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
      */
     private void isFollowed(final String userID, final Button button) {
         // firebaseUser.getUid() -- current user,
-        // The users she is following are stored in "User-Following" and in a "default" group in database
+        // The users she is following are stored in "User-Following" in database
         DatabaseReference userFollowingRef = FirebaseDatabase.getInstance()
                                                              .getReference()
                                                              .child("User-Following")
-                                                             .child("default")
                                                              .child(firebaseUser.getUid());
 
         ValueEventListener listener = new ValueEventListener() {

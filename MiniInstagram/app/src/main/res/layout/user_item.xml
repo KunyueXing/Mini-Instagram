@@ -46,6 +46,7 @@
         android:id="@+id/follow_button"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
+        android:onClick="followButtonOnClick"
         android:visibility="gone">
 
     </Button>
