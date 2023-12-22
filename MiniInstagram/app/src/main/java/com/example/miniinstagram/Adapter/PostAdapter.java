@@ -14,7 +14,10 @@ import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.Post;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.hendraanggrian.appcompat.socialview.widget.SocialTextView;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -23,6 +26,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     private Context mContext;
     private List<Post> mPosts;
     private FirebaseUser firebaseUser;
+
+    private DatabaseReference databaseReference;
+
+    private String TAG = "PostAdapter: ";
 
     public PostAdapter(Context mContext, List<Post> mPosts) {
         this.mContext = mContext;
@@ -40,6 +47,22 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+
+        final Post post = mPosts.get(position);
+
+        Picasso.get()
+               .load(post.getPostImageUrl())
+               .placeholder(R.drawable.default_avatar)
+               .into(holder.profileImageImageView);
+
+        if (post.getDescription() == null || post.getDescription().length() == 0) {
+            holder.descriptionTextView.setVisibility(View.GONE);
+        } else {
+            holder.descriptionTextView.setVisibility(View.VISIBLE);
+            holder.descriptionTextView.setText(post.getDescription());
+        }
+
     }
 
     @Override
