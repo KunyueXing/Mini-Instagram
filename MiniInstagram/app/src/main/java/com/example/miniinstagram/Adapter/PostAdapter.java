@@ -1,6 +1,7 @@
 package com.example.miniinstagram.Adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +13,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.Post;
+import com.example.miniinstagram.model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.hendraanggrian.appcompat.socialview.widget.SocialTextView;
 import com.squareup.picasso.Picasso;
 
@@ -30,6 +35,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     private DatabaseReference databaseReference;
 
     private String TAG = "PostAdapter: ";
+    private String databaseUsers = "Users";
+    private String databasePosts = "Posts";
 
     public PostAdapter(Context mContext, List<Post> mPosts) {
         this.mContext = mContext;
@@ -64,11 +71,47 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             holder.descriptionTextView.setText(post.getDescription());
         }
 
+        // Show author info of the post to user, including profile image, username and name
+        getAuthorInfo(holder, post.getAuthorID());
+
     }
 
     @Override
     public int getItemCount() {
         return mPosts.size();
+    }
+
+    /**
+     * Retrieve the author info of the post and show them accordingly
+     * the author info included profile image, username and name.
+     * @param holder
+     * @param userID
+     */
+    private void getAuthorInfo(@NonNull PostAdapter.ViewHolder holder, String userID) {
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                                                .getReference(databaseUsers)
+                                                .child(userID);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User user = snapshot.getValue(User.class);
+                Picasso.get()
+                       .load(user.getProfilePicUriStr())
+                       .placeholder(R.drawable.default_avatar)
+                       .into(holder.profileImageImageView);
+
+                holder.usernameTextView.setText(user.getUsername());
+                holder.authorTextView.setText(user.getName());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.i(TAG, "Can't get user info of the post");
+            }
+        };
+
+        ref.addValueEventListener(listener);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
