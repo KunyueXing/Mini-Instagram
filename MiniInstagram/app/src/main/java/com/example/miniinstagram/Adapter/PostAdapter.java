@@ -51,10 +51,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
         final Post post = mPosts.get(position);
 
+        // Show image of the post to user
         Picasso.get()
                .load(post.getPostImageUrl())
-               .placeholder(R.drawable.default_avatar)
-               .into(holder.profileImageImageView);
+               .placeholder(R.drawable.ic_add_photo_png)
+               .into(holder.postImageImageView);
 
         if (post.getDescription() == null || post.getDescription().length() == 0) {
             holder.descriptionTextView.setVisibility(View.GONE);
