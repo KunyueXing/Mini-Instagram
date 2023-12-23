@@ -1,6 +1,7 @@
 package com.example.miniinstagram.Adapter;
 
 import android.content.Context;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,12 +40,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     private String databaseUsers = "Users";
     private String databasePosts = "Posts";
     private String databaseLikes = "Likes";
+    private String databasePostComments = "Post-comments";
 
     public PostAdapter(Context mContext, List<Post> mPosts) {
         this.mContext = mContext;
         this.mPosts = mPosts;
     }
-
 
     @NonNull
     @Override
@@ -66,12 +67,38 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
         isPostLikedByUser(post.getPostID(), holder);
         getLikesCount(post.getPostID(), holder);
+        getCommentsNum(post.getPostID(), holder);
 
     }
 
     @Override
     public int getItemCount() {
         return mPosts.size();
+    }
+
+    /**
+     * Show how many comments the post has.
+     *
+     * @param postID
+     * @param holder
+     */
+    private void getCommentsNum(String postID, @NonNull PostAdapter.ViewHolder holder) {
+        DatabaseReference ref = databaseReference.child(databasePostComments).child(postID);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                long commentsNum = snapshot.getChildrenCount();
+                holder.commentTextView.setText("View all " + commentsNum + " comments");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.i(TAG, "Can't get number of comments of the post from Post-comments");
+            }
+        };
+
+        ref.addValueEventListener(listener);
     }
 
     /**
