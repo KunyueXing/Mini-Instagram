@@ -60,19 +60,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
         final Post post = mPosts.get(position);
 
-        // Show image of the post to user
-        Picasso.get()
-               .load(post.getPostImageUrl())
-               .placeholder(R.drawable.ic_add_photo_png)
-               .into(holder.postImageImageView);
-
-        if (post.getDescription() == null || post.getDescription().length() == 0) {
-            holder.descriptionTextView.setVisibility(View.GONE);
-        } else {
-            holder.descriptionTextView.setVisibility(View.VISIBLE);
-            holder.descriptionTextView.setText(post.getDescription());
-        }
-
+        getPostContent(post, holder);
         // Show author info of the post to user, including profile image, username and name
         getAuthorInfo(holder, post.getAuthorID());
 
@@ -87,7 +75,28 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     }
 
     /**
-     * Count how many likes the post had and shown on the text accordingly.
+     * Get post image and description and show them accordingly.
+     *
+     * @param post
+     * @param holder
+     */
+    private void getPostContent(Post post, @NonNull PostAdapter.ViewHolder holder) {
+        // Show image of the post to user
+        Picasso.get()
+                .load(post.getPostImageUrl())
+                .placeholder(R.drawable.ic_add_photo_png)
+                .into(holder.postImageImageView);
+
+        if (post.getDescription() == null || post.getDescription().length() == 0) {
+            holder.descriptionTextView.setVisibility(View.GONE);
+        } else {
+            holder.descriptionTextView.setVisibility(View.VISIBLE);
+            holder.descriptionTextView.setText(post.getDescription());
+        }
+    }
+
+    /**
+     * Count how many likes the post had and show on the text accordingly.
      *
      * @param postID
      * @param holder
