@@ -24,6 +24,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.hendraanggrian.appcompat.socialview.widget.SocialTextView;
 import com.squareup.picasso.Picasso;
 
+import java.util.EventListener;
 import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
@@ -37,6 +38,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     private String TAG = "PostAdapter: ";
     private String databaseUsers = "Users";
     private String databasePosts = "Posts";
+    private String databaseLikes = "Likes";
 
     public PostAdapter(Context mContext, List<Post> mPosts) {
         this.mContext = mContext;
@@ -74,11 +76,75 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         // Show author info of the post to user, including profile image, username and name
         getAuthorInfo(holder, post.getAuthorID());
 
+        isPostLikedByUser(post.getPostID(), holder);
+        getLikesCount(post.getPostID(), holder);
+
     }
 
     @Override
     public int getItemCount() {
         return mPosts.size();
+    }
+
+    /**
+     * Count how many likes the post had and shown on the text accordingly.
+     *
+     * @param postID
+     * @param holder
+     */
+    private void getLikesCount(String postID, @NonNull PostAdapter.ViewHolder holder) {
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                                                .getReference()
+                                                .child(databaseLikes)
+                                                .child(postID);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                long likesNum = snapshot.getChildrenCount();
+                holder.likesTextView.setText(likesNum + "likes");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.i(TAG, "Can't get likes of the post");
+            }
+        };
+
+        ref.addValueEventListener(listener);
+    }
+
+    /**
+     * Check if the post is liked by the current user, and adjust the icon and text accordingly.
+     *
+     * @param postID
+     * @param holder
+     */
+    private void isPostLikedByUser(String postID, @NonNull PostAdapter.ViewHolder holder) {
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                                                .getReference()
+                                                .child(databaseLikes)
+                                                .child(postID);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.child(firebaseUser.getUid()).exists()) {
+                    holder.likesImageView.setImageResource(R.drawable.ic_liked);
+                    holder.likesImageView.setTag("liked");
+                } else {
+                    holder.likesImageView.setImageResource(R.drawable.ic_like);
+                    holder.likesImageView.setTag("liked");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.i(TAG, "Can't get likes of the post");
+            }
+        };
+
+        ref.addValueEventListener(listener);
     }
 
     /**
@@ -107,7 +173,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.i(TAG, "Can't get user info of the post");
+                Log.i(TAG, "Can't get author info of the post");
             }
         };
 
