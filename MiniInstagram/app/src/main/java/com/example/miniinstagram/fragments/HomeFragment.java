@@ -26,7 +26,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class HomeFragment extends Fragment {
     private RecyclerView recyclerView;
@@ -37,7 +39,7 @@ public class HomeFragment extends Fragment {
     private FirebaseUser firebaseUser;
     private DatabaseReference databaseReference;
     private String databaseFollowing = "User-following";
-    private String databasePosts = "Posts";
+    private String databaseUserPosts = "User-Posts";
     private String TAG = "HomeFragment: ";
 
     @SuppressLint("MissingInflatedId")
@@ -67,13 +69,49 @@ public class HomeFragment extends Fragment {
         progressBar = view.findViewById(R.id.progress_circular);
 
         getAllFollowing();
-        getAllFollowingPosts();
+        if (allFollowingList.size() > 0) {
+            getAllFollowingPosts();
+        }
 
         return view;
     }
 
+    /**
+     * Get all posts from all user followings and store them in postList.
+     */
     private void getAllFollowingPosts() {
-        
+        DatabaseReference ref = databaseReference.child(databaseUserPosts);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                postList.clear();
+
+                for (DataSnapshot subSnapshot : snapshot.getChildren()) {
+                    for (String followingID : allFollowingList) {
+                        if (!subSnapshot.getKey().equals(followingID)) {
+                            continue;
+                        }
+
+                        for (DataSnapshot postSnapshot : subSnapshot.getChildren()) {
+                            Post post = postSnapshot.getValue(Post.class);
+
+                            postList.add(post);
+                        }
+                    }
+                }
+
+                postAdapter.notifyDataSetChanged();
+                progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Get all posts from all following:onCancelled", error.toException());
+            }
+        };
+
+        ref.addValueEventListener(listener);
     }
 
     /**
@@ -95,7 +133,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.i(TAG, "Can't get all followings from User-following");
+                Log.w(TAG, "Get all following:onCancelled", error.toException());
             }
         };
 
