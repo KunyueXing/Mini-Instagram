@@ -198,10 +198,16 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User user = snapshot.getValue(User.class);
-                Picasso.get()
-                       .load(user.getProfilePicUriStr())
-                       .placeholder(R.drawable.default_avatar)
-                       .into(holder.profileImageImageView);
+
+                if (user.getProfilePicUriStr().equals("default")) {
+                    holder.profileImageImageView.setImageResource(R.drawable.default_avatar);
+                } else {
+                    Picasso.get()
+                           .load(user.getProfilePicUriStr())
+                           .placeholder(R.drawable.default_avatar)
+                           .into(holder.profileImageImageView);
+                }
+
 
                 holder.usernameTextView.setText(user.getUsername());
                 holder.authorTextView.setText(user.getName());
