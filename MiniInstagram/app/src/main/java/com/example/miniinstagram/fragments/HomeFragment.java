@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.example.miniinstagram.Adapter.PostAdapter;
 import com.example.miniinstagram.R;
@@ -26,14 +27,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class HomeFragment extends Fragment {
     private RecyclerView recyclerView;
     private PostAdapter postAdapter;
-    private List<Post> postList;
+    private List<Post> allPostList;
     private List<String> allFollowingList;
     private ProgressBar progressBar;
     private FirebaseUser firebaseUser;
@@ -57,12 +56,12 @@ public class HomeFragment extends Fragment {
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         // Latest post will be on the top
-        linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
+        linearLayoutManager.setReverseLayout(true);
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        postList = new ArrayList<>();
-        postAdapter = new PostAdapter(getContext(), postList);
+        allPostList = new ArrayList<>();
+        postAdapter = new PostAdapter(getContext(), allPostList);
         recyclerView.setAdapter(postAdapter);
 
         allFollowingList = new ArrayList<>();
@@ -70,49 +69,8 @@ public class HomeFragment extends Fragment {
         progressBar = view.findViewById(R.id.progress_circular);
 
         getAllFollowing();
-        if (allFollowingList.size() > 0) {
-            getAllFollowingPosts();
-        }
 
         return view;
-    }
-
-    /**
-     * Get all posts from all user followings and store them in postList.
-     */
-    private void getAllFollowingPosts() {
-        DatabaseReference ref = databaseReference.child(databaseUserPosts);
-
-        ValueEventListener listener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                postList.clear();
-
-                for (DataSnapshot subSnapshot : snapshot.getChildren()) {
-                    for (String followingID : allFollowingList) {
-                        if (!subSnapshot.getKey().equals(followingID)) {
-                            continue;
-                        }
-
-                        for (DataSnapshot postSnapshot : subSnapshot.getChildren()) {
-                            Post post = postSnapshot.getValue(Post.class);
-
-                            postList.add(post);
-                        }
-                    }
-                }
-
-                postAdapter.notifyDataSetChanged();
-                progressBar.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.w(TAG, "Get all posts from all following:onCancelled", error.toException());
-            }
-        };
-
-        ref.addValueEventListener(listener);
     }
 
     /**
@@ -129,12 +87,60 @@ public class HomeFragment extends Fragment {
 
                 for (DataSnapshot subSnapshot : snapshot.getChildren()) {
                     allFollowingList.add(subSnapshot.getKey());
+
+//                    Toast.makeText(getContext(), subSnapshot.getKey(),
+//                            Toast.LENGTH_SHORT).show();
                 }
+
+//                Toast.makeText(getContext(), "Get all followings",
+//                        Toast.LENGTH_SHORT).show();
+                getAllFollowingPosts();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.w(TAG, "Get all following:onCancelled", error.toException());
+            }
+        };
+
+        ref.addValueEventListener(listener);
+    }
+
+    /**
+     * Get all posts from all user followings and store them in postList.
+     */
+    private void getAllFollowingPosts() {
+        DatabaseReference ref = databaseReference.child(databaseUserPosts);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                allPostList.clear();
+
+                for (DataSnapshot subSnapshot : snapshot.getChildren()) {
+                    for (String followingID : allFollowingList) {
+                        if (!subSnapshot.getKey().equals(followingID)) {
+                            continue;
+                        }
+
+                        for (DataSnapshot postSnapshot : subSnapshot.getChildren()) {
+                            Post post = postSnapshot.getValue(Post.class);
+
+                            allPostList.add(post);
+                        }
+                    }
+                }
+
+//                Toast.makeText(getContext(), "Get all following posts",
+//                        Toast.LENGTH_SHORT).show();
+
+                postAdapter.notifyDataSetChanged();
+                progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Get all posts from all following:onCancelled", error.toException());
             }
         };
 

@@ -65,9 +65,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         // Show author info of the post to user, including profile image, username and name
         getAuthorInfo(holder, post.getAuthorID());
 
-        isPostLikedByUser(post.getPostID(), holder);
-        getLikesCount(post.getPostID(), holder);
-        getCommentsNum(post.getPostID(), holder);
+//        isPostLikedByUser(post.getPostID(), holder);
+//        getLikesCount(post.getPostID(), holder);
+//        getCommentsNum(post.getPostID(), holder);
 
     }
 
@@ -82,24 +82,24 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
      * @param postID
      * @param holder
      */
-    private void getCommentsNum(String postID, @NonNull PostAdapter.ViewHolder holder) {
-        DatabaseReference ref = databaseReference.child(databasePostComments).child(postID);
-
-        ValueEventListener listener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                long commentsNum = snapshot.getChildrenCount();
-                holder.commentTextView.setText("View all " + commentsNum + " comments");
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.i(TAG, "Can't get number of comments of the post from Post-comments");
-            }
-        };
-
-        ref.addValueEventListener(listener);
-    }
+//    private void getCommentsNum(String postID, @NonNull ViewHolder holder) {
+//        DatabaseReference ref = databaseReference.child(databasePostComments).child(postID);
+//
+//        ValueEventListener listener = new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                long commentsNum = snapshot.getChildrenCount();
+//                holder.commentTextView.setText("View all " + commentsNum + " comments");
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Log.i(TAG, "Can't get number of comments of the post from Post-comments");
+//            }
+//        };
+//
+//        ref.addValueEventListener(listener);
+//    }
 
     /**
      * Get post image and description and show them accordingly.
@@ -107,12 +107,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
      * @param post
      * @param holder
      */
-    private void getPostContent(Post post, @NonNull PostAdapter.ViewHolder holder) {
+    private void getPostContent(Post post, @NonNull ViewHolder holder) {
         // Show image of the post to user
         Picasso.get()
-                .load(post.getPostImageUrl())
-                .placeholder(R.drawable.ic_add_photo_png)
-                .into(holder.postImageImageView);
+               .load(post.getPostImageUrl())
+               .placeholder(R.drawable.ic_add_photo_png)
+               .into(holder.postImageImageView);
 
         if (post.getDescription() == null || post.getDescription().length() == 0) {
             holder.descriptionTextView.setVisibility(View.GONE);
@@ -128,27 +128,27 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
      * @param postID
      * @param holder
      */
-    private void getLikesCount(String postID, @NonNull PostAdapter.ViewHolder holder) {
-        DatabaseReference ref = FirebaseDatabase.getInstance()
-                                                .getReference()
-                                                .child(databaseLikes)
-                                                .child(postID);
-
-        ValueEventListener listener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                long likesNum = snapshot.getChildrenCount();
-                holder.likesTextView.setText(likesNum + "likes");
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.i(TAG, "Can't get likes of the post");
-            }
-        };
-
-        ref.addValueEventListener(listener);
-    }
+//    private void getLikesCount(String postID, @NonNull ViewHolder holder) {
+//        DatabaseReference ref = FirebaseDatabase.getInstance()
+//                                                .getReference()
+//                                                .child(databaseLikes)
+//                                                .child(postID);
+//
+//        ValueEventListener listener = new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                long likesNum = snapshot.getChildrenCount();
+//                holder.likesTextView.setText(likesNum + "likes");
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Log.i(TAG, "Can't get likes of the post");
+//            }
+//        };
+//
+//        ref.addValueEventListener(listener);
+//    }
 
     /**
      * Check if the post is liked by the current user, and adjust the icon and text accordingly.
@@ -156,32 +156,32 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
      * @param postID
      * @param holder
      */
-    private void isPostLikedByUser(String postID, @NonNull PostAdapter.ViewHolder holder) {
-        DatabaseReference ref = FirebaseDatabase.getInstance()
-                                                .getReference()
-                                                .child(databaseLikes)
-                                                .child(postID);
-
-        ValueEventListener listener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.child(firebaseUser.getUid()).exists()) {
-                    holder.likesImageView.setImageResource(R.drawable.ic_liked);
-                    holder.likesImageView.setTag("liked");
-                } else {
-                    holder.likesImageView.setImageResource(R.drawable.ic_like);
-                    holder.likesImageView.setTag("liked");
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.i(TAG, "Can't get likes of the post");
-            }
-        };
-
-        ref.addValueEventListener(listener);
-    }
+//    private void isPostLikedByUser(String postID, @NonNull ViewHolder holder) {
+//        DatabaseReference ref = FirebaseDatabase.getInstance()
+//                                                .getReference()
+//                                                .child(databaseLikes)
+//                                                .child(postID);
+//
+//        ValueEventListener listener = new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if (snapshot.child(firebaseUser.getUid()).exists()) {
+//                    holder.likesImageView.setImageResource(R.drawable.ic_liked);
+//                    holder.likesImageView.setTag("liked");
+//                } else {
+//                    holder.likesImageView.setImageResource(R.drawable.ic_like);
+//                    holder.likesImageView.setTag("liked");
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Log.i(TAG, "Can't get likes of the post");
+//            }
+//        };
+//
+//        ref.addValueEventListener(listener);
+//    }
 
     /**
      * Retrieve the author info of the post and show them accordingly
@@ -189,10 +189,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
      * @param holder
      * @param userID
      */
-    private void getAuthorInfo(@NonNull PostAdapter.ViewHolder holder, String userID) {
-        DatabaseReference ref = FirebaseDatabase.getInstance()
-                                                .getReference(databaseUsers)
-                                                .child(userID);
+    private void getAuthorInfo(@NonNull ViewHolder holder, String userID) {
+        DatabaseReference ref = databaseReference.child(databaseUsers).child(userID);
 
         ValueEventListener listener = new ValueEventListener() {
             @Override
@@ -207,7 +205,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                            .placeholder(R.drawable.default_avatar)
                            .into(holder.profileImageImageView);
                 }
-
 
                 holder.usernameTextView.setText(user.getUsername());
                 holder.authorTextView.setText(user.getName());
