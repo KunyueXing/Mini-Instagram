@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.example.miniinstagram.Adapter.PostAdapter;
 import com.example.miniinstagram.R;
@@ -40,6 +39,9 @@ public class HomeFragment extends Fragment {
     private String databaseFollowing = "User-following";
     private String databaseUserPosts = "User-Posts";
     private String TAG = "HomeFragment: ";
+
+    private ValueEventListener allFollowingListener;
+    private ValueEventListener allFollowingPostsListener;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -80,7 +82,7 @@ public class HomeFragment extends Fragment {
         DatabaseReference ref = databaseReference.child(databaseFollowing)
                                                  .child(firebaseUser.getUid());
 
-        ValueEventListener listener = new ValueEventListener() {
+        allFollowingListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 allFollowingList.clear();
@@ -103,7 +105,7 @@ public class HomeFragment extends Fragment {
             }
         };
 
-        ref.addValueEventListener(listener);
+        ref.addValueEventListener(allFollowingListener);
     }
 
     /**
@@ -112,7 +114,7 @@ public class HomeFragment extends Fragment {
     private void getAllFollowingPosts() {
         DatabaseReference ref = databaseReference.child(databaseUserPosts);
 
-        ValueEventListener listener = new ValueEventListener() {
+        allFollowingPostsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 allPostList.clear();
@@ -144,6 +146,30 @@ public class HomeFragment extends Fragment {
             }
         };
 
-        ref.addValueEventListener(listener);
+        ref.addValueEventListener(allFollowingPostsListener);
+    }
+
+    @Override
+    /**
+     * When the fragment is stopped, cleaning up all listeners accordingly
+     */
+    public void onStop() {
+        super.onStop();
+
+        cleanupListener(allFollowingListener,
+                        databaseReference.child(databaseFollowing).child(firebaseUser.getUid()));
+
+        cleanupListener(allFollowingPostsListener, databaseReference.child(databaseUserPosts));
+    }
+
+    /**
+     * Clean up the specific listener from its corresponding database reference
+     * @param listener
+     * @param ref
+     */
+    private void cleanupListener(ValueEventListener listener, DatabaseReference ref) {
+        if (listener != null) {
+            ref.removeEventListener(listener);
+        }
     }
 }

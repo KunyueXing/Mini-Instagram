@@ -42,6 +42,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     private String databaseLikes = "Likes";
     private String databasePostComments = "Post-comments";
 
+    private ValueEventListener getAuthorInfoListener;
+
     public PostAdapter(Context mContext, List<Post> mPosts) {
         this.mContext = mContext;
         this.mPosts = mPosts;
@@ -217,6 +219,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         };
 
         ref.addValueEventListener(listener);
+
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
