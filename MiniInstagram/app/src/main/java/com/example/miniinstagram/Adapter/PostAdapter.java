@@ -218,8 +218,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             }
         };
 
-        ref.addValueEventListener(listener);
-
+        ref.addListenerForSingleValueEvent(listener);
+        // ref.addValueEventListener(listener);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
