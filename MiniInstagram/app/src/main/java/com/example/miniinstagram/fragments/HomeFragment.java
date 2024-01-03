@@ -156,20 +156,15 @@ public class HomeFragment extends Fragment {
     public void onStop() {
         super.onStop();
 
-        cleanupListener(allFollowingListener,
-                        databaseReference.child(databaseFollowing).child(firebaseUser.getUid()));
+        if (allFollowingListener != null) {
+            databaseReference.child(databaseFollowing)
+                             .child(firebaseUser.getUid())
+                             .removeEventListener(allFollowingListener);
+        }
 
-        cleanupListener(allFollowingPostsListener, databaseReference.child(databaseUserPosts));
-    }
-
-    /**
-     * Clean up the specific listener from its corresponding database reference
-     * @param listener
-     * @param ref
-     */
-    private void cleanupListener(ValueEventListener listener, DatabaseReference ref) {
-        if (listener != null) {
-            ref.removeEventListener(listener);
+        if (allFollowingPostsListener != null) {
+            databaseReference.child(databaseUserPosts)
+                             .removeEventListener(allFollowingPostsListener);
         }
     }
 }
