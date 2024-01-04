@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.Post;
 import com.example.miniinstagram.model.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -70,7 +72,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         isPostLikedByUser(post.getPostID(), holder);
         toLikeOrNot(holder, post.getPostID());
 
-//        getLikesCount(post.getPostID(), holder);
+        getLikesCount(post.getPostID(), holder);
 //        getCommentsNum(post.getPostID(), holder);
 
     }
@@ -96,8 +98,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                                      .child(postID)
                                      .child(firebaseUser.getUid())
                                      .setValue(true);
+
                     holder.likesImageView.setTag("liked");
                     holder.likesImageView.setImageResource(R.drawable.ic_liked);
+                    getLikesCount(postID, holder);
                 } else {
                     databaseReference.child(databaseLikes)
                                      .child(postID)
@@ -106,6 +110,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
                     holder.likesImageView.setTag("like");
                     holder.likesImageView.setImageResource(R.drawable.ic_like);
+                    getLikesCount(postID, holder);
                 }
             }
         });
@@ -163,27 +168,31 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
      * @param postID
      * @param holder
      */
-//    private void getLikesCount(String postID, @NonNull ViewHolder holder) {
-//        DatabaseReference ref = FirebaseDatabase.getInstance()
-//                                                .getReference()
-//                                                .child(databaseLikes)
-//                                                .child(postID);
-//
-//        ValueEventListener listener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                long likesNum = snapshot.getChildrenCount();
-//                holder.likesTextView.setText(likesNum + "likes");
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                Log.i(TAG, "Can't get likes of the post");
-//            }
-//        };
-//
-//        ref.addValueEventListener(listener);
-//    }
+    private void getLikesCount(String postID, @NonNull ViewHolder holder) {
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                                                .getReference()
+                                                .child(databaseLikes)
+                                                .child(postID);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                long likesNum = snapshot.getChildrenCount();
+                if (likesNum != 0) {
+                    holder.likesTextView.setText(likesNum + " likes");
+                } else {
+                    holder.likesTextView.setText("");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Can't get likes of the post", error.toException());
+            }
+        };
+
+        ref.addListenerForSingleValueEvent(listener);
+    }
 
     /**
      * Check if the post is liked by the current user, and adjust the icon and text accordingly.
