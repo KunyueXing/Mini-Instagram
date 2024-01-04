@@ -47,6 +47,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     public PostAdapter(Context mContext, List<Post> mPosts) {
         this.mContext = mContext;
         this.mPosts = mPosts;
+
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        databaseReference = FirebaseDatabase.getInstance().getReference();
     }
 
     @NonNull
@@ -58,16 +61,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        databaseReference = FirebaseDatabase.getInstance().getReference();
-
         final Post post = mPosts.get(position);
 
         getPostContent(post, holder);
         // Show author info of the post to user, including profile image, username and name
         getAuthorInfo(holder, post.getAuthorID());
 
-//        isPostLikedByUser(post.getPostID(), holder);
+        isPostLikedByUser(post.getPostID(), holder);
+        toLikeOrNot(holder, post.getPostID());
+
 //        getLikesCount(post.getPostID(), holder);
 //        getCommentsNum(post.getPostID(), holder);
 
@@ -76,6 +78,37 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return mPosts.size();
+    }
+
+    /**
+     * When user click on the like-shape imageview, she likes / unlikes the post. And the icons
+     * will be adjusted accordingly.
+     *
+     * @param holder
+     * @param postID
+     */
+    private void toLikeOrNot(@NonNull ViewHolder holder, String postID) {
+        holder.likesImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (holder.likesImageView.getTag().equals("like")) {
+                    databaseReference.child(databaseLikes)
+                                     .child(postID)
+                                     .child(firebaseUser.getUid())
+                                     .setValue(true);
+                    holder.likesImageView.setTag("liked");
+                    holder.likesImageView.setImageResource(R.drawable.ic_liked);
+                } else {
+                    databaseReference.child(databaseLikes)
+                                     .child(postID)
+                                     .child(firebaseUser.getUid())
+                                     .removeValue();
+
+                    holder.likesImageView.setTag("like");
+                    holder.likesImageView.setImageResource(R.drawable.ic_like);
+                }
+            }
+        });
     }
 
     /**
@@ -158,32 +191,32 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
      * @param postID
      * @param holder
      */
-//    private void isPostLikedByUser(String postID, @NonNull ViewHolder holder) {
-//        DatabaseReference ref = FirebaseDatabase.getInstance()
-//                                                .getReference()
-//                                                .child(databaseLikes)
-//                                                .child(postID);
-//
-//        ValueEventListener listener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                if (snapshot.child(firebaseUser.getUid()).exists()) {
-//                    holder.likesImageView.setImageResource(R.drawable.ic_liked);
-//                    holder.likesImageView.setTag("liked");
-//                } else {
-//                    holder.likesImageView.setImageResource(R.drawable.ic_like);
-//                    holder.likesImageView.setTag("liked");
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                Log.i(TAG, "Can't get likes of the post");
-//            }
-//        };
-//
-//        ref.addValueEventListener(listener);
-//    }
+    private void isPostLikedByUser(String postID, @NonNull ViewHolder holder) {
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                                                .getReference()
+                                                .child(databaseLikes)
+                                                .child(postID);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.child(firebaseUser.getUid()).exists()) {
+                    holder.likesImageView.setImageResource(R.drawable.ic_liked);
+                    holder.likesImageView.setTag("liked");
+                } else {
+                    holder.likesImageView.setImageResource(R.drawable.ic_like);
+                    holder.likesImageView.setTag("like");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Can't get likes of the post", error.toException());
+            }
+        };
+
+        ref.addListenerForSingleValueEvent(listener);
+    }
 
     /**
      * Retrieve the author info of the post and show them accordingly
