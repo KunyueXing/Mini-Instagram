@@ -2,7 +2,9 @@ package com.example.miniinstagram.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Comment {
     private String commentID;
@@ -13,6 +15,13 @@ public class Comment {
     private Date createTime;
 
     public Comment() {
+    }
+
+    public Comment(String commentID, String authorID, String content) {
+        this.createTime = new Date(System.currentTimeMillis());
+        this.commentID = commentID;
+        this.authorID = authorID;
+        this.content = content;
     }
 
     public Comment(String commentID, String authorID, String content, int likesCount,
@@ -83,5 +92,16 @@ public class Comment {
 
     public void deleteLikes() {
         likesCount--;
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("commentID", commentID);
+        result.put("authorID", authorID);
+        result.put("content", content);
+        result.put("createTime", createTime);
+
+        return result;
     }
 }

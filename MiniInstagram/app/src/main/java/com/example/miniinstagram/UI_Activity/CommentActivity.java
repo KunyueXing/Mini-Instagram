@@ -6,21 +6,30 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.miniinstagram.R;
+import com.example.miniinstagram.model.Comment;
 import com.example.miniinstagram.model.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -73,6 +82,54 @@ public class CommentActivity extends AppCompatActivity {
         databaseReference = FirebaseDatabase.getInstance().getReference();
 
         getUserProfileImage();
+    }
+
+    /**
+     * When user click the post textview, upload the comment to database
+     * @param view
+     */
+    public void postCommentOnClick(View view) {
+        if (TextUtils.isEmpty(addCommentEditText.getText().toString())) {
+            Toast.makeText(CommentActivity.this,
+                              "Please add comment",
+                                   Toast.LENGTH_SHORT).show();
+        } else {
+            uploadComment();
+        }
+    }
+
+    /**
+     * Upload Comment to database
+     */
+    private void uploadComment() {
+        String commentID = databaseReference.child(databaseComments).push().getKey();
+
+        Comment currComment = new Comment(commentID, authorID, addCommentEditText.getText().toString());
+        Map<String, Object> commentValues = currComment.toMap();
+        Map<String, Object> childUpdates = new HashMap<String, Object>();
+
+        childUpdates.put("/" + databaseComments + "/" + commentID, commentValues);
+        childUpdates.put("/" + databasePostComments + "/" + postID + "/" + commentID, commentValues);
+
+        OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(CommentActivity.this,
+                            "Post comment success", Toast.LENGTH_SHORT).show();
+
+                    return;
+                }
+
+                DatabaseException e = (DatabaseException) task.getException();
+                Log.e(TAG, "KX: update realtime databsae error-" + e.getMessage().toString());
+            }
+        };
+
+        databaseReference.updateChildren(childUpdates)
+                         .addOnCompleteListener(listener);
+
+        addCommentEditText.setText("");
     }
 
     /**
