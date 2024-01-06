@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.UI_Activity.CommentActivity;
+import com.example.miniinstagram.UI_Activity.NewPostActivity;
 import com.example.miniinstagram.model.Post;
 import com.example.miniinstagram.model.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -95,7 +96,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         holder.commentImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext,"Open Comments page and add comments", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(mContext,"Open Comments page and add comments", Toast.LENGTH_SHORT).show();
                 goToCommentPage(postID, authorID);
             }
         });
@@ -103,7 +104,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         holder.commentTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext,"Open Comments page", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(mContext,"Open Comments page", Toast.LENGTH_SHORT).show();
                 goToCommentPage(postID, authorID);
             }
         });
@@ -116,6 +117,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
          * activity (mContext) to another activity (CommentActivity).
          */
         Intent intent = new Intent(mContext, CommentActivity.class);
+//        Intent intent = new Intent(mContext, NewPostActivity.class);
         intent.putExtra("postID", postID);
         intent.putExtra("authorID", authorID);
         mContext.startActivity(intent);

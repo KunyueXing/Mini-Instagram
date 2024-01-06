@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +39,7 @@ public class CommentActivity extends AppCompatActivity {
     private EditText addCommentEditText;
     private CircleImageView profileImageImageView;
     private TextView postTextView;
+    private ImageView goBackImageView;
 
     private FirebaseUser fbUser;
     private DatabaseReference databaseReference;
@@ -54,22 +56,6 @@ public class CommentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comment);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Comments");
-        /**
-         * Set whether home should be displayed as an "up" affordance. Set this to true if
-         * selecting "home" returns up by a single level in your UI rather than back to the top
-         * level or front page.
-         */
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
         Intent intent = getIntent();
         postID = intent.getStringExtra("postID");
         authorID = intent.getStringExtra("authorID");
@@ -77,11 +63,22 @@ public class CommentActivity extends AppCompatActivity {
         addCommentEditText = findViewById(R.id.add_comment);
         profileImageImageView = findViewById(R.id.profile_image);
         postTextView = findViewById(R.id.post);
+        goBackImageView = findViewById(R.id.goBackImageView);
 
         fbUser = FirebaseAuth.getInstance().getCurrentUser();
         databaseReference = FirebaseDatabase.getInstance().getReference();
 
+//        Toast.makeText(CommentActivity.this,"Welcome to Comments page", Toast.LENGTH_SHORT).show();
+
         getUserProfileImage();
+    }
+
+    /**
+     * When click on goBack imageview, go back
+     * @param view
+     */
+    public void goBackImageViewOnclick(View view) {
+        finish();
     }
 
     /**
