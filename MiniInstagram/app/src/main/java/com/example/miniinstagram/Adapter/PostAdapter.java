@@ -1,6 +1,7 @@
 package com.example.miniinstagram.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.miniinstagram.R;
+import com.example.miniinstagram.UI_Activity.CommentActivity;
 import com.example.miniinstagram.model.Post;
 import com.example.miniinstagram.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -75,11 +77,34 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         getLikesCount(post.getPostID(), holder);
 //        getCommentsNum(post.getPostID(), holder);
 
+        addComment(holder, post.getPostID(), post.getAuthorID());
     }
 
     @Override
     public int getItemCount() {
         return mPosts.size();
+    }
+
+    /**
+     * When user click on Comment ImageView, jump to Comment page
+     * @param holder
+     * @param postID
+     * @param authorID
+     */
+    private void addComment(@NonNull ViewHolder holder, String postID, String authorID) {
+        holder.commentImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /**
+                 * Use putExtra() and getStringExtra() to pass String values from this
+                 * activity (mContext) to another activity (CommentActivity).
+                 */
+                Intent intent = new Intent(mContext, CommentActivity.class);
+                intent.putExtra("postID", postID);
+                intent.putExtra("authorID", authorID);
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     /**
