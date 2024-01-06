@@ -1,14 +1,16 @@
 package com.example.miniinstagram.Adapter;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.content.Context;
 import android.content.Intent;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,8 +19,6 @@ import com.example.miniinstagram.R;
 import com.example.miniinstagram.UI_Activity.CommentActivity;
 import com.example.miniinstagram.model.Post;
 import com.example.miniinstagram.model.User;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -29,7 +29,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.hendraanggrian.appcompat.socialview.widget.SocialTextView;
 import com.squareup.picasso.Picasso;
 
-import java.util.EventListener;
 import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
@@ -75,9 +74,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         toLikeOrNot(holder, post.getPostID());
 
         getLikesCount(post.getPostID(), holder);
-//        getCommentsNum(post.getPostID(), holder);
 
-        addComment(holder, post.getPostID(), post.getAuthorID());
+        getCommentsNum(post.getPostID(), holder);
+        addAndViewComments(holder, post.getPostID(), post.getAuthorID());
+
     }
 
     @Override
@@ -86,25 +86,64 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     }
 
     /**
-     * When user click on Comment ImageView, jump to Comment page
+     * When user click on Comment ImageView or number of comments of a post, jump to Comment page
      * @param holder
      * @param postID
      * @param authorID
      */
-    private void addComment(@NonNull ViewHolder holder, String postID, String authorID) {
+    private void addAndViewComments(@NonNull ViewHolder holder, String postID, String authorID) {
         holder.commentImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /**
-                 * Use putExtra() and getStringExtra() to pass String values from this
-                 * activity (mContext) to another activity (CommentActivity).
-                 */
-                Intent intent = new Intent(mContext, CommentActivity.class);
-                intent.putExtra("postID", postID);
-                intent.putExtra("authorID", authorID);
-                mContext.startActivity(intent);
+                Toast.makeText(mContext,"Open Comments page and add comments", Toast.LENGTH_SHORT).show();
+                goToCommentPage(postID, authorID);
             }
         });
+
+        holder.commentTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(mContext,"Open Comments page", Toast.LENGTH_SHORT).show();
+                goToCommentPage(postID, authorID);
+            }
+        });
+    }
+
+    // Open Comment page to check comments and add comments.
+    private void goToCommentPage(String postID, String authorID) {
+        /**
+         * Use putExtra() and getStringExtra() to pass String values from this
+         * activity (mContext) to another activity (CommentActivity).
+         */
+        Intent intent = new Intent(mContext, CommentActivity.class);
+        intent.putExtra("postID", postID);
+        intent.putExtra("authorID", authorID);
+        mContext.startActivity(intent);
+    }
+
+    /**
+     * Show how many comments the post has.
+     *
+     * @param postID
+     * @param holder
+     */
+    private void getCommentsNum(String postID, @NonNull ViewHolder holder) {
+        DatabaseReference ref = databaseReference.child(databasePostComments).child(postID);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                long commentsNum = snapshot.getChildrenCount();
+                holder.commentTextView.setText("View all " + commentsNum + " comments");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Can't get number of comments of the post", error.toException());
+            }
+        };
+
+        ref.addListenerForSingleValueEvent(listener);
     }
 
     /**
@@ -140,31 +179,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             }
         });
     }
-
-    /**
-     * Show how many comments the post has.
-     *
-     * @param postID
-     * @param holder
-     */
-//    private void getCommentsNum(String postID, @NonNull ViewHolder holder) {
-//        DatabaseReference ref = databaseReference.child(databasePostComments).child(postID);
-//
-//        ValueEventListener listener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                long commentsNum = snapshot.getChildrenCount();
-//                holder.commentTextView.setText("View all " + commentsNum + " comments");
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                Log.i(TAG, "Can't get number of comments of the post from Post-comments");
-//            }
-//        };
-//
-//        ref.addValueEventListener(listener);
-//    }
 
     /**
      * Get post image and description and show them accordingly.
