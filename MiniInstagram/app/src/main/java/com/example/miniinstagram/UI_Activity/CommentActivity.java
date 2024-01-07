@@ -2,7 +2,6 @@ package com.example.miniinstagram.UI_Activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -52,6 +51,7 @@ public class CommentActivity extends AppCompatActivity {
 
     private FirebaseUser fbUser;
     private DatabaseReference databaseReference;
+    private ValueEventListener getAllCommentsListener;
 
     private String postID;
     private String authorID;
@@ -98,7 +98,7 @@ public class CommentActivity extends AppCompatActivity {
     private void getComments() {
         DatabaseReference ref = databaseReference.child(databasePostComments).child(postID);
 
-        ValueEventListener listener = new ValueEventListener() {
+        getAllCommentsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 commentList.clear();
@@ -116,7 +116,21 @@ public class CommentActivity extends AppCompatActivity {
             }
         };
 
-        ref.addValueEventListener(listener);
+        ref.addValueEventListener(getAllCommentsListener);
+    }
+
+    /**
+     * Cleanup listeners when the activity is stopped.
+     */
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (getAllCommentsListener != null) {
+            databaseReference.child(databasePostComments)
+                             .child(postID)
+                             .removeEventListener(getAllCommentsListener);
+        }
     }
 
     /**
