@@ -3,7 +3,10 @@ package com.example.miniinstagram.UI_Activity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -14,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.miniinstagram.Adapter.CommentAdapter;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.Comment;
 import com.example.miniinstagram.model.User;
@@ -29,7 +33,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -40,6 +46,9 @@ public class CommentActivity extends AppCompatActivity {
     private CircleImageView profileImageImageView;
     private TextView postTextView;
     private ImageView goBackImageView;
+    private RecyclerView recyclerView;
+    private CommentAdapter commentAdapter;
+    private List<Comment> commentList;
 
     private FirebaseUser fbUser;
     private DatabaseReference databaseReference;
@@ -51,6 +60,7 @@ public class CommentActivity extends AppCompatActivity {
     private String databasePostComments = "Post-comments";
     private String databaseComments = "Comments";
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,8 +79,44 @@ public class CommentActivity extends AppCompatActivity {
         databaseReference = FirebaseDatabase.getInstance().getReference();
 
 //        Toast.makeText(CommentActivity.this,"Welcome to Comments page", Toast.LENGTH_SHORT).show();
+        recyclerView = findViewById(R.id.recyclerViewComments);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+        commentList = new ArrayList<>();
+        commentAdapter = new CommentAdapter(this , commentList , postID);
+        recyclerView.setAdapter(commentAdapter);
 
         getUserProfileImage();
+        getComments();
+    }
+
+    /**
+     * Retrieve all comments of a specific post and save them in the list @commentList
+     */
+    private void getComments() {
+        DatabaseReference ref = databaseReference.child(databasePostComments).child(postID);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                commentList.clear();
+                for (DataSnapshot subSnapshot : snapshot.getChildren()) {
+                    Comment comment = subSnapshot.getValue(Comment.class);
+                    commentList.add(comment);
+                }
+
+                commentAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "onCancelled: Failed to get all comments of the post", error.toException());
+            }
+        };
+
+        ref.addValueEventListener(listener);
     }
 
     /**

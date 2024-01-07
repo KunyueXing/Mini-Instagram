@@ -32,7 +32,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/recycler_view_comments"
+        android:id="@+id/recyclerViewComments"
         android:layout_below="@+id/toolbar"
         android:layout_above="@+id/comment_bar" />
 
