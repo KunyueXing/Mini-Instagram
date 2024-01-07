@@ -6,28 +6,29 @@
     android:layout_height="match_parent"
     tools:context=".UI_Activity.CommentActivity">
 
+
     <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/toolbar"
         android:background="?android:attr/windowBackground">
 
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:id="@+id/goBackImageView"
-            android:src="@drawable/ic_back"
-            android:layout_alignParentStart="true"
-            android:onClick="goBackImageViewOnClick"/>
+            <ImageView
+                android:id="@+id/goBackImageView"
+                android:layout_width="40dp"
+                android:layout_height="30dp"
+                android:layout_marginLeft="10dp"
+                android:onClick="goBackImageViewOnClick"
+                android:src="@drawable/ic_back" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="Comments"
-            android:textSize="30dp"
-            android:layout_marginLeft="30dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="15dp"
+                android:text="Comments"
+                android:textSize="25dp" />
+
     </androidx.appcompat.widget.Toolbar>
-
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
