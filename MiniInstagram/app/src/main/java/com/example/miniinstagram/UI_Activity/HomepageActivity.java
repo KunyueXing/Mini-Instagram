@@ -10,7 +10,7 @@ import android.view.MenuItem;
 
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.fragments.HomeFragment;
-import com.example.miniinstagram.fragments.MypageFragment;
+import com.example.miniinstagram.fragments.ProfileFragment;
 import com.example.miniinstagram.fragments.NotificationFragment;
 import com.example.miniinstagram.fragments.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -66,7 +66,7 @@ public class HomepageActivity extends AppCompatActivity {
         } else if (itemId == R.id.nav_notifi) {
             selectedFragment = new NotificationFragment();
         } else if (itemId == R.id.nav_person) {
-            selectedFragment = new MypageFragment();
+            selectedFragment = new ProfileFragment();
         } else if (itemId == R.id.nav_search) {
             selectedFragment = new SearchFragment();
         }
