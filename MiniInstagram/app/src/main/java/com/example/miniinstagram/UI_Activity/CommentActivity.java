@@ -147,7 +147,7 @@ public class CommentActivity extends AppCompatActivity {
     private void uploadComment() {
         String commentID = databaseReference.child(databaseComments).push().getKey();
 
-        Comment currComment = new Comment(commentID, authorID, addCommentEditText.getText().toString());
+        Comment currComment = new Comment(commentID, fbUser.getUid(), addCommentEditText.getText().toString());
         Map<String, Object> commentValues = currComment.toMap();
         Map<String, Object> childUpdates = new HashMap<String, Object>();
 
