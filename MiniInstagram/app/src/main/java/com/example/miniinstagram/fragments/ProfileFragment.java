@@ -48,11 +48,14 @@ public class ProfileFragment extends Fragment {
     private FirebaseUser fbUser;
     private StorageReference storageReference;
     private DatabaseReference databaseReference;
-    private String profileID;
+    private String profileUserID;
 
     private List<Post> postList;
 
-    private String TAG = "User profile fragment: ";
+    private String TAG = "Profile fragment: ";
+    private String storagePostsImage = "Posts_Image";
+    private String databaseUserPosts = "User-Posts";
+    private String databaseUsers = "Users";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,9 +64,9 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         fbUser = FirebaseAuth.getInstance().getCurrentUser();
-        storageReference = FirebaseStorage.getInstance().getReference("Posts_Image");
+        storageReference = FirebaseStorage.getInstance().getReference();
         databaseReference = FirebaseDatabase.getInstance().getReference();
-        profileID = fbUser.getUid();
+        profileUserID = fbUser.getUid();
 
         profileImageCircleImageView = view.findViewById((R.id.profile_image));
         optionsImageView = view.findViewById(R.id.options);
@@ -90,36 +93,36 @@ public class ProfileFragment extends Fragment {
 
         // get number of followers and following, now leave empty at this moment
 
-        getPosts();
-
-
+        getNumOfPosts();
     }
 
-    private void getPosts() {
-        DatabaseReference postsReference = databaseReference.child("User-Posts").child(profileID);
-        int numOfPosts = 0;
+    /**
+     * Get the number of posts the profile owner had posted
+     */
+    private void getNumOfPosts() {
+        DatabaseReference postsRef = databaseReference.child(databaseUserPosts).child(profileUserID);
 
         ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 postsTextView.setText(String.valueOf(snapshot.getChildrenCount()));
 
-                postsReference.removeEventListener(this);
+                postsRef.removeEventListener(this);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.w(TAG, "Failed to read value when get posts from user-posts.", error.toException());
-                postsReference.removeEventListener(this);
+                postsRef.removeEventListener(this);
             }
         };
 
-        postsReference.addValueEventListener(listener);
+        postsRef.addValueEventListener(listener);
     }
 
     // Retrieve username， name， bio from database and show them on user profile
     private void getUserInfo() {
-        DatabaseReference usersReference = databaseReference.child("Users").child(profileID);
+        DatabaseReference usersRef = databaseReference.child(databaseUsers).child(profileUserID);
 
         ValueEventListener listener = new ValueEventListener() {
             @Override
@@ -148,16 +151,16 @@ public class ProfileFragment extends Fragment {
                     bioTextView.setText(user.getBio());
                 }
 
-                usersReference.removeEventListener(this);
+                usersRef.removeEventListener(this);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.w(TAG, "Failed to read value when get user info from users.", error.toException());
-                usersReference.removeEventListener(this);
+                usersRef.removeEventListener(this);
             }
         };
 
-        usersReference.addValueEventListener(listener);
+        usersRef.addValueEventListener(listener);
     }
 }
