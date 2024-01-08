@@ -56,6 +56,8 @@ public class ProfileFragment extends Fragment {
     private String storagePostsImage = "Posts_Image";
     private String databaseUserPosts = "User-Posts";
     private String databaseUsers = "Users";
+    private String databaseFollowing = "User-following";
+    private String databaseFollowedby = "User-followedby";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -83,17 +85,60 @@ public class ProfileFragment extends Fragment {
 
         showUserBasicContent();
 
-
         return view;
     }
 
-    // Fetch and show basic content of user profile. such as info, number of followers and following, user posts, etc
+    /**
+     * Fetch and show basic content of user profile. such as username, bio, number of followers
+     * and following, user posts, etc
+     */
     private void showUserBasicContent() {
         getUserInfo();
 
-        // get number of followers and following, now leave empty at this moment
+        getFollowerNum();
+        getFollowingNum();
 
         getNumOfPosts();
+    }
+
+    /**
+     * Get the number of followers the profile owner has.
+     */
+    private void getFollowerNum() {
+        DatabaseReference ref = databaseReference.child(databaseFollowedby).child(profileUserID);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                followersTextView.setText(String.valueOf(snapshot.getChildrenCount()));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "onCancelled: Fail to get followers number", error.toException());
+            }
+        };
+        ref.addListenerForSingleValueEvent(listener);
+    }
+
+    /**
+     * Get the number of users the profile owner is following.
+     */
+    private void getFollowingNum() {
+        DatabaseReference ref = databaseReference.child(databaseFollowing).child(profileUserID);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                followingTextView.setText(String.valueOf(snapshot.getChildrenCount()));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "onCancelled: Fail to get following number", error.toException());
+            }
+        };
+        ref.addListenerForSingleValueEvent(listener);
     }
 
     /**
