@@ -1,5 +1,7 @@
 package com.example.miniinstagram.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -68,7 +70,16 @@ public class ProfileFragment extends Fragment {
         fbUser = FirebaseAuth.getInstance().getCurrentUser();
         storageReference = FirebaseStorage.getInstance().getReference();
         databaseReference = FirebaseDatabase.getInstance().getReference();
-        profileUserID = fbUser.getUid();
+
+        // If userData is not null. It stores a userID of whose profile will be visited.
+        // If userData is null, go to user's own profile page.
+        String userData = getContext().getSharedPreferences("PROFILE", Context.MODE_PRIVATE)
+                                      .getString("profileUserID", "none");
+        if (userData.equals("none")) {
+            profileUserID = fbUser.getUid();
+        } else {
+            profileUserID = userData;
+        }
 
         profileImageCircleImageView = view.findViewById((R.id.profile_image));
         optionsImageView = view.findViewById(R.id.options);

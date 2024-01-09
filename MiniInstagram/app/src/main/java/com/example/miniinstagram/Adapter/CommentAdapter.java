@@ -1,6 +1,7 @@
 package com.example.miniinstagram.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.miniinstagram.R;
+import com.example.miniinstagram.UI_Activity.HomepageActivity;
+import com.example.miniinstagram.UI_Activity.MainActivity;
 import com.example.miniinstagram.model.Comment;
 import com.example.miniinstagram.model.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -63,11 +66,40 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
 
         holder.commentTextView.setText(comment.getContent());
         getAuthorInfo(holder, comment.getAuthorID());
+
+        goToUserProfile(holder, comment.getAuthorID());
     }
 
     @Override
     public int getItemCount() {
         return mComment.size();
+    }
+
+    /**
+     * When click on the username or avatar of a comment, go to that person's profile page
+     * @param holder
+     * @param userID
+     */
+    private void goToUserProfile(@NonNull ViewHolder holder, String userID) {
+        holder.usernameTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openProfilePage(userID);
+            }
+        });
+
+        holder.profileImageImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openProfilePage(userID);
+            }
+        });
+    }
+
+    private void openProfilePage(String userID) {
+        Intent intent = new Intent(mContext, HomepageActivity.class);
+        intent.putExtra("profileUserID", userID);
+        mContext.startActivity(intent);
     }
 
     private void getAuthorInfo(@NonNull ViewHolder holder, String authorID) {

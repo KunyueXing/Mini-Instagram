@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -26,11 +27,29 @@ public class HomepageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_homepage);
 
         bottomNaviView = findViewById(R.id.bottom_navigation);
-        // Be default, we start Home Fragment.
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, new HomeFragment())
-                .commit();
+
+        // Pass data between components. The data is stored in Bundle.
+        // When there's content in bundle, open the profile fragment of the userID that is transferred.
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            String profileUserID = bundle.getString("profileUserID");
+
+            // transfer data from activity to a fragment of the same activity
+            SharedPreferences.Editor editor = getSharedPreferences("PROFILE", MODE_PRIVATE).edit();
+            editor.putString("profileUserID", profileUserID);
+            editor.apply();
+
+            getSupportFragmentManager().beginTransaction()
+                                       .replace(R.id.fragment_container, new ProfileFragment())
+                                       .commit();
+        } else {
+            // Be default, we start Home Fragment.
+            getSupportFragmentManager().beginTransaction()
+                                       .replace(R.id.fragment_container, new HomeFragment())
+                                       .commit();
+        }
+
+
 
         // Connect to search, add new post, notification and profile fragmentpage in navigation bar.
         bottomNaviView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
