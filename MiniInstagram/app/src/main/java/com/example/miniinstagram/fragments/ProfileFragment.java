@@ -1,5 +1,6 @@
 package com.example.miniinstagram.fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -51,6 +52,7 @@ public class ProfileFragment extends Fragment {
     private StorageReference storageReference;
     private DatabaseReference databaseReference;
     private String profileUserID;
+    private SharedPreferences transferredID;
 
     private List<Post> postList;
 
@@ -73,12 +75,12 @@ public class ProfileFragment extends Fragment {
 
         // If userData is not null. It stores a userID of whose profile will be visited.
         // If userData is null, go to user's own profile page.
-        String userData = getContext().getSharedPreferences("PROFILE", Context.MODE_PRIVATE)
-                                      .getString("profileUserID", "none");
-        if (userData.equals("none")) {
+        transferredID = getContext().getSharedPreferences("PROFILE", Context.MODE_PRIVATE);
+        String transferredIDStr = transferredID.getString("profileUserID", "none");
+        if (transferredIDStr.equals("none")) {
             profileUserID = fbUser.getUid();
         } else {
-            profileUserID = userData;
+            profileUserID = transferredIDStr;
         }
 
         profileImageCircleImageView = view.findViewById((R.id.profile_image));
@@ -218,5 +220,12 @@ public class ProfileFragment extends Fragment {
         };
 
         usersRef.addValueEventListener(listener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        transferredID.edit().clear().commit();
     }
 }
