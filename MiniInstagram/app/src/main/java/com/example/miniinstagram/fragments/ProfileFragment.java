@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -47,6 +48,7 @@ public class ProfileFragment extends Fragment {
     private TextView nameTextView;
     private TextView bioTextView;
     private TextView usernameTextView;
+    private Button editProfileButton;
 
     private FirebaseUser fbUser;
     private StorageReference storageReference;
@@ -93,12 +95,85 @@ public class ProfileFragment extends Fragment {
         nameTextView = view.findViewById(R.id.name);
         bioTextView = view.findViewById(R.id.bio);
         usernameTextView = view.findViewById(R.id.username);
+        editProfileButton = view.findViewById(R.id.edit_profile);
+
+        if (profileUserID.equals(fbUser.getUid())) {
+            editProfileButton.setText("Edit profile");
+        } else {
+            checkFollowingStatus();
+        }
 
         postList = new ArrayList<>();
 
         showUserBasicContent();
+        editProfileOrFollow();
 
         return view;
+    }
+
+    /**
+     * When user click on the edit profile button, if it shows following/follow, will execute
+     * unfollow/follow action. If it shows edit profile, go to edit profile page.
+     */
+    private void editProfileOrFollow() {
+        editProfileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String btnText = editProfileButton.getText().toString();
+
+                if (btnText.equals("Edit profile")) {
+                    // go to edit profile activity
+                } else if (btnText.equals("Follow")) {
+                    databaseReference.child(databaseFollowing)
+                            .child(fbUser.getUid())
+                            .child(profileUserID)
+                            .setValue(true);
+                    databaseReference.child(databaseFollowedby)
+                            .child(profileUserID)
+                            .child(fbUser.getUid())
+                            .setValue(true);
+                    editProfileButton.setText("Following");
+                } else if (btnText.equals("Following")) {
+                    databaseReference.child(databaseFollowing)
+                            .child(fbUser.getUid())
+                            .child(profileUserID)
+                            .removeValue();
+                    databaseReference.child(databaseFollowedby)
+                            .child(profileUserID)
+                            .child(fbUser.getUid())
+                            .removeValue();
+                    editProfileButton.setText("Follow");
+                }
+            }
+        });
+    }
+
+    /**
+     * When open others' profile, the edit profile button will act as follow button, showing
+     * following status accordingly.
+     */
+    private void checkFollowingStatus() {
+        String userID = fbUser.getUid();
+
+        DatabaseReference ref = databaseReference.child(databaseFollowing).child(userID);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.child(profileUserID).exists()) {
+                    editProfileButton.setText("Following");
+                } else {
+                    editProfileButton.setText("Follow");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "onCancelled: Failed to get Following status", error.toException());
+            }
+        };
+
+        ref.addListenerForSingleValueEvent(listener);
     }
 
     /**
@@ -107,10 +182,8 @@ public class ProfileFragment extends Fragment {
      */
     private void showUserBasicContent() {
         getUserInfo();
-
         getFollowerNum();
         getFollowingNum();
-
         getNumOfPosts();
     }
 
