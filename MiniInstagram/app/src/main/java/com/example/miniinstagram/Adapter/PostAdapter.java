@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.UI_Activity.CommentActivity;
+import com.example.miniinstagram.UI_Activity.HomepageActivity;
 import com.example.miniinstagram.UI_Activity.NewPostActivity;
 import com.example.miniinstagram.model.Post;
 import com.example.miniinstagram.model.User;
@@ -79,11 +80,40 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         getCommentsNum(post.getPostID(), holder);
         addAndViewComments(holder, post.getPostID(), post.getAuthorID());
 
+        goToUserProfile(holder, post.getAuthorID());
+
     }
 
     @Override
     public int getItemCount() {
         return mPosts.size();
+    }
+
+    /**
+     * When click on the username or avatar of a post, go to that person's profile page
+     * @param holder
+     * @param userID
+     */
+    private void goToUserProfile(@NonNull PostAdapter.ViewHolder holder, String userID) {
+        holder.usernameTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openProfilePage(userID);
+            }
+        });
+
+        holder.profileImageImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openProfilePage(userID);
+            }
+        });
+    }
+
+    private void openProfilePage(String userID) {
+        Intent intent = new Intent(mContext, HomepageActivity.class);
+        intent.putExtra("profileUserID", userID);
+        mContext.startActivity(intent);
     }
 
     /**
