@@ -55,6 +55,9 @@ public class ProfileFragment extends Fragment {
     private DatabaseReference databaseReference;
     private String profileUserID;
     private SharedPreferences transferredID;
+    private ValueEventListener followingNumListener;
+    private ValueEventListener followedbyNumListener;
+    private ValueEventListener postsNumListener;
 
     private List<Post> postList;
 
@@ -193,7 +196,7 @@ public class ProfileFragment extends Fragment {
     private void getFollowerNum() {
         DatabaseReference ref = databaseReference.child(databaseFollowedby).child(profileUserID);
 
-        ValueEventListener listener = new ValueEventListener() {
+        followedbyNumListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 followersTextView.setText(String.valueOf(snapshot.getChildrenCount()));
@@ -204,7 +207,7 @@ public class ProfileFragment extends Fragment {
                 Log.w(TAG, "onCancelled: Fail to get followers number", error.toException());
             }
         };
-        ref.addListenerForSingleValueEvent(listener);
+        ref.addValueEventListener(followedbyNumListener);
     }
 
     /**
@@ -213,7 +216,7 @@ public class ProfileFragment extends Fragment {
     private void getFollowingNum() {
         DatabaseReference ref = databaseReference.child(databaseFollowing).child(profileUserID);
 
-        ValueEventListener listener = new ValueEventListener() {
+        followingNumListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 followingTextView.setText(String.valueOf(snapshot.getChildrenCount()));
@@ -224,7 +227,7 @@ public class ProfileFragment extends Fragment {
                 Log.w(TAG, "onCancelled: Fail to get following number", error.toException());
             }
         };
-        ref.addListenerForSingleValueEvent(listener);
+        ref.addValueEventListener(followingNumListener);
     }
 
     /**
@@ -233,7 +236,7 @@ public class ProfileFragment extends Fragment {
     private void getNumOfPosts() {
         DatabaseReference postsRef = databaseReference.child(databaseUserPosts).child(profileUserID);
 
-        ValueEventListener listener = new ValueEventListener() {
+        postsNumListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 postsTextView.setText(String.valueOf(snapshot.getChildrenCount()));
@@ -248,7 +251,7 @@ public class ProfileFragment extends Fragment {
             }
         };
 
-        postsRef.addValueEventListener(listener);
+        postsRef.addValueEventListener(postsNumListener);
     }
 
     // Retrieve username， name， bio from database and show them on user profile
@@ -298,6 +301,24 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+
+        if (followedbyNumListener != null) {
+            databaseReference.child(databaseFollowedby)
+                             .child(profileUserID)
+                             .removeEventListener(followedbyNumListener);
+        }
+
+        if (followingNumListener != null) {
+            databaseReference.child(databaseFollowing)
+                             .child(profileUserID)
+                             .removeEventListener(followingNumListener);
+        }
+
+        if (postsNumListener != null) {
+            databaseReference.child(databaseUserPosts)
+                             .child(profileUserID)
+                             .removeEventListener(postsNumListener);
+        }
 
         transferredID.edit().clear().commit();
     }
