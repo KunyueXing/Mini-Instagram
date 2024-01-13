@@ -16,15 +16,20 @@ import com.example.miniinstagram.fragments.NotificationFragment;
 import com.example.miniinstagram.fragments.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class HomepageActivity extends AppCompatActivity {
     private BottomNavigationView bottomNaviView;
     private Fragment selectedFragment;
+    private FirebaseUser fbUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
+
+        fbUser = FirebaseAuth.getInstance().getCurrentUser();
 
         bottomNaviView = findViewById(R.id.bottom_navigation);
 
@@ -42,6 +47,10 @@ public class HomepageActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction()
                                        .replace(R.id.fragment_container, new ProfileFragment())
                                        .commit();
+            // If user opens her own profile page, the navigation bar will highlight the profile icon
+            if (profileUserID.equals(fbUser.getUid())) {
+                bottomNaviView.setSelectedItemId(R.id.nav_person);
+            }
         } else {
             // Be default, we start Home Fragment.
             getSupportFragmentManager().beginTransaction()
