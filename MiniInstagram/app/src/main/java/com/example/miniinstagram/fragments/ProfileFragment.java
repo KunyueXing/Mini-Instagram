@@ -7,6 +7,9 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +19,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.miniinstagram.Adapter.PostGridAdapter;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.User;
 import com.example.miniinstagram.model.Post;
@@ -41,7 +45,6 @@ public class ProfileFragment extends Fragment {
     private CircleImageView profileImageCircleImageView;
     private ImageView optionsImageView;
     private ImageView myPostsImageView;
-
     private TextView postsTextView;
     private TextView followersTextView;
     private TextView followingTextView;
@@ -49,6 +52,10 @@ public class ProfileFragment extends Fragment {
     private TextView bioTextView;
     private TextView usernameTextView;
     private Button editProfileButton;
+
+    private RecyclerView recyclerView;
+    private PostGridAdapter postGridAdapter;
+    private List<Post> postGridList;
 
     private FirebaseUser fbUser;
     private StorageReference storageReference;
@@ -58,8 +65,6 @@ public class ProfileFragment extends Fragment {
     private ValueEventListener followingNumListener;
     private ValueEventListener followedbyNumListener;
     private ValueEventListener postsNumListener;
-
-    private List<Post> postList;
 
     private String TAG = "Profile fragment: ";
     private String storagePostsImage = "Posts_Image";
@@ -100,18 +105,53 @@ public class ProfileFragment extends Fragment {
         usernameTextView = view.findViewById(R.id.username);
         editProfileButton = view.findViewById(R.id.edit_profile);
 
+        recyclerView = view.findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new GridLayoutManager(getContext() , 3);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        postGridList = new ArrayList<>();
+        postGridAdapter = new PostGridAdapter(getContext() , postGridList);
+        recyclerView.setAdapter(postGridAdapter);
+
+        recyclerView.setVisibility(View.VISIBLE);
+
         if (profileUserID.equals(fbUser.getUid())) {
             editProfileButton.setText("Edit profile");
         } else {
             checkFollowingStatus();
         }
 
-        postList = new ArrayList<>();
-
         showUserBasicContent();
         editProfileOrFollow();
+        getPostsList();
 
         return view;
+    }
+
+    private void getPostsList() {
+        DatabaseReference ref = databaseReference.child(databaseUserPosts).child(profileUserID);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                postGridList.clear();
+                for (DataSnapshot subSnapshot : snapshot.getChildren()) {
+                    Post post = subSnapshot.getValue(Post.class);
+                    postGridList.add(post);
+                }
+
+                // Sort the list in some order
+
+                postGridAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "onCancelled: Failed to get all posts", error.toException());
+            }
+        };
+
+        ref.addListenerForSingleValueEvent(listener);
     }
 
     /**
