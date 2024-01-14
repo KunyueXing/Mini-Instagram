@@ -35,6 +35,7 @@ import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -140,8 +141,8 @@ public class ProfileFragment extends Fragment {
                     postGridList.add(post);
                 }
 
-                // Sort the list in some order
-
+                // Sort the list in Chronologically order so that the latest comes first.
+                Collections.reverse(postGridList);
                 postGridAdapter.notifyDataSetChanged();
             }
 
