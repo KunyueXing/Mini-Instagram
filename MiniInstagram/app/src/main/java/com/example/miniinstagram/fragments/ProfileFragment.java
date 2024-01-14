@@ -18,15 +18,19 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.miniinstagram.Adapter.PostGridAdapter;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.User;
 import com.example.miniinstagram.model.Post;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -36,7 +40,9 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -160,6 +166,10 @@ public class ProfileFragment extends Fragment {
      * unfollow/follow action. If it shows edit profile, go to edit profile page.
      */
     private void editProfileOrFollow() {
+        Map<String, Object> childUpdates = new HashMap<String, Object>();
+        String path1 = "/" + databaseFollowing + "/" + fbUser.getUid() + "/" +profileUserID;
+        String path2 = "/" + databaseFollowedby + "/" + profileUserID + "/" + fbUser.getUid();
+
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -168,24 +178,43 @@ public class ProfileFragment extends Fragment {
                 if (btnText.equals("Edit profile")) {
                     // go to edit profile activity
                 } else if (btnText.equals("Follow")) {
-                    databaseReference.child(databaseFollowing)
-                            .child(fbUser.getUid())
-                            .child(profileUserID)
-                            .setValue(true);
-                    databaseReference.child(databaseFollowedby)
-                            .child(profileUserID)
-                            .child(fbUser.getUid())
-                            .setValue(true);
+                    childUpdates.put(path1, true);
+                    childUpdates.put(path2, true);
+
+                    OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                return;
+                            }
+
+                            DatabaseException e = (DatabaseException) task.getException();
+                            Log.e(TAG, "KX: failed following user" + e.getMessage().toString());
+                        }
+                    };
+
+                    databaseReference.updateChildren(childUpdates)
+                                     .addOnCompleteListener(listener);
+
                     editProfileButton.setText("Following");
                 } else if (btnText.equals("Following")) {
-                    databaseReference.child(databaseFollowing)
-                            .child(fbUser.getUid())
-                            .child(profileUserID)
-                            .removeValue();
-                    databaseReference.child(databaseFollowedby)
-                            .child(profileUserID)
-                            .child(fbUser.getUid())
-                            .removeValue();
+                    childUpdates.put(path1, null);
+                    childUpdates.put(path2, null);
+
+                    OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                return;
+                            }
+
+                            DatabaseException e = (DatabaseException) task.getException();
+                            Log.e(TAG, "KX: failed unfollowing user" + e.getMessage().toString());
+                        }
+                    };
+
+                    databaseReference.updateChildren(childUpdates)
+                                     .addOnCompleteListener(listener);
                     editProfileButton.setText("Follow");
                 }
             }
