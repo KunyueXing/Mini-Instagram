@@ -1,15 +1,18 @@
 package com.example.miniinstagram.Adapter;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.miniinstagram.R;
+import com.example.miniinstagram.fragments.PostDetailFragment;
 import com.example.miniinstagram.model.Post;
 import com.squareup.picasso.Picasso;
 
@@ -38,11 +41,29 @@ public class PostGridAdapter extends RecyclerView.Adapter<PostGridAdapter.ViewHo
                .load(post.getPostImageUrl())
                .placeholder(R.drawable.ic_add_photo_png)
                .into(holder.postImageImageView);
+
+        checkPostDetail(holder, post.getPostID());
     }
 
     @Override
     public int getItemCount() {
         return mPosts.size();
+    }
+
+    private void checkPostDetail(@NonNull ViewHolder holder, String postID) {
+        holder.postImageImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SharedPreferences.Editor editor = mContext.getSharedPreferences("PREFS", Context.MODE_PRIVATE).edit();
+                editor.putString("postID", postID);
+                editor.apply();
+
+                ((FragmentActivity)mContext).getSupportFragmentManager()
+                                            .beginTransaction()
+                                            .replace(R.id.fragment_container, new PostDetailFragment())
+                                            .commit();
+            }
+        });
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
