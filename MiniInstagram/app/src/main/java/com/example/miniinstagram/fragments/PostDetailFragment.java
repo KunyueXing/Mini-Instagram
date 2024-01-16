@@ -6,6 +6,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.miniinstagram.Adapter.PostAdapter;
@@ -32,6 +35,7 @@ public class PostDetailFragment extends Fragment {
 
     private String postID;
     private RecyclerView recyclerView;
+    private ImageView goBackImageView;
     private PostAdapter postAdapter;
     private List<Post> postList;
     private DatabaseReference databaseReference;
@@ -47,6 +51,7 @@ public class PostDetailFragment extends Fragment {
         SharedPreferences sharedPref = getContext().getSharedPreferences("PREFS", Context.MODE_PRIVATE);
         postID = sharedPref.getString("postID", "none");
 
+        goBackImageView = view.findViewById(R.id.goBackImageView);
         databaseReference = FirebaseDatabase.getInstance().getReference();
 
         recyclerView = view.findViewById(R.id.recycler_view);
@@ -59,10 +64,29 @@ public class PostDetailFragment extends Fragment {
 //        Toast.makeText(getContext(), "post detail", Toast.LENGTH_SHORT).show();
 
         getPosts();
+        goBack();
 
         return view;
     }
 
+    /**
+     * Go back to the profile page.
+     */
+    public void goBack() {
+        goBackImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentManager fragmentManager = ((FragmentActivity)getContext()).getSupportFragmentManager();
+                fragmentManager.beginTransaction()
+                               .replace(R.id.fragment_container, ProfileFragment.class, null)
+                               .setReorderingAllowed(true).commit();
+            }
+        });
+    }
+
+    /**
+     * Get post content from the database.
+     */
     private void getPosts() {
         DatabaseReference ref = databaseReference.child(databasePosts).child(postID);
 

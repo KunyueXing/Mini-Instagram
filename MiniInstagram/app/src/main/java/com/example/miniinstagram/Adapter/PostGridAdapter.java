@@ -50,6 +50,11 @@ public class PostGridAdapter extends RecyclerView.Adapter<PostGridAdapter.ViewHo
         return mPosts.size();
     }
 
+    /**
+     * When click on the photo, go to the post detail page.
+     * @param holder
+     * @param postID
+     */
     private void checkPostDetail(@NonNull ViewHolder holder, String postID) {
         holder.postImageImageView.setOnClickListener(new View.OnClickListener() {
             @Override
