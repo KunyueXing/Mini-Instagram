@@ -33,6 +33,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageException;
@@ -183,9 +184,6 @@ public class EditProfileActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task task) {
                 if (task.isSuccessful()) {
-//                    Toast.makeText(NewPostActivity.this,
-//                            "Download image from cloud storage successful",
-//                            Toast.LENGTH_LONG).show();
 //                    Log.d(TAG, "KX: Download image from storage successful");
 
                     imageUrlFromStorage = task.getResult().toString();
@@ -215,7 +213,9 @@ public class EditProfileActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
 
         String username = usernameEditText.getText().toString();
-        currUser.setUsername(username);
+        if (username.length() != 0 && !username.equals(currUser.getUsername()) && isUsernameValid(username)) {
+            currUser.setUsername(username);
+        }
 
         if (imageUrlFromStorage != null) {
             currUser.setProfilePicUriStr(imageUrlFromStorage);
@@ -250,6 +250,47 @@ public class EditProfileActivity extends AppCompatActivity {
 
         databaseRef.updateChildren(childUpdates)
                    .addOnCompleteListener(listener);
+    }
+
+    /**
+     * Check if the username input is valid
+     * @param usernameStr
+     * @return
+     */
+    private boolean isUsernameValid(String usernameStr) {
+        final boolean[] result = {true};
+
+        DatabaseReference ref = databaseRef.child(databaseUsers);
+        // Query Users table with the username provided.
+        Query query = ref.orderByChild("username").equalTo(usernameStr);
+
+        // Define an event listener associated with the query.
+        ValueEventListener eventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    // If we find a user with the same username, display an error message and return.
+                    progressBar.setVisibility(View.INVISIBLE);
+                    usernameEditText.setError("Username already exists");
+                    usernameEditText.requestFocus();
+
+                    result[0] = false;
+                    return;
+                }
+
+                query.removeEventListener(this);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Failed to read all usernames.", error.toException());
+                query.removeEventListener(this);
+            }
+        };
+
+        query.addValueEventListener(eventListener);
+
+        return result[0];
     }
 
     /*
