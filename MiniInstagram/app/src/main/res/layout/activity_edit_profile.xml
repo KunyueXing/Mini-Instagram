@@ -29,6 +29,7 @@
                     android:src="@drawable/ic_close"
                     android:id="@+id/closeImageView"
                     android:layout_centerVertical="true"
+                    android:onClick="closeOnClick"
                     android:layout_alignParentStart="true"/>
 
                 <TextView
@@ -48,6 +49,7 @@
                     android:layout_marginRight="10dp"
                     android:id="@+id/saveTextView"
                     android:textSize="18sp"
+                    android:onClick="saveOnClick"
                     android:layout_centerVertical="true"
                     android:textColor="@color/colorPrimaryDark"
                     android:layout_alignParentEnd="true"/>
@@ -70,6 +72,7 @@
             android:src="@drawable/default_avatar"
             android:layout_gravity="center"
             android:id="@+id/profileImageImageView"
+            android:onClick="addPhotoOnClick"
             android:layout_margin="10dp"/>
 
         <TextView
@@ -77,33 +80,31 @@
             android:layout_height="wrap_content"
             android:text="Update avatar"
             android:layout_gravity="center"
+            android:onClick="updateAvatarOnClick"
             android:id="@+id/avatarUpdateTextView"
             android:textColor="@color/colorPrimary"
             android:textSize="18sp"/>
 
-        <com.rengwuxian.materialedittext.MaterialEditText
+        <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/nameEditText"
             android:hint="Full Name"
-            android:layout_marginTop="15dp"
-            app:met_floatingLabel="normal"/>
+            android:layout_marginTop="15dp" />
 
-        <com.rengwuxian.materialedittext.MaterialEditText
+        <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/usernameEditText"
             android:hint="Username"
-            android:layout_marginTop="15dp"
-            app:met_floatingLabel="normal"/>
+            android:layout_marginTop="15dp" />
 
-        <com.rengwuxian.materialedittext.MaterialEditText
+        <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/bioEditText"
             android:hint="Bio"
-            android:layout_marginTop="15dp"
-            app:met_floatingLabel="normal"/>
+            android:layout_marginTop="15dp" />
 
     </LinearLayout>
 

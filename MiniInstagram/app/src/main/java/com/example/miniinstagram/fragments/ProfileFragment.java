@@ -2,6 +2,7 @@ package com.example.miniinstagram.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -22,6 +23,7 @@ import android.widget.Toast;
 
 import com.example.miniinstagram.Adapter.PostGridAdapter;
 import com.example.miniinstagram.R;
+import com.example.miniinstagram.UI_Activity.EditProfileActivity;
 import com.example.miniinstagram.model.User;
 import com.example.miniinstagram.model.Post;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -177,6 +179,7 @@ public class ProfileFragment extends Fragment {
 
                 if (btnText.equals("Edit profile")) {
                     // go to edit profile activity
+                    startActivity(new Intent(getContext(), EditProfileActivity.class));
                 } else if (btnText.equals("Follow")) {
                     childUpdates.put(path1, true);
                     childUpdates.put(path2, true);
