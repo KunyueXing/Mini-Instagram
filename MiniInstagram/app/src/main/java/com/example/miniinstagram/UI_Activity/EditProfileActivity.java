@@ -64,6 +64,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private DatabaseReference databaseRef;
     private User currUser;
     private String databaseUsers = "Users";
+    private String storageProfileImage = "Profile_Image";
     private String TAG = "Edit Profile Activity: ";
 
     @SuppressLint("MissingInflatedId")
@@ -82,7 +83,7 @@ public class EditProfileActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
 
         fbUser = FirebaseAuth.getInstance().getCurrentUser();
-        storageRef = FirebaseStorage.getInstance().getReference();
+        storageRef = FirebaseStorage.getInstance().getReference(storageProfileImage);
         databaseRef = FirebaseDatabase.getInstance().getReference();
 
         /*
@@ -122,7 +123,7 @@ public class EditProfileActivity extends AppCompatActivity {
      * @param view
      */
     public void saveOnClick(View view) {
-
+        uploadProfileToDatabase();
     }
 
     /*
@@ -202,6 +203,53 @@ public class EditProfileActivity extends AppCompatActivity {
 
         imageRef.getDownloadUrl()
                 .addOnCompleteListener(listener);
+    }
+
+    /*
+     * Upload user's info to database.
+     */
+    private void uploadProfileToDatabase() {
+//        Log.d(TAG, "KX: Begin to update database");
+
+//        setEditable(false);
+        progressBar.setVisibility(View.VISIBLE);
+
+        String username = usernameEditText.getText().toString();
+        currUser.setUsername(username);
+
+        if (imageUrlFromStorage != null) {
+            currUser.setProfilePicUriStr(imageUrlFromStorage);
+        }
+
+        String name = nameEditText.getText().toString();
+        currUser.setName(name);
+        String bio = bioEditText.getText().toString();
+        currUser.setBio(bio);
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        // User info is saved under /Users/, {key: userID, value: userInfo}
+        childUpdates.put("/Users/" + fbUser.getUid(), currUser.toMap());
+
+        OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    progressBar.setVisibility(View.INVISIBLE);
+                    Toast.makeText(EditProfileActivity.this,
+                            "Edit profile success",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                progressBar.setVisibility(View.INVISIBLE);
+                Toast.makeText(EditProfileActivity.this,
+                        "Error occur when accessing database",
+                        Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        databaseRef.updateChildren(childUpdates)
+                   .addOnCompleteListener(listener);
     }
 
     /*
