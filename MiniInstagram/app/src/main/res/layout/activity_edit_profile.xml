@@ -106,6 +106,13 @@
             android:hint="Bio"
             android:layout_marginTop="15dp" />
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:layout_marginTop="50dp"/>
+
     </LinearLayout>
 
 </LinearLayout>

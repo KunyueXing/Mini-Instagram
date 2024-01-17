@@ -5,35 +5,44 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
 
-import android.content.Intent;
+import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.miniinstagram.R;
-import com.example.miniinstagram.fragments.ProfileFragment;
-import com.example.miniinstagram.model.Profile;
+import com.example.miniinstagram.model.Post;
 import com.example.miniinstagram.model.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EditProfileActivity extends AppCompatActivity {
     private ImageView closeImageView;
@@ -46,13 +55,18 @@ public class EditProfileActivity extends AppCompatActivity {
     private EditText bioEditText;
     private ActivityResultLauncher<String> choosePhoto;
     private Uri imageUri;
+    private String imageUrlFromStorage;
+    private StorageTask uploadImageTask;
+    private ProgressBar progressBar;
 
     private FirebaseUser fbUser;
     private StorageReference storageRef;
     private DatabaseReference databaseRef;
+    private User currUser;
     private String databaseUsers = "Users";
     private String TAG = "Edit Profile Activity: ";
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +79,7 @@ public class EditProfileActivity extends AppCompatActivity {
         nameEditText = findViewById(R.id.nameEditText);
         usernameEditText = findViewById(R.id.usernameEditText);
         bioEditText = findViewById(R.id.bioEditText);
+        progressBar = findViewById(R.id.progressBar);
 
         fbUser = FirebaseAuth.getInstance().getCurrentUser();
         storageRef = FirebaseStorage.getInstance().getReference();
@@ -86,8 +101,107 @@ public class EditProfileActivity extends AppCompatActivity {
         showUserInfo();
     }
 
+    /**
+     * When click on the avatar image, go to choose photo from library.
+     * @param view
+     */
     public void addPhotoOnClick(View view) {
         choosePhoto.launch("image/*");
+    }
+
+    /**
+     * When click on the text "Update avatar", upload the chose photo to Firebase Storage.
+     * @param view
+     */
+    public void updateAvatarOnClick(View view) {
+        uploadImageToStorage();
+    }
+
+    /**
+     * When click on the save textview, upload the edited information to the database.
+     * @param view
+     */
+    public void saveOnClick(View view) {
+
+    }
+
+    /*
+     * Upload the image to Firebase Storage. If it succeeds, download the URL of this image.
+     */
+    private void uploadImageToStorage() {
+        // If there is no image selected, just return.
+        if (imageUri == null) {
+            Toast.makeText(EditProfileActivity.this,
+                    "No image selected", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+//        setEditable(false);
+        progressBar.setVisibility(View.VISIBLE);
+
+        // get the extension of image, e.g., jpg
+        String imageExt = getImageExtension(imageUri);
+        final StorageReference imageRef =
+                storageRef.child(System.currentTimeMillis() + "." + imageExt);
+
+        uploadImageTask = imageRef.putFile(imageUri);
+
+        OnCompleteListener listener = new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull Task task) {
+                if (task.isSuccessful()) {
+                    progressBar.setVisibility(View.INVISIBLE);
+                    Toast.makeText(EditProfileActivity.this,
+                            "Update avatar success!",
+                            Toast.LENGTH_SHORT).show();
+
+                    downloadImageUrlFromStorage(imageRef);
+                    return;
+                }
+
+                StorageException e = (StorageException) task.getException();
+                progressBar.setVisibility(View.INVISIBLE);
+//                setEditable(true);
+                Toast.makeText(EditProfileActivity.this,
+                        "Can't upload image to cloud storage", Toast.LENGTH_LONG).show();
+                Log.e(TAG, "KX: upload " + String.valueOf(e.getErrorCode()));
+            }
+        };
+
+        uploadImageTask.addOnCompleteListener(listener);
+    }
+
+    /*
+     * Download the URL of previously uploaded image. If it succeeds, we'll go ahead and upload
+     * user's post.
+     */
+    private void downloadImageUrlFromStorage(final StorageReference imageRef) {
+//        setEditable(false);
+
+        OnCompleteListener listener = new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task task) {
+                if (task.isSuccessful()) {
+//                    Toast.makeText(NewPostActivity.this,
+//                            "Download image from cloud storage successful",
+//                            Toast.LENGTH_LONG).show();
+//                    Log.d(TAG, "KX: Download image from storage successful");
+
+                    imageUrlFromStorage = task.getResult().toString();
+                    return;
+                }
+
+                StorageException e = (StorageException) task.getException();
+                progressBar.setVisibility(View.INVISIBLE);
+//                setEditable(true);
+                Toast.makeText(EditProfileActivity.this,
+                        "Can't Download image from cloud storage", Toast.LENGTH_LONG).show();
+                Log.e(TAG, "KX: download " + String.valueOf(e.getErrorCode()));
+            }
+        };
+
+        imageRef.getDownloadUrl()
+                .addOnCompleteListener(listener);
     }
 
     /*
@@ -105,6 +219,16 @@ public class EditProfileActivity extends AppCompatActivity {
         }
     }
 
+    // Get the extension of a file, e.g., jpg, png, etc.
+    private String getImageExtension(Uri uri) {
+        ContentResolver contentResolver = getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+
+        String extension = mime.getExtensionFromMimeType(contentResolver.getType(uri));
+        Log.d(TAG, "KX: get extension " + extension);
+        return extension;
+    }
+
     /**
      * When open the edit profile page, show user basic info accordingly.
      */
@@ -114,13 +238,13 @@ public class EditProfileActivity extends AppCompatActivity {
         ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User user = snapshot.getValue(User.class);
-                nameEditText.setText(user.getName());
-                usernameEditText.setText(user.getUsername());
-                bioEditText.setText(user.getBio());
+                currUser = snapshot.getValue(User.class);
+                nameEditText.setText(currUser.getName());
+                usernameEditText.setText(currUser.getUsername());
+                bioEditText.setText(currUser.getBio());
 
                 Picasso.get()
-                       .load(user.getProfilePicUriStr())
+                       .load(currUser.getProfilePicUriStr())
                        .placeholder(R.drawable.default_avatar)
                        .into(profileImageImageView);
             }
