@@ -194,7 +194,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.INVISIBLE);
 //                setEditable(true);
                 Toast.makeText(EditProfileActivity.this,
-                        "Can't Download image from cloud storage", Toast.LENGTH_LONG).show();
+                        "Can't Download image from cloud storage", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "KX: download " + String.valueOf(e.getErrorCode()));
             }
         };
@@ -212,13 +212,20 @@ public class EditProfileActivity extends AppCompatActivity {
 //        setEditable(false);
         progressBar.setVisibility(View.VISIBLE);
 
+        // Let user know that she needs to click @updateAvatar textview to save the chosen photo
+        if (imageUri != null && imageUrlFromStorage == null) {
+            progressBar.setVisibility(View.INVISIBLE);
+            Toast.makeText(EditProfileActivity.this,
+                    "Please update avatar before save!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (imageUrlFromStorage != null) {
+            currUser.setProfilePicUriStr(imageUrlFromStorage);
+        }
+
         String username = usernameEditText.getText().toString();
         if (username.length() != 0 && !username.equals(currUser.getUsername()) && isUsernameValid(username)) {
             currUser.setUsername(username);
-        }
-
-        if (imageUrlFromStorage != null) {
-            currUser.setProfilePicUriStr(imageUrlFromStorage);
         }
 
         String name = nameEditText.getText().toString();
@@ -253,7 +260,7 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     /**
-     * Check if the username input is valid
+     * Check if the username input is valid. The username must be unique.
      * @param usernameStr
      * @return
      */
