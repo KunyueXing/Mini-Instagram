@@ -120,11 +120,12 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     /**
-     * When click on the save textview, upload the edited information to the database.
+     * When click on the save textview, first check and set user info before upload the edited
+     * information to the database.
      * @param view
      */
     public void saveOnClick(View view) {
-        uploadProfileToDatabase();
+        checkAndSetUserInfo();
     }
 
     /*
@@ -203,13 +204,11 @@ public class EditProfileActivity extends AppCompatActivity {
                 .addOnCompleteListener(listener);
     }
 
-    /*
-     * Upload user's info to database.
+    /**
+     * Check and set saved avatar url, name, bio and then go to check username.
      */
-    private void uploadProfileToDatabase() {
-//        Log.d(TAG, "KX: Begin to update database");
-
-//        setEditable(false);
+    private void checkAndSetUserInfo() {
+        //        setEditable(false);
         progressBar.setVisibility(View.VISIBLE);
 
         // Let user know that she needs to click @updateAvatar textview to save the chosen photo
@@ -223,16 +222,74 @@ public class EditProfileActivity extends AppCompatActivity {
             currUser.setProfilePicUriStr(imageUrlFromStorage);
         }
 
-        String username = usernameEditText.getText().toString();
-        if (username.length() != 0 && !username.equals(currUser.getUsername()) && isUsernameValid(username)) {
-            currUser.setUsername(username);
-        }
-
         String name = nameEditText.getText().toString();
         currUser.setName(name);
         String bio = bioEditText.getText().toString();
         currUser.setBio(bio);
 
+        String username = usernameEditText.getText().toString();
+        checkAndSetUsername(username);
+    }
+
+    /**
+     * Check if the username input is valid. There must be a username and it must be unique.
+     * If it's unique or if the username doesn't change, save the username and go to upload
+     * the edited profile.
+     *
+     * @param usernameStr
+     * @return
+     */
+    private void checkAndSetUsername(String usernameStr) {
+
+        if (usernameStr.length() == 0) {
+            progressBar.setVisibility(View.INVISIBLE);
+            usernameEditText.setError("Must have a username!");
+            usernameEditText.requestFocus();
+            return;
+        }
+
+        if (usernameStr.equals(currUser.getUsername())) {
+            uploadProfileToDatabase();
+            return;
+        }
+
+        DatabaseReference ref = databaseRef.child(databaseUsers);
+        // Query Users table with the username provided.
+        Query query = ref.orderByChild("username").equalTo(usernameStr);
+
+        // Define an event listener associated with the query.
+        ValueEventListener eventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    // If we find a user with the same username, display an error message and return.
+                    progressBar.setVisibility(View.INVISIBLE);
+                    usernameEditText.setError("Username already exists");
+                    usernameEditText.requestFocus();
+
+                    return;
+                }
+
+                currUser.setUsername(usernameStr);
+                uploadProfileToDatabase();
+                query.removeEventListener(this);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Failed to read all usernames.", error.toException());
+                query.removeEventListener(this);
+            }
+        };
+
+        query.addValueEventListener(eventListener);
+    }
+
+    /*
+     * Upload user's info to database.
+     */
+    private void uploadProfileToDatabase() {
+//        Log.d(TAG, "KX: Begin to update database");
         Map<String, Object> childUpdates = new HashMap<>();
         // User info is saved under /Users/, {key: userID, value: userInfo}
         childUpdates.put("/Users/" + fbUser.getUid(), currUser.toMap());
@@ -257,47 +314,6 @@ public class EditProfileActivity extends AppCompatActivity {
 
         databaseRef.updateChildren(childUpdates)
                    .addOnCompleteListener(listener);
-    }
-
-    /**
-     * Check if the username input is valid. The username must be unique.
-     * @param usernameStr
-     * @return
-     */
-    private boolean isUsernameValid(String usernameStr) {
-        final boolean[] result = {true};
-
-        DatabaseReference ref = databaseRef.child(databaseUsers);
-        // Query Users table with the username provided.
-        Query query = ref.orderByChild("username").equalTo(usernameStr);
-
-        // Define an event listener associated with the query.
-        ValueEventListener eventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    // If we find a user with the same username, display an error message and return.
-                    progressBar.setVisibility(View.INVISIBLE);
-                    usernameEditText.setError("Username already exists");
-                    usernameEditText.requestFocus();
-
-                    result[0] = false;
-                    return;
-                }
-
-                query.removeEventListener(this);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.w(TAG, "Failed to read all usernames.", error.toException());
-                query.removeEventListener(this);
-            }
-        };
-
-        query.addValueEventListener(eventListener);
-
-        return result[0];
     }
 
     /*
