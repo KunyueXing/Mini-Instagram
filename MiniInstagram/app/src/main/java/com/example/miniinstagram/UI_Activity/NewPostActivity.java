@@ -77,7 +77,7 @@ public class NewPostActivity extends AppCompatActivity {
 
         if (user == null) {
             Log.e(TAG, "KX: can't get current user");
-            goToHomepage();
+            finish();
         }
 
         /*
@@ -104,7 +104,7 @@ public class NewPostActivity extends AppCompatActivity {
     }
 
     public void closeImageViewOnClick(View view) {
-        goToHomepage();
+        finish();
     }
 
     /*
@@ -232,7 +232,7 @@ public class NewPostActivity extends AppCompatActivity {
                     Toast.makeText(NewPostActivity.this,
                             "Post success", Toast.LENGTH_LONG).show();
 
-                    goToHomepage();
+                    goToProfilePage();
                     return;
                 }
 
@@ -248,9 +248,12 @@ public class NewPostActivity extends AppCompatActivity {
     }
 
     // Back to homepage
-    private void goToHomepage() {
-        startActivity(new Intent(NewPostActivity.this , HomepageActivity.class));
-        finish();
+    private void goToProfilePage() {
+//        startActivity(new Intent(NewPostActivity.this , ProfileFragment.class));
+//        finish();
+        Intent intent = new Intent(NewPostActivity.this, HomepageActivity.class);
+        intent.putExtra("profileUserID", user.getUid());
+        startActivity(intent);
     }
 
     // Get the extension of a file, e.g., jpg, png, etc.
