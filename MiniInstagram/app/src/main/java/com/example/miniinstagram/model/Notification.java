@@ -2,17 +2,17 @@ package com.example.miniinstagram.model;
 
 import java.util.Date;
 
-public class SystemNotification {
+public class Notification {
     private String NotifiID;
     private Date createTime;
     private String content;
     private String userID;
     private String postID;
 
-    public SystemNotification() {
+    public Notification() {
     }
 
-    public SystemNotification(String notifiID, Date createTime, String content) {
+    public Notification(String notifiID, Date createTime, String content) {
         NotifiID = notifiID;
         this.createTime = new Date(System.currentTimeMillis());
         this.content = content;
