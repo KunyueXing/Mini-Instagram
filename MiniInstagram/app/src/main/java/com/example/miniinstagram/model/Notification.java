@@ -8,14 +8,17 @@ public class Notification {
     private String content;
     private String userID;
     private String postID;
+    private boolean isPost;
 
     public Notification() {
     }
 
-    public Notification(String notifiID, Date createTime, String content) {
+    public Notification(String notifiID, String userID, String content, boolean isPost) {
         NotifiID = notifiID;
         this.createTime = new Date(System.currentTimeMillis());
         this.content = content;
+        this.userID = userID;
+        this.isPost = isPost;
     }
 
     public String getNotifiID() {
@@ -56,5 +59,13 @@ public class Notification {
 
     public void setPostID(String postID) {
         this.postID = postID;
+    }
+
+    public boolean isPost() {
+        return isPost;
+    }
+
+    public void setPost(boolean post) {
+        isPost = post;
     }
 }
