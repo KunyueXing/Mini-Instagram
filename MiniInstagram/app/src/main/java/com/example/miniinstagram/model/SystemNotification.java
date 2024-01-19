@@ -6,6 +6,8 @@ public class SystemNotification {
     private String NotifiID;
     private Date createTime;
     private String content;
+    private String userID;
+    private String postID;
 
     public SystemNotification() {
     }
@@ -38,5 +40,21 @@ public class SystemNotification {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
+
+    public String getPostID() {
+        return postID;
+    }
+
+    public void setPostID(String postID) {
+        this.postID = postID;
     }
 }
