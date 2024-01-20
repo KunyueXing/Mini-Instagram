@@ -194,8 +194,18 @@ The database has eight "root" nodes
      - key: userID
        - key: groupID
          - key: userID
-         - value:true    
+         - value: true    
     - This makes it easy to query " a list of users followed and grouped by a specific user", etc.
+10. `Likes`
+    * a list of users liked a specific post
+    * key: postID
+      * key: userID
+      * value: true
+11. `Notifications`
+    * a list of notifications to a specific user
+    * key: userID
+      * key: notificationID
+      * value: notification
   
 
 ### Database Rules
