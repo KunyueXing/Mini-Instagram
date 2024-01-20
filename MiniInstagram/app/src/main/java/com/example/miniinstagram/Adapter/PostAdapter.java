@@ -220,6 +220,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         });
     }
 
+    /**
+     * Upload notification to database.
+     *
+     * @param userID, to whom the notification will be send
+     * @param postID, id of the post that is commented
+     */
     private void sendNotifications(String userID, String postID) {
         DatabaseReference ref = databaseRef.child(databaseNotifications).child(userID);
         String notificationID = ref.push().getKey();

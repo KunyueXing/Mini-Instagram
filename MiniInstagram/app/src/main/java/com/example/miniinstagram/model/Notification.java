@@ -53,6 +53,14 @@ public class Notification {
         return result;
     }
 
+    public NotificationType getNotificationType() {
+        return notificationType;
+    }
+
+    public void setNotificationType(NotificationType notificationType) {
+        this.notificationType = notificationType;
+    }
+
     public String getNotifiID() {
         return notifiID;
     }
