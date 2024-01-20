@@ -44,6 +44,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     private boolean isFragment;
     private FirebaseUser firebaseUser;
     private DatabaseReference databaseReference;
+    private String databaseUserFollowing = "User-following";
+    private String databaseUserFollowedby = "User-followedby";
     private String TAG = "UserAdapter: ";
 
     /**
@@ -151,115 +153,65 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 String textOnBtn = holder.followButton.getText().toString();
 
                 if (textOnBtn.equals("follow")) {
-                    addUserFollowing(user);
-                    addUserFollowedBy(user);
+                    addUserFollow(user);
                 } else {
-                    removeUserFollowing(user);
-                    removeUserFollowedBy(user);
+                    removeUserFollow(user);
                 }
             }
         });
     }
 
-    private void removeUserFollowing(User user) {
-        OnCompleteListener listener = new OnCompleteListener() {
+    /**
+     * When user unfollows, remove userID in database accordingly.
+     * @param user
+     */
+    private void removeUserFollow(User user) {
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/" + databaseUserFollowing + "/" + firebaseUser.getUid() + "/" + user.getUserID(), null);
+        childUpdates.put("/" + databaseUserFollowedby + "/" + user.getUserID() + "/" + firebaseUser.getUid(), null);
+
+        OnCompleteListener completeListener = new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull Task task) {
                 if (task.isSuccessful()) {
-                    Log.i(TAG, "onComplete: remove from user-following");
+                    Log.i(TAG, "onSuccess: unfollow success!");
                     return;
                 }
 
                 DatabaseException exception = (DatabaseException) task.getException();
-                Log.e(TAG, "Fail removing from user-following: " + exception.toString());
+                Log.e(TAG, "Fail removing from user-following and user-followedby " + exception.toString());
             }
         };
 
-        databaseReference.child("User-following")
-                .child(firebaseUser.getUid())
-                .child(user.getUserID())
-                .removeValue()
-                .addOnCompleteListener(listener);
-    }
-
-    private void removeUserFollowedBy(User user) {
-        OnCompleteListener listener = new OnCompleteListener() {
-            @Override
-            public void onComplete(@NonNull Task task) {
-                if (task.isSuccessful()) {
-                    Log.i(TAG, "onSuccess: remove user-followedby!");
-                    return;
-                }
-
-                DatabaseException exception = (DatabaseException) task.getException();
-                Log.e(TAG, "Fail removing from user-followedby: " + exception.toString());
-            }
-        };
-
-        databaseReference.child("User-followedby")
-                .child(user.getUserID())
-                .child(firebaseUser.getUid())
-                .removeValue()
-                .addOnCompleteListener(listener);
+        databaseReference.updateChildren(childUpdates).addOnCompleteListener(completeListener);
     }
 
     /**
      * When the current user choose to follow another user. Another user's ID will be saved in
-     * /User-following/current userID/ another user's ID, and its value is set to be true
+     * /User-following/current userID/ another user's ID, and its value is set to be true. Meantime it
+     * will be saved in /User-followedby/another user's ID/current userID, and its value is set to be true
      *
      * @param user
      */
-    private void addUserFollowing(User user) {
-//        Map<String, Object> childUpdates = new HashMap<>();
-//        String path = "/User-following/" + firebaseUser.getUid() + "/" + user.getUserID();
-//        childUpdates.put(path, user.toMap());
+    private void addUserFollow(User user) {
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/" + databaseUserFollowing + "/" + firebaseUser.getUid() + "/" + user.getUserID(), true);
+        childUpdates.put("/" + databaseUserFollowedby + "/" + user.getUserID() + "/" + firebaseUser.getUid(), true);
 
         OnCompleteListener completeListener = new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull Task task) {
                 if (task.isSuccessful()) {
-                    Log.i(TAG, "onSuccess: added to user-following!");
+                    Log.i(TAG, "onSuccess: follow success!");
                     return;
                 }
 
                 DatabaseException exception = (DatabaseException) task.getException();
-                Log.e(TAG, "Fail adding to user-following: " + exception.toString());
+                Log.e(TAG, "Fail adding to user-following and user-followedby " + exception.toString());
             }
         };
 
-        databaseReference.child("User-following")
-                         .child(firebaseUser.getUid())
-                         .child(user.getUserID())
-                         .setValue(true)
-                         .addOnCompleteListener(completeListener);
-    }
-
-    /**
-     * When the current user choose to follow another user. The database will update in
-     * /User-followedby/another user's ID/current userID, and its value is set to be true
-     *
-     * @param user
-     */
-    private void addUserFollowedBy(User user) {
-
-        OnCompleteListener completeListener = new OnCompleteListener() {
-            @Override
-            public void onComplete(@NonNull Task task) {
-                if (task.isSuccessful()) {
-                    Log.i(TAG, "onSuccess: added to user-followedby!");
-                    return;
-                }
-
-                DatabaseException exception = (DatabaseException) task.getException();
-                Log.e(TAG, "Fail adding to user-followedby: " + exception.toString());
-            }
-        };
-
-        databaseReference.child("User-followedby")
-                         .child(user.getUserID())
-                         .child(firebaseUser.getUid())
-                         .setValue(true)
-                         .addOnCompleteListener(completeListener);
+        databaseReference.updateChildren(childUpdates).addOnCompleteListener(completeListener);
     }
 
     /**
