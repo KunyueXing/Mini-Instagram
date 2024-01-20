@@ -19,6 +19,8 @@ import android.widget.Toast;
 import com.example.miniinstagram.Adapter.CommentAdapter;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.Comment;
+import com.example.miniinstagram.model.Notification;
+import com.example.miniinstagram.model.NotificationType;
 import com.example.miniinstagram.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -58,6 +60,7 @@ public class CommentActivity extends AppCompatActivity {
     private String TAG = "CommentActivity: ";
     private String databaseUsers = "Users";
     private String databasePostComments = "Post-comments";
+    private String databaseNotifications = "Notifications";
     private String databaseComments = "Comments";
 
     @SuppressLint("MissingInflatedId")
@@ -175,6 +178,7 @@ public class CommentActivity extends AppCompatActivity {
                     Toast.makeText(CommentActivity.this,
                             "Post comment success", Toast.LENGTH_SHORT).show();
 
+                    sendNotifications();
                     return;
                 }
 
@@ -187,6 +191,32 @@ public class CommentActivity extends AppCompatActivity {
                          .addOnCompleteListener(listener);
 
         addCommentEditText.setText("");
+    }
+
+    private void sendNotifications() {
+        DatabaseReference ref = databaseReference.child(databaseNotifications).child(authorID);
+        String notificationID = ref.push().getKey();
+
+        Notification notification = new Notification(notificationID, fbUser.getUid(), NotificationType.NOTIFICATION_TYPE_COMMENTS);
+        notification.setPostID(postID);
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put(notificationID, notification.toMap());
+
+        OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.w(TAG, "onComplete: upload notification success");
+                    return;
+                }
+
+                DatabaseException e = (DatabaseException) task.getException();
+                Log.e(TAG, "KX: can't upload notifications" + e.getMessage().toString());
+            }
+        };
+
+        ref.updateChildren(childUpdates).addOnCompleteListener(listener);
     }
 
     /**

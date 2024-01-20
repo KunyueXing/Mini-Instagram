@@ -31,7 +31,7 @@ public class Notification {
                 this.content = "started following you";
                 break;
             case NOTIFICATION_TYPE_COMMENTS:
-                this.content = "";
+                this.content = "commented on your post";
                 break;
             case NOTIFICATION_TYPE_LIKES:
                 this.content = "liked your post";
