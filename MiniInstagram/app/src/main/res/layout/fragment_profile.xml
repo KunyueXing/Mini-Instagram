@@ -24,7 +24,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="18sp"
+                    android:textSize="20sp"
                     android:maxLines="1"
                     android:textStyle="bold"
                     android:id="@+id/username"
@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:id="@+id/top_bar"
-                android:padding="15dp">
+                android:padding="10dp">
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:layout_width="100dp"
@@ -164,7 +164,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="12dp"
+                android:padding="10dp"
                 android:id="@+id/bar_second"
                 android:orientation="vertical">
 
@@ -174,7 +174,7 @@
                     android:maxLines="1"
                     android:id="@+id/name"
                     android:textStyle="bold"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textColor="@color/colorPrimaryDark"/>
 
                 <TextView
@@ -183,6 +183,7 @@
                     android:layout_marginTop="5dp"
                     android:id="@+id/bio"
                     android:maxLines="5"
+                    android:textSize="16dp"
                     android:textColor="@color/colorPrimaryDark"/>
 
             </LinearLayout>
@@ -190,14 +191,12 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="-5dp"
+                android:layout_marginTop="2dp"
                 android:id="@+id/bar_bottom"
                 android:orientation="horizontal">
 
                 <ImageButton
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:id="@+id/my_posts"

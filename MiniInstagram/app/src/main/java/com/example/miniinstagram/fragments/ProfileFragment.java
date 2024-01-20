@@ -75,6 +75,7 @@ public class ProfileFragment extends Fragment {
     private SharedPreferences transferredID;
     private ValueEventListener followingNumListener;
     private ValueEventListener followedbyNumListener;
+    private ValueEventListener getUserInfoListener;
     private ValueEventListener postsNumListener;
 
     private String TAG = "Profile fragment: ";
@@ -360,7 +361,7 @@ public class ProfileFragment extends Fragment {
     private void getUserInfo() {
         DatabaseReference usersRef = databaseReference.child(databaseUsers).child(profileUserID);
 
-        ValueEventListener listener = new ValueEventListener() {
+        getUserInfoListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (getContext() == null) {
@@ -386,18 +387,15 @@ public class ProfileFragment extends Fragment {
                 if (user.getBio() != null && user.getBio().length() != 0) {
                     bioTextView.setText(user.getBio());
                 }
-
-                usersRef.removeEventListener(this);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.w(TAG, "Failed to read value when get user info from users.", error.toException());
-                usersRef.removeEventListener(this);
             }
         };
 
-        usersRef.addValueEventListener(listener);
+        usersRef.addValueEventListener(getUserInfoListener);
     }
 
     @Override
@@ -420,6 +418,12 @@ public class ProfileFragment extends Fragment {
             databaseReference.child(databaseUserPosts)
                              .child(profileUserID)
                              .removeEventListener(postsNumListener);
+        }
+
+        if (getUserInfoListener != null) {
+            databaseReference.child(databaseUsers)
+                             .child(profileUserID)
+                             .removeEventListener(getUserInfoListener);
         }
 
         transferredID.edit().clear().commit();
