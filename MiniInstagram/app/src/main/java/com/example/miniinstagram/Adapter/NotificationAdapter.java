@@ -1,6 +1,7 @@
 package com.example.miniinstagram.Adapter;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,9 +10,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.miniinstagram.R;
+import com.example.miniinstagram.fragments.PostDetailFragment;
+import com.example.miniinstagram.fragments.ProfileFragment;
 import com.example.miniinstagram.model.Notification;
 import com.example.miniinstagram.model.Post;
 import com.example.miniinstagram.model.User;
@@ -22,7 +26,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
-import java.util.Date;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -63,11 +66,48 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         } else {
             holder.postImageImageview.setVisibility(View.GONE);
         }
+
+        clickNotificationItem(holder, notification);
     }
 
     @Override
     public int getItemCount() {
         return mNotificationsList.size();
+    }
+
+    /**
+     * When click on the notification item, if it's about a like or a comment, go to the related
+     * post detail page. If it's about a new follower, go to that user's profile page.
+     * @param holder
+     * @param notification
+     */
+    private void clickNotificationItem(@NonNull ViewHolder holder, Notification notification) {
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (notification.isPost()) {
+                    SharedPreferences.Editor editor = mContext.getSharedPreferences("PREFS", Context.MODE_PRIVATE)
+                                                              .edit();
+                    editor.putString("postID", notification.getPostID());
+                    editor.apply();
+
+                    ((FragmentActivity)mContext).getSupportFragmentManager()
+                                                .beginTransaction()
+                                                .replace(R.id.fragment_container ,
+                                                         new PostDetailFragment()).commit();
+                } else {
+                    SharedPreferences.Editor editor = mContext.getSharedPreferences("PROFILE", Context.MODE_PRIVATE)
+                            .edit();
+                    editor.putString("profileUserID", notification.getUserID());
+                    editor.apply();
+
+                    ((FragmentActivity)mContext).getSupportFragmentManager()
+                                                .beginTransaction()
+                                                .replace(R.id.fragment_container ,
+                                                         new ProfileFragment()).commit();
+                }
+            }
+        });
     }
 
     /**
