@@ -28,7 +28,7 @@ public class Notification {
 
         switch (type) {
             case NOTIFICATION_TYPE_FOLLOWERS:
-                this.content = "";
+                this.content = "started following you";
                 break;
             case NOTIFICATION_TYPE_COMMENTS:
                 this.content = "";

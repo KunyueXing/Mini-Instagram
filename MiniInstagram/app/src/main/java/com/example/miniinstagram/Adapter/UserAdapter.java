@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.miniinstagram.R;
+import com.example.miniinstagram.model.Notification;
+import com.example.miniinstagram.model.NotificationType;
 import com.example.miniinstagram.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -46,6 +48,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     private DatabaseReference databaseReference;
     private String databaseUserFollowing = "User-following";
     private String databaseUserFollowedby = "User-followedby";
+    private String databaseNotifications = "Notifications";
     private String TAG = "UserAdapter: ";
 
     /**
@@ -203,6 +206,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             public void onComplete(@NonNull Task task) {
                 if (task.isSuccessful()) {
                     Log.i(TAG, "onSuccess: follow success!");
+
+                    sendNotifications(user);
                     return;
                 }
 
@@ -212,6 +217,36 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         };
 
         databaseReference.updateChildren(childUpdates).addOnCompleteListener(completeListener);
+    }
+
+    /**
+     * Upload notification to database.
+     *
+     * @param user, to whom the notification will be send
+     */
+    private void sendNotifications(User user) {
+        DatabaseReference ref = databaseReference.child(databaseNotifications).child(user.getUserID());
+        String notificationID = ref.push().getKey();
+
+        Notification notification = new Notification(notificationID, firebaseUser.getUid(), NotificationType.NOTIFICATION_TYPE_FOLLOWERS);
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put(notificationID, notification.toMap());
+
+        OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.w(TAG, "onComplete: upload notification success");
+                    return;
+                }
+
+                DatabaseException e = (DatabaseException) task.getException();
+                Log.e(TAG, "KX: can't upload notifications" + e.getMessage().toString());
+            }
+        };
+
+        ref.updateChildren(childUpdates).addOnCompleteListener(listener);
     }
 
     /**
