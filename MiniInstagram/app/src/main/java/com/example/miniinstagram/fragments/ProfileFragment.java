@@ -24,6 +24,8 @@ import android.widget.Toast;
 import com.example.miniinstagram.Adapter.PostGridAdapter;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.UI_Activity.EditProfileActivity;
+import com.example.miniinstagram.model.Notification;
+import com.example.miniinstagram.model.NotificationType;
 import com.example.miniinstagram.model.User;
 import com.example.miniinstagram.model.Post;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -80,6 +82,7 @@ public class ProfileFragment extends Fragment {
     private String databaseUserPosts = "User-Posts";
     private String databaseUsers = "Users";
     private String databaseFollowing = "User-following";
+    private String databaseNotifications = "Notifications";
     private String databaseFollowedby = "User-followedby";
 
     @Override
@@ -208,6 +211,7 @@ public class ProfileFragment extends Fragment {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
+                                sendNotifications();
                                 return;
                             }
 
@@ -222,6 +226,31 @@ public class ProfileFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void sendNotifications() {
+        DatabaseReference ref = databaseReference.child(databaseNotifications).child(profileUserID);
+        String notificationID = ref.push().getKey();
+
+        Notification notification = new Notification(notificationID, fbUser.getUid(), NotificationType.NOTIFICATION_TYPE_FOLLOWERS);
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put(notificationID, notification.toMap());
+
+        OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.w(TAG, "onComplete: upload notification success");
+                    return;
+                }
+
+                DatabaseException e = (DatabaseException) task.getException();
+                Log.e(TAG, "KX: can't upload notifications" + e.getMessage().toString());
+            }
+        };
+
+        ref.updateChildren(childUpdates).addOnCompleteListener(listener);
     }
 
     /**
