@@ -1,32 +1,64 @@
 package com.example.miniinstagram.model;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Notification {
-    private String NotifiID;
+    private String notifiID;
     private Date createTime;
     private String content;
     private String userID;
     private String postID;
-    private boolean isPost;
+    private NotificationType notificationType;
 
     public Notification() {
     }
 
-    public Notification(String notifiID, String userID, String content, boolean isPost) {
-        NotifiID = notifiID;
+    public Notification(String notifiID, String userID, NotificationType notificationType) {
+        this.notifiID = notifiID;
         this.createTime = new Date(System.currentTimeMillis());
-        this.content = content;
         this.userID = userID;
-        this.isPost = isPost;
+        this.notificationType = notificationType;
+
+        generateContent(notificationType);
+    }
+
+    private void generateContent(NotificationType type) {
+
+        switch (type) {
+            case NOTIFICATION_TYPE_FOLLOWERS:
+                this.content = "";
+                break;
+            case NOTIFICATION_TYPE_COMMENTS:
+                this.content = "";
+                break;
+            case NOTIFICATION_TYPE_LIKES:
+                this.content = "liked your post";
+                break;
+        }
+
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("postID", postID);
+        result.put("notifiID", notifiID);
+        result.put("content", content);
+        result.put("userID", userID);
+        result.put("notificationType", notificationType);
+        result.put("createTime", createTime);
+
+        return result;
     }
 
     public String getNotifiID() {
-        return NotifiID;
+        return notifiID;
     }
 
     public void setNotifiID(String notifiID) {
-        NotifiID = notifiID;
+        this.notifiID = notifiID;
     }
 
     public Date getCreateTime() {
@@ -62,10 +94,10 @@ public class Notification {
     }
 
     public boolean isPost() {
-        return isPost;
-    }
+        if (notificationType == NotificationType.NOTIFICATION_TYPE_FOLLOWERS) {
+            return false;
+        }
 
-    public void setPost(boolean post) {
-        isPost = post;
+        return true;
     }
 }

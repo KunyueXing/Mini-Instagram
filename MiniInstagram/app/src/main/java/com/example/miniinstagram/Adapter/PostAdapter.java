@@ -1,7 +1,5 @@
 package com.example.miniinstagram.Adapter;
 
-import static androidx.core.content.ContextCompat.startActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -19,31 +17,39 @@ import com.example.miniinstagram.R;
 import com.example.miniinstagram.UI_Activity.CommentActivity;
 import com.example.miniinstagram.UI_Activity.HomepageActivity;
 import com.example.miniinstagram.UI_Activity.NewPostActivity;
+import com.example.miniinstagram.model.Notification;
+import com.example.miniinstagram.model.NotificationType;
 import com.example.miniinstagram.model.Post;
 import com.example.miniinstagram.model.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.hendraanggrian.appcompat.socialview.widget.SocialTextView;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
     private Context mContext;
     private List<Post> mPosts;
-    private FirebaseUser firebaseUser;
+    private FirebaseUser fbUser;
 
-    private DatabaseReference databaseReference;
+    private DatabaseReference databaseRef;
 
     private String TAG = "PostAdapter: ";
     private String databaseUsers = "Users";
     private String databasePosts = "Posts";
+    private String databaseNotifications = "Notifications";
     private String databaseLikes = "Likes";
     private String databasePostComments = "Post-comments";
 
@@ -53,8 +59,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         this.mContext = mContext;
         this.mPosts = mPosts;
 
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        databaseReference = FirebaseDatabase.getInstance().getReference();
+        fbUser = FirebaseAuth.getInstance().getCurrentUser();
+        databaseRef = FirebaseDatabase.getInstance().getReference();
     }
 
     @NonNull
@@ -73,7 +79,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         getAuthorInfo(holder, post.getAuthorID());
 
         isPostLikedByUser(post.getPostID(), holder);
-        toLikeOrNot(holder, post.getPostID());
+        toLikeOrNot(holder, post.getPostID(), post.getAuthorID());
 
         getLikesCount(post.getPostID(), holder);
 
@@ -160,7 +166,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
      * @param holder
      */
     private void getCommentsNum(String postID, @NonNull ViewHolder holder) {
-        DatabaseReference ref = databaseReference.child(databasePostComments).child(postID);
+        DatabaseReference ref = databaseRef.child(databasePostComments).child(postID);
 
         ValueEventListener listener = new ValueEventListener() {
             @Override
@@ -184,24 +190,26 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
      *
      * @param holder
      * @param postID
+     * @param authorID, id of the author of the post
      */
-    private void toLikeOrNot(@NonNull ViewHolder holder, String postID) {
+    private void toLikeOrNot(@NonNull ViewHolder holder, String postID, String authorID) {
         holder.likesImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (holder.likesImageView.getTag().equals("like")) {
-                    databaseReference.child(databaseLikes)
+                    databaseRef.child(databaseLikes)
                                      .child(postID)
-                                     .child(firebaseUser.getUid())
+                                     .child(fbUser.getUid())
                                      .setValue(true);
 
                     holder.likesImageView.setTag("liked");
                     holder.likesImageView.setImageResource(R.drawable.ic_liked);
                     getLikesCount(postID, holder);
+                    sendNotifications(authorID, postID);
                 } else {
-                    databaseReference.child(databaseLikes)
+                    databaseRef.child(databaseLikes)
                                      .child(postID)
-                                     .child(firebaseUser.getUid())
+                                     .child(fbUser.getUid())
                                      .removeValue();
 
                     holder.likesImageView.setTag("like");
@@ -210,6 +218,32 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                 }
             }
         });
+    }
+
+    private void sendNotifications(String userID, String postID) {
+        DatabaseReference ref = databaseRef.child(databaseNotifications).child(userID);
+        String notificationID = ref.push().getKey();
+
+        Notification notification = new Notification(notificationID, fbUser.getUid(), NotificationType.NOTIFICATION_TYPE_LIKES);
+        notification.setPostID(postID);
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put(notificationID, notification.toMap());
+
+        OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.w(TAG, "onComplete: upload notification success");
+                    return;
+                }
+
+                DatabaseException e = (DatabaseException) task.getException();
+                Log.e(TAG, "KX: can't upload notifications" + e.getMessage().toString());
+            }
+        };
+
+        ref.updateChildren(childUpdates).addOnCompleteListener(listener);
     }
 
     /**
@@ -280,7 +314,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.child(firebaseUser.getUid()).exists()) {
+                if (snapshot.child(fbUser.getUid()).exists()) {
                     holder.likesImageView.setImageResource(R.drawable.ic_liked);
                     holder.likesImageView.setTag("liked");
                 } else {
@@ -305,7 +339,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
      * @param userID
      */
     private void getAuthorInfo(@NonNull ViewHolder holder, String userID) {
-        DatabaseReference ref = databaseReference.child(databaseUsers).child(userID);
+        DatabaseReference ref = databaseRef.child(databaseUsers).child(userID);
 
         ValueEventListener listener = new ValueEventListener() {
             @Override
