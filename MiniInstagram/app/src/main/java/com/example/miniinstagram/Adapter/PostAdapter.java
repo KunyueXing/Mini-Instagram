@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.UI_Activity.CommentActivity;
 import com.example.miniinstagram.UI_Activity.HomepageActivity;
-import com.example.miniinstagram.UI_Activity.NewPostActivity;
 import com.example.miniinstagram.UI_Activity.UserListActivity;
 import com.example.miniinstagram.model.Notification;
 import com.example.miniinstagram.model.NotificationType;
@@ -123,6 +121,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         });
 
         holder.profileImageImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openProfilePage(userID);
+            }
+        });
+
+        holder.nameTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 openProfilePage(userID);
@@ -376,7 +381,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                 }
 
                 holder.usernameTextView.setText(user.getUsername());
-                holder.authorTextView.setText(user.getName());
+                holder.nameTextView.setText(user.getName());
             }
 
             @Override
@@ -398,7 +403,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         public ImageView moreImageView;
         public TextView usernameTextView;
         public TextView likesTextView;
-        public TextView authorTextView;
+        public TextView nameTextView;
         public SocialTextView descriptionTextView;
         public TextView commentTextView;
         
@@ -413,7 +418,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
             usernameTextView = itemView.findViewById(R.id.username);
             likesTextView = itemView.findViewById(R.id.num_likes);
-            authorTextView = itemView.findViewById(R.id.author);
+            nameTextView = itemView.findViewById(R.id.author);
             descriptionTextView = itemView.findViewById(R.id.description);
             commentTextView = itemView.findViewById(R.id.comments_text);
         }
