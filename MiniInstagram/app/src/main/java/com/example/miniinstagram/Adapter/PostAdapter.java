@@ -17,6 +17,7 @@ import com.example.miniinstagram.R;
 import com.example.miniinstagram.UI_Activity.CommentActivity;
 import com.example.miniinstagram.UI_Activity.HomepageActivity;
 import com.example.miniinstagram.UI_Activity.NewPostActivity;
+import com.example.miniinstagram.UI_Activity.UserListActivity;
 import com.example.miniinstagram.model.Notification;
 import com.example.miniinstagram.model.NotificationType;
 import com.example.miniinstagram.model.Post;
@@ -87,12 +88,25 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         addAndViewComments(holder, post.getPostID(), post.getAuthorID());
 
         goToUserProfile(holder, post.getAuthorID());
+        getAllLikesUsers(holder, post.getPostID());
 
     }
 
     @Override
     public int getItemCount() {
         return mPosts.size();
+    }
+
+    private void getAllLikesUsers(@NonNull ViewHolder holder, String postID) {
+        holder.likesTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, UserListActivity.class);
+                intent.putExtra("userListTitle", "Likes");
+                intent.putExtra("postID", postID);
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     /**

@@ -40,6 +40,7 @@ public class UserListActivity extends AppCompatActivity {
 
     private String userID;
     private String userListTitle;
+    private String postID;
     private Set<String> userIDList;
 
     private RecyclerView recyclerView;
@@ -55,7 +56,7 @@ public class UserListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_list);
 
         Intent intent = getIntent();
-        userID = intent.getStringExtra("userID");
+
         userListTitle = intent.getStringExtra("userListTitle");
 
         recyclerView = findViewById(R.id.recycler_view);
@@ -77,14 +78,47 @@ public class UserListActivity extends AppCompatActivity {
     private void getList() {
         switch (userListTitle) {
             case "Following":
+                userID = getIntent().getStringExtra("userID");
                 getFollowingID();
                 listTitleTextView.setText("Followings");
                 break;
             case "Followers":
+                userID = getIntent().getStringExtra("userID");
                 getFollowersID();
                 listTitleTextView.setText("Followers");
                 break;
+            case "Likes":
+                postID = getIntent().getStringExtra("postID");
+                getLikesUserID();
+                listTitleTextView.setText("Likes");
+                break;
         }
+    }
+
+    /**
+     * Get all IDs of users that likes a specific post.
+     */
+    private void getLikesUserID() {
+        DatabaseReference ref = databaseRef.child(databaseLikes).child(postID);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                userIDList.clear();
+                for (DataSnapshot subSnapshot : snapshot.getChildren()) {
+                    userIDList.add(subSnapshot.getKey());
+                }
+
+                getUsers();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "onCancelled: Failed to get all userID from likes", error.toException());
+            }
+        };
+
+        ref.addListenerForSingleValueEvent(listener);
     }
 
     /**
