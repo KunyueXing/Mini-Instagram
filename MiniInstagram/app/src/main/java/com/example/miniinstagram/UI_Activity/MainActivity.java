@@ -119,9 +119,9 @@ public class MainActivity extends AppCompatActivity {
      */
     private boolean validateUserInput() {
         boolean isInputValid = true;
-        usernameStr = usernameEditText.getText().toString();
-        emailStr = emailEditText.getText().toString();
-        passwordStr = passwordEditText.getText().toString();
+        usernameStr = usernameEditText.getText().toString().trim();
+        emailStr = emailEditText.getText().toString().trim();
+        passwordStr = passwordEditText.getText().toString().trim();
 
         if (TextUtils.isEmpty(emailStr)) {
             emailEditText.setError("Email required");
