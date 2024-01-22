@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.miniinstagram.Adapter.UserAdapter;
 import com.example.miniinstagram.R;
@@ -43,6 +44,7 @@ public class UserListActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ImageView closeImageView;
+    private TextView listTitleTextView;
     private UserAdapter userAdapter;
     private List<User> mUserList;
 
@@ -64,6 +66,7 @@ public class UserListActivity extends AppCompatActivity {
         recyclerView.setAdapter(userAdapter);
 
         closeImageView = findViewById(R.id.closeImageView);
+        listTitleTextView = findViewById(R.id.listTitleTextView);
         databaseRef = FirebaseDatabase.getInstance().getReference();
 
         userIDList = new HashSet<>();
@@ -75,8 +78,35 @@ public class UserListActivity extends AppCompatActivity {
         switch (userListTitle) {
             case "Following":
                 getFollowingID();
+                listTitleTextView.setText("Followings");
+                break;
+            case "Followers":
+                getFollowersID();
+                listTitleTextView.setText("Followers");
                 break;
         }
+    }
+
+    private void getFollowersID() {
+        DatabaseReference ref = databaseRef.child(databaseFollowedby).child(userID);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                userIDList.clear();
+                for (DataSnapshot subSnapshot : snapshot.getChildren()) {
+                    userIDList.add(subSnapshot.getKey());
+                }
+                getUsers();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "onCancelled: Failed to get all followers", error.toException());
+            }
+        };
+
+        ref.addListenerForSingleValueEvent(listener);
     }
 
     private void getFollowingID() {

@@ -140,6 +140,7 @@ public class ProfileFragment extends Fragment {
         getPostsList();
 
         getFollowingUsers();
+        getFollowers();
 
         return view;
     }
@@ -151,6 +152,18 @@ public class ProfileFragment extends Fragment {
                 Intent intent = new Intent(getContext(), UserListActivity.class);
                 intent.putExtra("userID", profileUserID);
                 intent.putExtra("userListTitle", "Following");
+                startActivity(intent);
+            }
+        });
+    }
+
+    private void getFollowers() {
+        followersTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), UserListActivity.class);
+                intent.putExtra("userID", profileUserID);
+                intent.putExtra("userListTitle", "Followers");
                 startActivity(intent);
             }
         });
