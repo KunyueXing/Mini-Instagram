@@ -87,6 +87,9 @@ public class UserListActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Get all IDs of users that following @userID
+     */
     private void getFollowersID() {
         DatabaseReference ref = databaseRef.child(databaseFollowedby).child(userID);
 
@@ -109,6 +112,9 @@ public class UserListActivity extends AppCompatActivity {
         ref.addListenerForSingleValueEvent(listener);
     }
 
+    /**
+     * Get all IDs of users that followed by @userID
+     */
     private void getFollowingID() {
         DatabaseReference ref = databaseRef.child(databaseFollowing).child(userID);
 
@@ -131,6 +137,9 @@ public class UserListActivity extends AppCompatActivity {
         ref.addListenerForSingleValueEvent(listener);
     }
 
+    /**
+     * From IDs @userIDList, save the corresponding user in a list @mUserList
+     */
     private void getUsers() {
         DatabaseReference ref = databaseRef.child(databaseUsers);
 

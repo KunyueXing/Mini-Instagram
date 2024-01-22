@@ -145,6 +145,7 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
+    // When click on the number of followings, jump to user list page which listed all following users
     private void getFollowingUsers() {
         followingTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,6 +158,7 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    // When click on the number of followers, jump to user list page which listed all followers
     private void getFollowers() {
         followersTextView.setOnClickListener(new View.OnClickListener() {
             @Override
