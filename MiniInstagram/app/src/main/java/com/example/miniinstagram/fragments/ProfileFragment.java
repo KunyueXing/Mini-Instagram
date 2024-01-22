@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.example.miniinstagram.Adapter.PostGridAdapter;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.UI_Activity.EditProfileActivity;
+import com.example.miniinstagram.UI_Activity.UserListActivity;
 import com.example.miniinstagram.model.Notification;
 import com.example.miniinstagram.model.NotificationType;
 import com.example.miniinstagram.model.User;
@@ -138,7 +139,21 @@ public class ProfileFragment extends Fragment {
         editProfileOrFollow();
         getPostsList();
 
+        getFollowingUsers();
+
         return view;
+    }
+
+    private void getFollowingUsers() {
+        followingTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), UserListActivity.class);
+                intent.putExtra("userID", profileUserID);
+                intent.putExtra("userListTitle", "Following");
+                startActivity(intent);
+            }
+        });
     }
 
     private void getPostsList() {
