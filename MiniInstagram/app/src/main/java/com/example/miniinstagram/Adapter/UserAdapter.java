@@ -1,6 +1,7 @@
 package com.example.miniinstagram.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.ContentInfo;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.miniinstagram.R;
+import com.example.miniinstagram.UI_Activity.HomepageActivity;
 import com.example.miniinstagram.model.Notification;
 import com.example.miniinstagram.model.NotificationType;
 import com.example.miniinstagram.model.User;
@@ -64,6 +66,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         this.mContext = mContext;
         this.mUsers = mUsers;
         this.isFragment = isFragment;
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        databaseReference = FirebaseDatabase.getInstance().getReference();
     }
 
     /**
@@ -117,9 +121,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
      */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        databaseReference = FirebaseDatabase.getInstance().getReference();
-
         final User user = mUsers.get(position);
         holder.followButton.setVisibility(View.VISIBLE);
         holder.usernameTextView.setText(user.getUsername());
@@ -138,7 +139,24 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
         // User can click on the button to follow or unfollow
         followOrNot(holder, user);
+        goToUserProfile(holder, user);
 
+    }
+
+    /**
+     * When click on the user item, go to that user's profile page.
+     * @param holder
+     * @param user
+     */
+    private void goToUserProfile(@NonNull ViewHolder holder, User user) {
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, HomepageActivity.class);
+                intent.putExtra("profileUserID", user.getUserID());
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     /**
