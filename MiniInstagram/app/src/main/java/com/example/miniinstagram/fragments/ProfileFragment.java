@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.example.miniinstagram.Adapter.PostGridAdapter;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.UI_Activity.EditProfileActivity;
+import com.example.miniinstagram.UI_Activity.OptionsActivity;
 import com.example.miniinstagram.UI_Activity.UserListActivity;
 import com.example.miniinstagram.model.Notification;
 import com.example.miniinstagram.model.NotificationType;
@@ -141,8 +142,19 @@ public class ProfileFragment extends Fragment {
 
         getFollowingUsers();
         getFollowers();
+        gotoOptions();
 
         return view;
+    }
+
+    private void gotoOptions() {
+        optionsImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext() , OptionsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     // When click on the number of followings, jump to user list page which listed all following users
