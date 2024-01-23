@@ -3,7 +3,7 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
-    <string name="title_activity_homepage">HomepageActivity</string>
+    <string name="title_activity_homepage">MiniInstagram</string>
     <string name="title_activity_test">TestActivity</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
