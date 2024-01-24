@@ -3,10 +3,13 @@ package com.example.miniinstagram.UI_Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private Button registerOrLoginButton;
     private ProgressBar progressBar;
     private TextView loginRegisterSwitchTextView;
+    private CheckBox showPasswordCheckBox;
     private static final String LOG_TAG = "MainActivity";
 
     private String usernameStr;
@@ -64,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setTitle("Instagram");
+        setTitle("MiniInstagram");
 
         emailEditText = findViewById(R.id.emailEditText);
         usernameEditText = findViewById(R.id.UsernameEditText);
@@ -72,10 +76,25 @@ public class MainActivity extends AppCompatActivity {
         registerOrLoginButton = findViewById(R.id.registerOrLoginButton);
         loginRegisterSwitchTextView = findViewById(R.id.loginRegisterSwitchTextView);
         progressBar = findViewById(R.id.progressBar);
+        showPasswordCheckBox = findViewById(R.id.showPasswordCheckBox);
         mainActivityMode = MAIN_ACTIVITY_MODE.REGISTER;
 
         auth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference();
+
+        // By default, we hide the password in the interface
+        passwordEditText.setTransformationMethod(new PasswordTransformationMethod());
+        // If the checkbox is not checked, hide password. Otherwise, show password.
+        showPasswordCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    passwordEditText.setTransformationMethod(null);
+                } else {
+                    passwordEditText.setTransformationMethod(new PasswordTransformationMethod());
+                }
+            }
+        });
     }
 
     /*

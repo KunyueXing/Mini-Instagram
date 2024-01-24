@@ -29,6 +29,7 @@
         android:layout_marginStart="68dp"
         android:layout_marginTop="63dp"
         android:layout_marginEnd="69dp"
+        android:textSize="20sp"
         android:ems="10"
         android:hint="Email"
         android:inputType="text" />
@@ -44,13 +45,25 @@
         android:layout_marginTop="52dp"
         android:layout_marginEnd="69dp"
         android:ems="10"
+        android:textSize="20sp"
         android:hint="Password"
         android:inputType="text" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/passwordEditText"
+        android:layout_marginTop="-5dp"
+        android:layout_marginStart="65dp"
+        android:text="show password"
+        android:textSize="16dp"
+        android:id="@+id/showPasswordCheckBox"/>
 
     <EditText
         android:id="@+id/UsernameEditText"
         android:layout_width="274dp"
         android:layout_height="48dp"
+        android:textSize="20sp"
         android:layout_below="@+id/passwordEditText"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
