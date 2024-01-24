@@ -75,7 +75,7 @@
 1. User register / login page
 <br>
 <picture>
- <img alt="register and login" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Flogin.png?alt=media&token=b5884e5f-839a-45b0-a9ea-37a5a3aa0d74" width="600" height="600">
+ <img alt="register and login" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Flogin.png?alt=media&token=b5884e5f-839a-45b0-a9ea-37a5a3aa0d74" width="660" height="580">
 </picture>
 <br>
 
