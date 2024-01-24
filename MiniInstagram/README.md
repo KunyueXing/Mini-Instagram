@@ -75,61 +75,81 @@
 1. User register / login page
 <br>
 <picture>
- <img alt="register and login" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Floggin.jpeg?alt=media&token=cce0dde0-8c7f-482b-90c8-8789e310bdff" width="400" height="800">
+ <img alt="register and login" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Flogin.png?alt=media&token=b5884e5f-839a-45b0-a9ea-37a5a3aa0d74" width="600" height="600">
 </picture>
 <br>
+
 2. Home page, home fragment
 <br>
 <picture>
- <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fhomepage-edit.jpg?alt=media&token=32fbffe6-59f5-407e-8334-3807b7726242" width="400" height="800">
+ <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fhomepage-edit.jpg?alt=media&token=32fbffe6-59f5-407e-8334-3807b7726242" width="300" height="600">
 </picture>
 <br>
+
 3. New post page
 <br>
 <picture>
- <img alt="new post page" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fnewpost.jpg?alt=media&token=3e28ef14-cc97-4c3d-9a2b-5ed9d05888d1" width="400" height="800">
+ <img alt="new post page" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fnewpost.jpg?alt=media&token=3e28ef14-cc97-4c3d-9a2b-5ed9d05888d1" width="300" height="600">
 </picture>
 <br>
+
 4. Person fragment
 <br>
    User's own page:
 <br>
 <picture>
- <img alt="person" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fperson_edit.png?alt=media&token=2506b0bc-0aee-4adb-8087-42aeb0b90f6e" width="400" height="800">
+ <img alt="person" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fprofile.png?alt=media&token=6f81b0a9-58c0-4db4-9e7c-9953a76521b3" width="300" height="600">
 </picture>
 <br>
+
 <br>
     When checking other users page, there's a menu pop up when clicking follow/following
 <br>
-<br>
 <picture>
- <img alt="person" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2FOther%20users%20page_edit.jpg?alt=media&token=7003d9a2-1281-4061-908f-eba27316d260" width="1100" height="800">
+ <img alt="person" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fother%20user%20profile.png?alt=media&token=b134a87f-e0da-4c77-89e4-33c593d4516b" width="300" height="600">
 </picture>
 <br>
+
+<br>
+    when click on a photo in grid layout, show post detail as follow:
+<br>
+<picture>
+ <img alt="post detail" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fpost%20detail.png?alt=media&token=1b634cd9-df2d-4267-b81f-de1eb274738a" width="300" height="600">
+</picture>
+<br>
+
 5. following / follower list
 <br>
 <picture>
- <img alt="following list" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Ffollowing%20list_edit.png?alt=media&token=9ebd09e3-3441-4c99-b5e0-079cbd6cb0fe" width="400" height="800">
+ <img alt="following / follower list" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Ffollowing%20list.png?alt=media&token=d2d399f6-3606-4cc2-b8be-7e3a1e8cdaa3" width="800" height="600">
 </picture>
 <br>
+
 6. Search fragment
 <br>
 <picture>
- <img alt="search" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fsearch%20page.png?alt=media&token=5c9aac09-c0fd-42c3-9797-91a8da4eb06c" width="400" height="800">
+ <img alt="search" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fsearch.png?alt=media&token=52e90f44-8d2f-4792-a252-4bd6ed0999c9" width="300" height="600">
 </picture>
 <br>
 
 7. Notification fragment
 <br>
 <picture>
- <img alt="notification" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fnoti%20page.png?alt=media&token=0ff1b940-b62d-4321-a5b0-5dc2a6f82985" width="400" height="800">
+ <img alt="notification" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fnotification.png?alt=media&token=aebe6f94-7dab-4f36-8317-c2e94ef03350" width="300" height="600">
 </picture>
 <br>
 
 8. User profile setting page
 <br>
 <picture>
- <img alt="profile setting" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fprofile%20setting%20.png?alt=media&token=a5cabc80-bd9d-4db3-8e41-2a7b4e4758c9" width="400" height="800">
+ <img alt="profile setting" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fedit%20profile.png?alt=media&token=d41e51bb-20a0-473b-972b-34399cc67de3" width="300" height="600">
+</picture>
+<br>
+
+9. Comment page
+<br>
+<picture>
+ <img alt="Comment page" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fcomments.png?alt=media&token=0623ebcb-d734-47c1-9ce0-a24057b939dd" width="300" height="600">
 </picture>
 <br>
 
