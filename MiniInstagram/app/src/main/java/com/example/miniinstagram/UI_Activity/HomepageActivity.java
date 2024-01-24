@@ -88,7 +88,7 @@ public class HomepageActivity extends AppCompatActivity {
         if (itemId == R.id.nav_add) {
             Intent intent = new Intent(HomepageActivity.this, NewPostActivity.class);
             startActivity(intent);
-            finish();
+//            finish();
         } else if (itemId == R.id.nav_home) {
             selectedFragment = new HomeFragment();
         } else if (itemId == R.id.nav_notifi) {
