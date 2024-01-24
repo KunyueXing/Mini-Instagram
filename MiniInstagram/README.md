@@ -82,14 +82,14 @@
 2. Home page, home fragment
 <br>
 <picture>
- <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fhomepage-edit.jpg?alt=media&token=32fbffe6-59f5-407e-8334-3807b7726242" width="300" height="600">
+ <img alt="home" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fhome%20page.png?alt=media&token=5ef8b6f8-b274-4930-a0ab-d75f4d212c6f" width="300" height="600">
 </picture>
 <br>
 
 3. New post page
 <br>
 <picture>
- <img alt="new post page" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fnewpost.jpg?alt=media&token=3e28ef14-cc97-4c3d-9a2b-5ed9d05888d1" width="300" height="600">
+ <img alt="new post page" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fnew%20post.png?alt=media&token=87dcc7c8-3e23-49d1-b4f9-50b01669c3e7" width="300" height="600">
 </picture>
 <br>
 
@@ -103,7 +103,7 @@
 <br>
 
 <br>
-    When checking other users page, there's a menu pop up when clicking follow/following
+    When checking other users page, there's a menu pop up when clicking follow/following (to be finished)
 <br>
 <picture>
  <img alt="person" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fother%20user%20profile.png?alt=media&token=b134a87f-e0da-4c77-89e4-33c593d4516b" width="300" height="600">
