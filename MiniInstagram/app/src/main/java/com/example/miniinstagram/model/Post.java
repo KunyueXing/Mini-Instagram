@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Post {
+public class Post implements  Comparable<Post> {
     private String postID;
     private String description;
     private String postImageUrl;
@@ -108,5 +108,12 @@ public class Post {
         result.put("createTime", createTime);
 
         return result;
+    }
+
+    public int compareTo(Post post2) {
+        if (getCreateTime() == null || post2.getCreateTime() == null) {
+            return 0;
+        }
+        return getCreateTime().compareTo(post2.getCreateTime());
     }
 }
