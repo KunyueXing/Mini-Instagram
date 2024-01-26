@@ -15,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.miniinstagram.R;
+import com.example.miniinstagram.UI_Activity.GroupDetailActivity;
+import com.example.miniinstagram.UI_Activity.GroupListActivity;
 import com.example.miniinstagram.UI_Activity.HomepageActivity;
 import com.example.miniinstagram.model.Notification;
 import com.example.miniinstagram.model.NotificationType;
@@ -148,8 +150,20 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     }
 
-    private void addToGroup() {
-
+    /**
+     * When click on the addToGroup imageview, go to the grouplist page.
+     * @param addToGroup
+     * @param userID
+     */
+    private void addToGroup(ImageView addToGroup, String userID) {
+        addToGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, GroupListActivity.class);
+                intent.putExtra("userID", userID);
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     /**
@@ -307,7 +321,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 if (snapshot.child(userID).exists()) {
                     button.setText("following");
                     addToGroup.setVisibility(View.VISIBLE);
-                    addToGroup();
+                    addToGroup(addToGroup, userID);
                 } else {
                     button.setText("follow");
                     addToGroup.setVisibility(View.GONE);
