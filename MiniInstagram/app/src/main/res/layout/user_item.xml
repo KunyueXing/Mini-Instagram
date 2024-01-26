@@ -16,7 +16,8 @@
         android:layout_toEndOf="@id/profile_image"
         android:layout_marginStart="5dp"
         android:orientation="vertical"
-        android:layout_centerVertical="true">
+        android:layout_centerVertical="true"
+        android:id="@+id/userInfoLayout">
 
         <TextView
             android:layout_width="wrap_content"
@@ -47,7 +48,26 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:onClick="followButtonOnClick"
-        android:visibility="gone">
+        android:layout_marginEnd="32dp"
+        android:visibility="gone"/>
 
-    </Button>
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/ic_group_add"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="0dp"
+        android:id="@+id/addToGroupImageView"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_delete"
+        android:id="@+id/deleteFromGroupImageView"
+        android:visibility="gone"/>
+
 </RelativeLayout>

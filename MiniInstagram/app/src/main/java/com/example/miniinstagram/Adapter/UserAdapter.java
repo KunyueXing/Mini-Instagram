@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,7 @@ import com.example.miniinstagram.UI_Activity.HomepageActivity;
 import com.example.miniinstagram.model.Notification;
 import com.example.miniinstagram.model.NotificationType;
 import com.example.miniinstagram.model.User;
+import com.example.miniinstagram.model.UserAdapterCode;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -45,7 +47,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     private Context mContext;
     private List<User> mUsers;
-    private boolean isFragment;
+    private UserAdapterCode code;
     private FirebaseUser firebaseUser;
     private DatabaseReference databaseReference;
     private String databaseUserFollowing = "User-following";
@@ -58,14 +60,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
      *
      * @param mUsers List<User> containing the data to populate views to be used
      * by RecyclerView
-     * @param isFragment boolean is used to check if this adapter is used in a fragment or not.
-     * Since we'll also use it in an activity
+     * @param code
      * @param mContext
      */
-    public UserAdapter(Context mContext, List<User> mUsers, boolean isFragment) {
+    public UserAdapter(Context mContext, List<User> mUsers, UserAdapterCode code) {
         this.mContext = mContext;
         this.mUsers = mUsers;
-        this.isFragment = isFragment;
+        this.code = code;
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         databaseReference = FirebaseDatabase.getInstance().getReference();
     }
@@ -80,6 +81,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         public TextView nameTextView;
         public TextView usernameTextView;
         public Button followButton;
+        public ImageView addToGroupImageView;
+        public ImageView deleteFromGroupImageView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -88,6 +91,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             usernameTextView = itemView.findViewById(R.id.username);
             nameTextView = itemView.findViewById(R.id.name);
             followButton = itemView.findViewById(R.id.follow_button);
+            addToGroupImageView = itemView.findViewById(R.id.addToGroupImageView);
+            deleteFromGroupImageView = itemView.findViewById(R.id.deleteFromGroupImageView);
         }
     }
 
@@ -130,7 +135,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                .placeholder(R.drawable.default_avatar)
                .into(holder.profileImageCircleImageView);
 
-        isFollowed(user.getUserID(), holder.followButton);
+        isFollowed(user.getUserID(), holder.followButton, holder.addToGroupImageView);
 
         // If user in search results is the current user herself, the follow button would disappear
         if (user.getUserID().equals(firebaseUser.getUid())) {
@@ -140,6 +145,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         // User can click on the button to follow or unfollow
         followOrNot(holder, user);
         goToUserProfile(holder, user);
+
+    }
+
+    private void addToGroup() {
 
     }
 
@@ -226,6 +235,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                     Log.i(TAG, "onSuccess: follow success!");
 
                     sendNotifications(user);
+
                     return;
                 }
 
@@ -283,7 +293,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
      * To check if a user (its id is passed in as @param userID) is followed by the current user
      * and show corresponding results on button
      */
-    private void isFollowed(final String userID, final Button button) {
+    private void isFollowed(final String userID, final Button button, final ImageView addToGroup) {
         // firebaseUser.getUid() -- current user,
         // The users she is following are stored in "User-Following" in database
         DatabaseReference userFollowingRef = FirebaseDatabase.getInstance()
@@ -296,9 +306,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.child(userID).exists()) {
                     button.setText("following");
+                    addToGroup.setVisibility(View.VISIBLE);
+                    addToGroup();
                 } else {
                     button.setText("follow");
+                    addToGroup.setVisibility(View.GONE);
                 }
+
                 //userFollowingRef.removeEventListener(this);
             }
 

@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import com.example.miniinstagram.Adapter.UserAdapter;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.User;
+import com.example.miniinstagram.model.UserAdapterCode;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -52,7 +53,7 @@ public class SearchFragment extends Fragment {
         mUsers = new ArrayList<>();
         searchBarTextView = view.findViewById(R.id.search_bar);
 
-        userAdapter = new UserAdapter(getContext(), mUsers, true);
+        userAdapter = new UserAdapter(getContext(), mUsers, UserAdapterCode.USER_ADAPTER_CODE_GENERAL);
         recyclerView.setAdapter(userAdapter);
 
         userDatabaseRef = FirebaseDatabase.getInstance()

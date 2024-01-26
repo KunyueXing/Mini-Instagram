@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.example.miniinstagram.Adapter.UserAdapter;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.User;
+import com.example.miniinstagram.model.UserAdapterCode;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -63,7 +64,7 @@ public class UserListActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         mUserList = new ArrayList<>();
-        userAdapter = new UserAdapter(this , mUserList , false);
+        userAdapter = new UserAdapter(this , mUserList , UserAdapterCode.USER_ADAPTER_CODE_GENERAL);
         recyclerView.setAdapter(userAdapter);
 
         closeImageView = findViewById(R.id.closeImageView);
