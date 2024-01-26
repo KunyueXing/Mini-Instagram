@@ -1,6 +1,7 @@
 package com.example.miniinstagram.Adapter;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -28,17 +29,26 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return null;
+        View view = LayoutInflater.from(mContext)
+                                  .inflate(R.layout.group_item, parent, false);
+
+        return new GroupAdapter.ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
+        final Group group = mGroups.get(position);
+        holder.groupNameTextView.setText(group.getGroupName());
+        int groupMemberNumber = 0;
+        if (group.getMembers() != null) {
+            groupMemberNumber = group.getMembers().size();
+        }
+        holder.groupMemberNumTextView.setText(groupMemberNumber + " members in this group");
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return mGroups.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

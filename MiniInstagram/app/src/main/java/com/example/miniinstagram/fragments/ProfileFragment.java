@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -91,6 +92,7 @@ public class ProfileFragment extends Fragment {
     private ValueEventListener followedbyNumListener;
     private ValueEventListener getUserInfoListener;
     private ValueEventListener postsNumListener;
+    private ValueEventListener getGroupsListener;
 
     private String TAG = "Profile fragment: ";
     private String storagePostsImage = "Posts_Image";
@@ -177,8 +179,32 @@ public class ProfileFragment extends Fragment {
         gotoOptions();
 
         addNewGroup();
+        getAllGroups();
 
         return view;
+    }
+
+    private void getAllGroups() {
+        DatabaseReference ref = databaseReference.child(databaseUserGroups).child(fbUser.getUid());
+
+        getGroupsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                groupList.clear();
+                for (DataSnapshot subSnapshot : snapshot.getChildren()) {
+                    Group currGroup = subSnapshot.getValue(Group.class);
+                    groupList.add(currGroup);
+                }
+                groupAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "onCancelled: Failed to get all groups", error.toException());
+            }
+        };
+
+        ref.addValueEventListener(getGroupsListener);
     }
 
     /**
@@ -586,6 +612,12 @@ public class ProfileFragment extends Fragment {
             databaseReference.child(databaseUsers)
                              .child(profileUserID)
                              .removeEventListener(getUserInfoListener);
+        }
+
+        if (getGroupsListener != null) {
+            databaseReference.child(databaseUserGroups)
+                             .child(fbUser.getUid())
+                             .removeEventListener(getGroupsListener);
         }
 
         transferredID.edit().clear().commit();
