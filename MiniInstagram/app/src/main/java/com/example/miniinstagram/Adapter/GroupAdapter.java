@@ -1,11 +1,15 @@
 package com.example.miniinstagram.Adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,16 +17,28 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.Group;
 import com.example.miniinstagram.model.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseException;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
     private Context mContext;
     private List<Group> mGroups;
+    private String TAG = "CommentAdapter: ";
+    private String databaseGroups = "Groups";
+    private String databaseUserGroups = "User-groups";
+    private DatabaseReference databaseRef;
 
     public GroupAdapter(Context mContext, List<Group> mGroups) {
         this.mGroups = mGroups;
         this.mContext = mContext;
+        databaseRef = FirebaseDatabase.getInstance().getReference();
     }
 
 
@@ -44,11 +60,61 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             groupMemberNumber = group.getMembers().size();
         }
         holder.groupMemberNumTextView.setText(groupMemberNumber + " members in this group");
+
+        deleteGroup(holder, group.getOwnerID(), group.getGroupID());
     }
 
     @Override
     public int getItemCount() {
         return mGroups.size();
+    }
+
+    private void deleteGroup(@NonNull ViewHolder holder, String ownerID, String groupID) {
+        holder.deleteImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog alertDialog = new AlertDialog.Builder(mContext).create();
+                alertDialog.setTitle("Do you want to delete this group?");
+
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "No",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        });
+
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Toast.makeText(mContext, "Deleted!", Toast.LENGTH_SHORT).show();
+                                            return;
+                                        }
+
+                                        DatabaseException e = (DatabaseException) task.getException();
+                                        Log.e(TAG, "KX: failed deleting group-" + e.getMessage().toString());
+                                    }
+                                };
+
+                                // To delete a children from multiple places in a single API call
+                                Map<String, Object> childUpdates = new HashMap<String, Object>();
+                                childUpdates.put("/" + databaseGroups + "/" + groupID, null);
+                                childUpdates.put("/" + databaseUserGroups + "/" + ownerID + "/" + groupID, null);
+
+                                databaseRef.updateChildren(childUpdates)
+                                           .addOnCompleteListener(listener);
+                                dialogInterface.dismiss();
+                            }
+                        });
+
+                alertDialog.show();
+            }
+        });
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
