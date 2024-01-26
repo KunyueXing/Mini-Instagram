@@ -1,21 +1,23 @@
 package com.example.miniinstagram.model;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Group {
     private String groupID;
     private String groupName;
-    private int numOfmembers;
-    private List<String> members;
+
+    private String ownerID;
+    private Map<String, Object> members;
 
     public Group() {
     }
 
-    public Group(String groupID, String groupName, int numOfmembers, List<String> members) {
+    public Group(String groupID, String groupName, String ownerID) {
         this.groupID = groupID;
         this.groupName = groupName;
-        this.numOfmembers = numOfmembers;
-        this.members = members;
+        this.ownerID = ownerID;
     }
 
     public String getGroupID() {
@@ -34,19 +36,29 @@ public class Group {
         this.groupName = groupName;
     }
 
-    public int getNumOfmembers() {
-        return numOfmembers;
+    public String getOwnerID() {
+        return ownerID;
     }
 
-    public void setNumOfmembers(int numOfmembers) {
-        this.numOfmembers = numOfmembers;
+    public void setOwnerID(String ownerID) {
+        this.ownerID = ownerID;
     }
 
-    public List<String> getMembers() {
+    public Map<String, Object> getMembers() {
         return members;
     }
 
-    public void setMembers(List<String> members) {
+    public void setMembers(Map<String, Object> members) {
         this.members = members;
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("ownerID", ownerID);
+        result.put("groupID", groupID);
+        result.put("groupName", groupName);
+
+        return result;
     }
 }
