@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.example.miniinstagram.Adapter.GroupAdapter;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.Group;
+import com.example.miniinstagram.model.GroupAdapterCode;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -64,7 +65,7 @@ public class GroupListActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManagerGroup = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManagerGroup);
         groupList = new ArrayList<>();
-        groupAdapter = new GroupAdapter(this, groupList);
+        groupAdapter = new GroupAdapter(this, groupList, GroupAdapterCode.GROUP_ADAPTER_CODE_GENERAL);
         recyclerView.setAdapter(groupAdapter);
 
         fbUser = FirebaseAuth.getInstance().getCurrentUser();

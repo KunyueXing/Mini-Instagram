@@ -33,6 +33,7 @@ import com.example.miniinstagram.UI_Activity.EditProfileActivity;
 import com.example.miniinstagram.UI_Activity.OptionsActivity;
 import com.example.miniinstagram.UI_Activity.UserListActivity;
 import com.example.miniinstagram.model.Group;
+import com.example.miniinstagram.model.GroupAdapterCode;
 import com.example.miniinstagram.model.Notification;
 import com.example.miniinstagram.model.NotificationType;
 import com.example.miniinstagram.model.User;
@@ -155,7 +156,7 @@ public class ProfileFragment extends Fragment {
         LinearLayoutManager linearLayoutManagerGroup = new LinearLayoutManager(getContext());
         recycler_view_group.setLayoutManager(linearLayoutManagerGroup);
         groupList = new ArrayList<>();
-        groupAdapter = new GroupAdapter(getContext(), groupList);
+        groupAdapter = new GroupAdapter(getContext(), groupList, GroupAdapterCode.GROUP_ADAPTER_CODE_EDIT);
         recycler_view_group.setAdapter(groupAdapter);
 
         enableViewGroup(false);

@@ -19,6 +19,7 @@ import com.example.miniinstagram.R;
 import com.example.miniinstagram.UI_Activity.GroupDetailActivity;
 import com.example.miniinstagram.UI_Activity.HomepageActivity;
 import com.example.miniinstagram.model.Group;
+import com.example.miniinstagram.model.GroupAdapterCode;
 import com.example.miniinstagram.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -33,14 +34,16 @@ import java.util.Map;
 public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
     private Context mContext;
     private List<Group> mGroups;
+    private GroupAdapterCode code;
     private String TAG = "CommentAdapter: ";
     private String databaseGroups = "Groups";
     private String databaseUserGroups = "User-groups";
     private DatabaseReference databaseRef;
 
-    public GroupAdapter(Context mContext, List<Group> mGroups) {
+    public GroupAdapter(Context mContext, List<Group> mGroups, GroupAdapterCode code) {
         this.mGroups = mGroups;
         this.mContext = mContext;
+        this.code = code;
         databaseRef = FirebaseDatabase.getInstance().getReference();
     }
 
@@ -64,7 +67,15 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         }
         holder.groupMemberNumTextView.setText(groupMemberNumber + " members in this group");
 
-        deleteGroup(holder, group.getOwnerID(), group.getGroupID());
+        if (code == GroupAdapterCode.GROUP_ADAPTER_CODE_EDIT) {
+            holder.deleteImageView.setVisibility(View.VISIBLE);
+            deleteGroup(holder, group.getOwnerID(), group.getGroupID());
+        }
+
+        if (code == GroupAdapterCode.GROUP_ADAPTER_CODE_GENERAL) {
+            holder.selectImageView.setVisibility(View.VISIBLE);
+        }
+
         showGroupDetail(holder, group.getGroupID());
     }
 
@@ -137,6 +148,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         public TextView groupNameTextView;
         public TextView groupMemberNumTextView;
         public ImageView deleteImageView;
+        public ImageView selectImageView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -144,6 +156,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             groupMemberNumTextView = itemView.findViewById(R.id.groupMemberNumTextView);
             groupNameTextView = itemView.findViewById(R.id.groupNameTextView);
             deleteImageView = itemView.findViewById(R.id.deleteGroupImageView);
+            selectImageView = itemView.findViewById(R.id.selectImageView);
         }
     }
 }

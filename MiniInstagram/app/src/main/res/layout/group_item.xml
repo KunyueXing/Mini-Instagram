@@ -43,8 +43,20 @@
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
         android:layout_marginTop="10dp"
         android:src="@drawable/ic_delete"
-        android:id="@+id/deleteGroupImageView"/>
+        android:id="@+id/deleteGroupImageView"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/circle"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="5dp"
+        android:id="@+id/selectImageView"
+        android:visibility="gone"/>
 
 </RelativeLayout>
