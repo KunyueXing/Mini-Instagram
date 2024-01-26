@@ -17,9 +17,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.miniinstagram.Adapter.PostGridAdapter;
 import com.example.miniinstagram.R;
@@ -57,7 +59,7 @@ public class ProfileFragment extends Fragment {
 
     private CircleImageView profileImageCircleImageView;
     private ImageView optionsImageView;
-    private ImageView myPostsImageView;
+    private ImageButton myPostsImageButton;
     private TextView postsTextView;
     private TextView followersTextView;
     private TextView followingTextView;
@@ -65,6 +67,11 @@ public class ProfileFragment extends Fragment {
     private TextView bioTextView;
     private TextView usernameTextView;
     private Button editProfileButton;
+    private RelativeLayout groupBarLayout;
+    private RecyclerView recycler_view_group;
+    private ImageButton myGroupImageButton;
+    private EditText newGroupEditText;
+    private ImageView newGroupImageView;
 
     private RecyclerView recyclerView;
     private PostGridAdapter postGridAdapter;
@@ -88,6 +95,7 @@ public class ProfileFragment extends Fragment {
     private String databaseNotifications = "Notifications";
     private String databaseFollowedby = "User-followedby";
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -110,7 +118,7 @@ public class ProfileFragment extends Fragment {
 
         profileImageCircleImageView = view.findViewById((R.id.profile_image));
         optionsImageView = view.findViewById(R.id.options);
-        myPostsImageView = view.findViewById(R.id.my_posts);
+        myPostsImageButton = view.findViewById(R.id.my_posts);
 
         postsTextView = view.findViewById(R.id.posts);
         followersTextView = view.findViewById(R.id.followers);
@@ -120,6 +128,12 @@ public class ProfileFragment extends Fragment {
         usernameTextView = view.findViewById(R.id.username);
         editProfileButton = view.findViewById(R.id.edit_profile);
 
+        groupBarLayout = view.findViewById(R.id.group_bar);
+        recycler_view_group = view.findViewById(R.id.recycler_view_group);
+        myGroupImageButton = view.findViewById(R.id.myGroupImageButton);
+        newGroupEditText = view.findViewById(R.id.newGroupEditText);
+        newGroupImageView = view.findViewById(R.id.newGroupImageView);
+
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new GridLayoutManager(getContext() , 3);
@@ -128,13 +142,18 @@ public class ProfileFragment extends Fragment {
         postGridAdapter = new PostGridAdapter(getContext() , postGridList);
         recyclerView.setAdapter(postGridAdapter);
 
-        recyclerView.setVisibility(View.VISIBLE);
+        enableViewGroup(false);
 
         if (profileUserID.equals(fbUser.getUid())) {
             editProfileButton.setText("Edit profile");
+            myGroupImageButton.setVisibility(View.VISIBLE);
         } else {
             checkFollowingStatus();
         }
+
+        showGroupContent();
+
+        showPostsContent();
 
         showUserBasicContent();
         editProfileOrFollow();
@@ -145,6 +164,38 @@ public class ProfileFragment extends Fragment {
         gotoOptions();
 
         return view;
+    }
+
+    private void showPostsContent() {
+        myPostsImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                enableViewGroup(false);
+            }
+        });
+    }
+
+    private void showGroupContent() {
+        myGroupImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                enableViewGroup(true);
+            }
+        });
+    }
+
+    private void enableViewGroup(boolean isEnabled) {
+        if (isEnabled) {
+            groupBarLayout.setVisibility(View.VISIBLE);
+            recycler_view_group.setVisibility(View.VISIBLE);
+
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            groupBarLayout.setVisibility(View.GONE);
+            recycler_view_group.setVisibility(View.GONE);
+
+            recyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void gotoOptions() {

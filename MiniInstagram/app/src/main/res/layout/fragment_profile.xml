@@ -210,6 +210,7 @@
                     android:layout_weight="1"
                     android:id="@+id/myGroupImageButton"
                     android:src="@drawable/ic_list"
+                    android:visibility="gone"
                     style="?android:attr/buttonBarButtonStyle"/>
 
             </LinearLayout>
@@ -234,22 +235,22 @@
         android:layout_height="wrap_content"
         android:background="#ffffff"
         android:layout_alignParentBottom="true"
-        android:id="@+id/comment_bar"
+        android:id="@+id/group_bar"
         android:visibility="gone"
         android:padding="5dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:id="@+id/listImageView"
-            android:src="@drawable/default_avatar"/>
+            android:src="@drawable/group_avatar"/>
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/listImageView"
             android:hint="New group here..."
-            android:id="@+id/add_comment"
+            android:id="@+id/newGroupEditText"
             android:layout_centerVertical="true"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
@@ -262,7 +263,7 @@
             android:id="@+id/newGroupImageView"
             android:src="@drawable/ic_list_add"
             android:textSize="25dp"
-            android:onClick="postCommentOnClick"
+            android:onClick="addGroupOnClick"
             android:layout_marginEnd="5dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true" />
