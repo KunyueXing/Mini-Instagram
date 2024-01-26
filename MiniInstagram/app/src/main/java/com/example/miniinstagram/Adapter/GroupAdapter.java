@@ -3,6 +3,7 @@ package com.example.miniinstagram.Adapter;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.miniinstagram.R;
+import com.example.miniinstagram.UI_Activity.GroupDetailActivity;
+import com.example.miniinstagram.UI_Activity.HomepageActivity;
 import com.example.miniinstagram.model.Group;
 import com.example.miniinstagram.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -62,11 +65,23 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         holder.groupMemberNumTextView.setText(groupMemberNumber + " members in this group");
 
         deleteGroup(holder, group.getOwnerID(), group.getGroupID());
+        showGroupDetail(holder, group.getGroupID());
     }
 
     @Override
     public int getItemCount() {
         return mGroups.size();
+    }
+
+    private void showGroupDetail(@NonNull ViewHolder holder, String groupID) {
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, GroupDetailActivity.class);
+                intent.putExtra("groupID", groupID);
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     private void deleteGroup(@NonNull ViewHolder holder, String ownerID, String groupID) {

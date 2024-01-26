@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".UI_Activity.GroupDetailActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        android:id="@+id/bar" >
+
+        <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/toolbar"
+            android:background="?android:attr/windowBackground" >
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_close"
+                    android:id="@+id/closeImageView"
+                    android:layout_centerVertical="true"
+                    android:onClick="closeOnClick"
+                    android:layout_alignParentStart="true"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Group detail"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    android:textSize="20sp"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:layout_toEndOf="@id/closeImageView"/>
+
+            </RelativeLayout>
+
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/groupNameTextView"
+            android:text="group name"
+            android:textSize="20dp"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_marginTop="1dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/groupMemberNumTextView"
+            android:text="number of members in the group"
+            android:textSize="16dp"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginTop="1dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/descriptionTextView"
+            android:text="description"
+            android:textSize="14dp"
+            android:maxLines="5"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginTop="1dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:id="@+id/editGroupButton"
+            android:text="Edit group"
+            android:textSize="14dp"
+            android:layout_marginTop="1dp"/>
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/recycler_view">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+</LinearLayout>
