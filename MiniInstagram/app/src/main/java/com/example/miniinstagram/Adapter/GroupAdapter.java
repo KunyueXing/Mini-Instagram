@@ -19,6 +19,11 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     private Context mContext;
     private List<Group> mGroups;
 
+    public GroupAdapter(Context mContext, List<Group> mGroups) {
+        this.mGroups = mGroups;
+        this.mContext = mContext;
+    }
+
 
     @NonNull
     @Override

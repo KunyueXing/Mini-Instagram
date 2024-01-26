@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,12 +23,15 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.miniinstagram.Adapter.GroupAdapter;
 import com.example.miniinstagram.Adapter.PostGridAdapter;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.UI_Activity.EditProfileActivity;
 import com.example.miniinstagram.UI_Activity.OptionsActivity;
 import com.example.miniinstagram.UI_Activity.UserListActivity;
+import com.example.miniinstagram.model.Group;
 import com.example.miniinstagram.model.Notification;
 import com.example.miniinstagram.model.NotificationType;
 import com.example.miniinstagram.model.User;
@@ -69,10 +73,11 @@ public class ProfileFragment extends Fragment {
     private Button editProfileButton;
     private RelativeLayout groupBarLayout;
     private RecyclerView recycler_view_group;
+    private List<Group> groupList;
+    private GroupAdapter groupAdapter;
     private ImageButton myGroupImageButton;
     private EditText newGroupEditText;
     private ImageView newGroupImageView;
-
     private RecyclerView recyclerView;
     private PostGridAdapter postGridAdapter;
     private List<Post> postGridList;
@@ -94,6 +99,8 @@ public class ProfileFragment extends Fragment {
     private String databaseFollowing = "User-following";
     private String databaseNotifications = "Notifications";
     private String databaseFollowedby = "User-followedby";
+    private String databaseGroups = "Groups";
+    private String databaseUserGroups = "User-groups";
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -142,6 +149,13 @@ public class ProfileFragment extends Fragment {
         postGridAdapter = new PostGridAdapter(getContext() , postGridList);
         recyclerView.setAdapter(postGridAdapter);
 
+        recycler_view_group.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManagerGroup = new LinearLayoutManager(getContext());
+        recycler_view_group.setLayoutManager(linearLayoutManagerGroup);
+        groupList = new ArrayList<>();
+        groupAdapter = new GroupAdapter(getContext(), groupList);
+        recycler_view_group.setAdapter(groupAdapter);
+
         enableViewGroup(false);
 
         if (profileUserID.equals(fbUser.getUid())) {
@@ -152,7 +166,6 @@ public class ProfileFragment extends Fragment {
         }
 
         showGroupContent();
-
         showPostsContent();
 
         showUserBasicContent();
@@ -163,9 +176,65 @@ public class ProfileFragment extends Fragment {
         getFollowers();
         gotoOptions();
 
+        addNewGroup();
+
         return view;
     }
 
+    /**
+     * When click on the new group imageview, check if the group name is valid and then
+     * upload to database.
+     */
+    public void addNewGroup() {
+        newGroupImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (TextUtils.isEmpty(newGroupEditText.getText().toString())) {
+                    Toast.makeText(getContext(),"Please add a group name", Toast.LENGTH_SHORT).show();
+                } else {
+                    uploadGroup();
+                }
+            }
+        });
+    }
+
+    /**
+     * Upload the group content to database.
+     */
+    private void uploadGroup() {
+        String groupID = databaseReference.child(databaseGroups).push().getKey();
+
+        Group group = new Group(groupID, newGroupEditText.getText().toString(), fbUser.getUid());
+        Map<String, Object> groupValues = group.toMap();
+        Map<String, Object> childUpdates = new HashMap<String, Object>();
+
+        childUpdates.put("/" + databaseGroups + "/" + groupID, groupValues);
+        childUpdates.put("/" + databaseUserGroups + "/" + fbUser.getUid() + "/" + groupID, groupValues);
+
+        OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(getContext(),
+                            "Create new group success", Toast.LENGTH_SHORT).show();
+
+                    return;
+                }
+
+                DatabaseException e = (DatabaseException) task.getException();
+                Log.e(TAG, "KX: failed creating new group" + e.getMessage().toString());
+            }
+        };
+
+        databaseReference.updateChildren(childUpdates)
+                         .addOnCompleteListener(listener);
+
+        newGroupEditText.setText("");
+    }
+
+    /**
+     * When click on the @my post imagebutton, disable view groups. Show user posts in grid.
+     */
     private void showPostsContent() {
         myPostsImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
