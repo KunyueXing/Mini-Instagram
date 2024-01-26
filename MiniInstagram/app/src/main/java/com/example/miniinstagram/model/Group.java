@@ -7,8 +7,9 @@ import java.util.Map;
 public class Group {
     private String groupID;
     private String groupName;
-
     private String ownerID;
+
+    private String description;
     private Map<String, Object> members;
 
     public Group() {
@@ -52,12 +53,21 @@ public class Group {
         this.members = members;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Map<String, Object> toMap() {
         Map<String, Object> result = new HashMap<>();
 
         result.put("ownerID", ownerID);
         result.put("groupID", groupID);
         result.put("groupName", groupName);
+        result.put("description", description);
 
         return result;
     }
