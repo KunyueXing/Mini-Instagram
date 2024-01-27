@@ -91,22 +91,34 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         return mGroups.size();
     }
 
+    /**
+     * When click on the @selectImageView, add / delete a user to / from a group accordingly.
+     *
+     * @param holder
+     * @param group
+     */
     private void selectGroup(@NonNull ViewHolder holder, Group group) {
         holder.selectImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (holder.selectImageView.getTag().toString().equals("to select")) {
-//                    holder.selectImageView.setTag("selected");
-//                    holder.selectImageView.setImageResource(R.drawable.check_star);
+                    holder.selectImageView.setTag("selected");
+                    holder.selectImageView.setImageResource(R.drawable.check_star);
                     uploadToGroup(group, holder.selectImageView);
                 } else {
                     holder.selectImageView.setTag("to select");
                     holder.selectImageView.setImageResource(R.drawable.circle);
+                    deleteFromGroup(group);
                 }
             }
         });
     }
 
+    /**
+     * Add a user to a group and upload to database
+     * @param group
+     * @param select
+     */
     private void uploadToGroup(Group group, ImageView select) {
 
         group.setMembers(userID, true);
@@ -122,8 +134,6 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                 if (task.isSuccessful()) {
                     Toast.makeText(mContext, "Added to group success", Toast.LENGTH_SHORT).show();
 
-                    select.setTag("selected");
-                    select.setImageResource(R.drawable.check_star);
                     return;
                 }
 
@@ -135,6 +145,35 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         databaseRef.updateChildren(childUpdates).addOnCompleteListener(listener);
     }
 
+    /**
+     * Remove a user from a group and updated in database
+     * @param group
+     */
+    private void deleteFromGroup(Group group) {
+
+        group.setMembers(userID, null);
+        String groupID = group.getGroupID();
+
+        Map<String, Object> childUpdates = new HashMap<String, Object>();
+        childUpdates.put("/" + databaseGroups + "/" + groupID, group.toMap());
+        childUpdates.put("/" + databaseUserGroups + "/" + fbUser.getUid() + "/" + groupID, group.toMap());
+
+        OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(mContext, "delete from group success", Toast.LENGTH_SHORT).show();
+
+                    return;
+                }
+
+                DatabaseException e = (DatabaseException) task.getException();
+                Log.e(TAG, "KX: failed deleting from the group" + e.getMessage().toString());
+            }
+        };
+
+        databaseRef.updateChildren(childUpdates).addOnCompleteListener(listener);
+    }
 
     private void showGroupDetail(@NonNull ViewHolder holder, String groupID) {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
