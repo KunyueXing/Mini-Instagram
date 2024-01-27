@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -49,12 +50,18 @@ public class GroupListActivity extends AppCompatActivity {
     private String databaseGroups = "Groups";
     private String databaseUserGroups = "User-groups";
     private String TAG = "Group list activity: ";
+    private String userID;
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_list);
+
+        Intent intent = getIntent();
+        if (intent.hasExtra("userID")) {
+            userID = intent.getStringExtra("userID");
+        }
 
         closeImageView = findViewById(R.id.closeImageView);
         recyclerView = findViewById(R.id.recycler_view);
@@ -65,7 +72,7 @@ public class GroupListActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManagerGroup = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManagerGroup);
         groupList = new ArrayList<>();
-        groupAdapter = new GroupAdapter(this, groupList, GroupAdapterCode.GROUP_ADAPTER_CODE_GENERAL);
+        groupAdapter = new GroupAdapter(this, groupList, GroupAdapterCode.GROUP_ADAPTER_CODE_GENERAL, userID);
         recyclerView.setAdapter(groupAdapter);
 
         fbUser = FirebaseAuth.getInstance().getCurrentUser();

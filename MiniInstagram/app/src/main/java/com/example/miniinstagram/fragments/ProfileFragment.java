@@ -156,7 +156,7 @@ public class ProfileFragment extends Fragment {
         LinearLayoutManager linearLayoutManagerGroup = new LinearLayoutManager(getContext());
         recycler_view_group.setLayoutManager(linearLayoutManagerGroup);
         groupList = new ArrayList<>();
-        groupAdapter = new GroupAdapter(getContext(), groupList, GroupAdapterCode.GROUP_ADAPTER_CODE_EDIT);
+        groupAdapter = new GroupAdapter(getContext(), groupList, GroupAdapterCode.GROUP_ADAPTER_CODE_EDIT, fbUser.getUid());
         recycler_view_group.setAdapter(groupAdapter);
 
         enableViewGroup(false);

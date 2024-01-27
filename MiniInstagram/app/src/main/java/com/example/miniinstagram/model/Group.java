@@ -10,7 +10,7 @@ public class Group {
     private String ownerID;
 
     private String description;
-    private Map<String, Object> members;
+    private Map<String, Object> members = new HashMap<>();
 
     public Group() {
     }
@@ -49,8 +49,11 @@ public class Group {
         return members;
     }
 
-    public void setMembers(Map<String, Object> members) {
-        this.members = members;
+    public void setMembers(String userID, Object obj) {
+        if (members == null) {
+            members = new HashMap<>();
+        }
+        this.members.put(userID, obj);
     }
 
     public String getDescription() {
@@ -68,6 +71,7 @@ public class Group {
         result.put("groupID", groupID);
         result.put("groupName", groupName);
         result.put("description", description);
+        result.put("members", this.getMembers());
 
         return result;
     }

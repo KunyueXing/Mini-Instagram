@@ -151,22 +151,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     }
 
     /**
-     * When click on the addToGroup imageview, go to the grouplist page.
-     * @param addToGroup
-     * @param userID
-     */
-    private void addToGroup(ImageView addToGroup, String userID) {
-        addToGroup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(mContext, GroupListActivity.class);
-                intent.putExtra("userID", userID);
-                mContext.startActivity(intent);
-            }
-        });
-    }
-
-    /**
      * When click on the user item, go to that user's profile page.
      * @param holder
      * @param user
@@ -340,5 +324,19 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         userFollowingRef.addValueEventListener(listener);
     }
 
-
+    /**
+     * When click on the addToGroup imageview, go to the grouplist page.
+     * @param addToGroup
+     * @param userID
+     */
+    private void addToGroup(ImageView addToGroup, String userID) {
+        addToGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, GroupListActivity.class);
+                intent.putExtra("userID", userID);
+                mContext.startActivity(intent);
+            }
+        });
+    }
 }

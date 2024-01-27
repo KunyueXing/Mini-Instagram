@@ -17,12 +17,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.UI_Activity.GroupDetailActivity;
-import com.example.miniinstagram.UI_Activity.HomepageActivity;
+import com.example.miniinstagram.UI_Activity.GroupListActivity;
 import com.example.miniinstagram.model.Group;
 import com.example.miniinstagram.model.GroupAdapterCode;
-import com.example.miniinstagram.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -39,12 +40,16 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     private String databaseGroups = "Groups";
     private String databaseUserGroups = "User-groups";
     private DatabaseReference databaseRef;
+    private FirebaseUser fbUser;
+    private String userID;
 
-    public GroupAdapter(Context mContext, List<Group> mGroups, GroupAdapterCode code) {
+    public GroupAdapter(Context mContext, List<Group> mGroups, GroupAdapterCode code, String userID) {
         this.mGroups = mGroups;
         this.mContext = mContext;
         this.code = code;
+        this.userID = userID;
         databaseRef = FirebaseDatabase.getInstance().getReference();
+        fbUser = FirebaseAuth.getInstance().getCurrentUser();
     }
 
 
@@ -74,6 +79,8 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
         if (code == GroupAdapterCode.GROUP_ADAPTER_CODE_GENERAL) {
             holder.selectImageView.setVisibility(View.VISIBLE);
+            holder.selectImageView.setTag("to select");
+            selectGroup(holder, group);
         }
 
         showGroupDetail(holder, group.getGroupID());
@@ -83,6 +90,51 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     public int getItemCount() {
         return mGroups.size();
     }
+
+    private void selectGroup(@NonNull ViewHolder holder, Group group) {
+        holder.selectImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (holder.selectImageView.getTag().toString().equals("to select")) {
+//                    holder.selectImageView.setTag("selected");
+//                    holder.selectImageView.setImageResource(R.drawable.check_star);
+                    uploadToGroup(group, holder.selectImageView);
+                } else {
+                    holder.selectImageView.setTag("to select");
+                    holder.selectImageView.setImageResource(R.drawable.circle);
+                }
+            }
+        });
+    }
+
+    private void uploadToGroup(Group group, ImageView select) {
+
+        group.setMembers(userID, true);
+        String groupID = group.getGroupID();
+
+        Map<String, Object> childUpdates = new HashMap<String, Object>();
+        childUpdates.put("/" + databaseGroups + "/" + groupID, group.toMap());
+        childUpdates.put("/" + databaseUserGroups + "/" + fbUser.getUid() + "/" + groupID, group.toMap());
+
+        OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(mContext, "Added to group success", Toast.LENGTH_SHORT).show();
+
+                    select.setTag("selected");
+                    select.setImageResource(R.drawable.check_star);
+                    return;
+                }
+
+                DatabaseException e = (DatabaseException) task.getException();
+                Log.e(TAG, "KX: failed adding to the group" + e.getMessage().toString());
+            }
+        };
+
+        databaseRef.updateChildren(childUpdates).addOnCompleteListener(listener);
+    }
+
 
     private void showGroupDetail(@NonNull ViewHolder holder, String groupID) {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
