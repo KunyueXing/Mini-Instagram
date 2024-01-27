@@ -24,9 +24,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,11 +39,12 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     private Context mContext;
     private List<Group> mGroups;
     private GroupAdapterCode code;
-    private String TAG = "CommentAdapter: ";
+    private String TAG = "GroupAdapter: ";
     private String databaseGroups = "Groups";
     private String databaseUserGroups = "User-groups";
     private DatabaseReference databaseRef;
     private FirebaseUser fbUser;
+    private ValueEventListener isInGroupListener;
     private String userID;
 
     public GroupAdapter(Context mContext, List<Group> mGroups, GroupAdapterCode code, String userID) {
@@ -80,6 +84,10 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         if (code == GroupAdapterCode.GROUP_ADAPTER_CODE_GENERAL) {
             holder.selectImageView.setVisibility(View.VISIBLE);
             holder.selectImageView.setTag("to select");
+//            Log.i(TAG, "Initially: " + holder.selectImageView.getTag().toString());
+            holder.selectImageView.setImageResource(R.drawable.circle);
+
+            isInGroup(holder.selectImageView, group);
             selectGroup(holder, group);
         }
 
@@ -89,6 +97,36 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     @Override
     public int getItemCount() {
         return mGroups.size();
+    }
+
+    /**
+     * Check if the user (@userID) is in this group. If she is, set the imageview as a star.
+     * @param select
+     * @param group
+     */
+    private void isInGroup(final ImageView select, final Group group) {
+        String currUserID = fbUser.getUid();
+        DatabaseReference ref = databaseRef.child(databaseUserGroups).child(currUserID).child(group.getGroupID());
+//        Log.i(TAG, "check if the user is in the group");
+
+        isInGroupListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.child("members").child(userID).exists()) {
+                    select.setTag("selected");
+//                    Log.i(TAG, "the user is in the group");
+//                    Log.i(TAG, select.getTag().toString());
+                    select.setImageResource(R.drawable.check_star);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Failed checking if user is in a certain group", error.toException());
+            }
+        };
+
+        ref.addValueEventListener(isInGroupListener);
     }
 
     /**
@@ -102,26 +140,26 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             @Override
             public void onClick(View view) {
                 if (holder.selectImageView.getTag().toString().equals("to select")) {
-                    holder.selectImageView.setTag("selected");
-                    holder.selectImageView.setImageResource(R.drawable.check_star);
-                    uploadToGroup(group, holder.selectImageView);
+//                    holder.selectImageView.setTag("selected");
+//                    holder.selectImageView.setImageResource(R.drawable.check_star);
+                    updatedToDatabase(group, true);
                 } else {
-                    holder.selectImageView.setTag("to select");
-                    holder.selectImageView.setImageResource(R.drawable.circle);
-                    deleteFromGroup(group);
+//                    holder.selectImageView.setTag("to select");
+//                    holder.selectImageView.setImageResource(R.drawable.circle);
+                    updatedToDatabase(group, null);
                 }
             }
         });
     }
 
     /**
-     * Add a user to a group and upload to database
+     * Added a user to a group when the @obj is true. Removing a user from a group when the
+     * @obj is null. Updated to database.
      * @param group
-     * @param select
+     * @param obj
      */
-    private void uploadToGroup(Group group, ImageView select) {
-
-        group.setMembers(userID, true);
+    private void updatedToDatabase(Group group, Object obj) {
+        group.setMembers(userID, obj);
         String groupID = group.getGroupID();
 
         Map<String, Object> childUpdates = new HashMap<String, Object>();
@@ -132,43 +170,13 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(mContext, "Added to group success", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "updated user - group success", Toast.LENGTH_SHORT).show();
 
                     return;
                 }
 
                 DatabaseException e = (DatabaseException) task.getException();
-                Log.e(TAG, "KX: failed adding to the group" + e.getMessage().toString());
-            }
-        };
-
-        databaseRef.updateChildren(childUpdates).addOnCompleteListener(listener);
-    }
-
-    /**
-     * Remove a user from a group and updated in database
-     * @param group
-     */
-    private void deleteFromGroup(Group group) {
-
-        group.setMembers(userID, null);
-        String groupID = group.getGroupID();
-
-        Map<String, Object> childUpdates = new HashMap<String, Object>();
-        childUpdates.put("/" + databaseGroups + "/" + groupID, group.toMap());
-        childUpdates.put("/" + databaseUserGroups + "/" + fbUser.getUid() + "/" + groupID, group.toMap());
-
-        OnCompleteListener<Void> listener = new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    Toast.makeText(mContext, "delete from group success", Toast.LENGTH_SHORT).show();
-
-                    return;
-                }
-
-                DatabaseException e = (DatabaseException) task.getException();
-                Log.e(TAG, "KX: failed deleting from the group" + e.getMessage().toString());
+                Log.e(TAG, "KX: failed adding to / deleting from the group" + e.getMessage().toString());
             }
         };
 
