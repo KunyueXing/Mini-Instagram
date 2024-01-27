@@ -47,6 +47,13 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     private ValueEventListener isInGroupListener;
     private String userID;
 
+    public GroupAdapter(Context mContext, List<Group> mGroups, GroupAdapterCode code) {
+        this.mGroups = mGroups;
+        this.mContext = mContext;
+        this.code = code;
+        databaseRef = FirebaseDatabase.getInstance().getReference();
+        fbUser = FirebaseAuth.getInstance().getCurrentUser();
+    }
     public GroupAdapter(Context mContext, List<Group> mGroups, GroupAdapterCode code, String userID) {
         this.mGroups = mGroups;
         this.mContext = mContext;
@@ -170,7 +177,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(mContext, "updated user - group success", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(mContext, "updated user - group success", Toast.LENGTH_SHORT).show();
 
                     return;
                 }
