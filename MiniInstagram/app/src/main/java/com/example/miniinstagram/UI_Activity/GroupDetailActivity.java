@@ -32,6 +32,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,6 +59,7 @@ public class GroupDetailActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private String TAG = "Group Detail Activity: ";
     private String databaseUsers = "Users";
+    private String databaseUserPosts = "User-Posts";
     private String databaseGroups = "Groups";
 
     @Override
@@ -100,7 +102,51 @@ public class GroupDetailActivity extends AppCompatActivity {
         getGroupInfo();
         getUserList();
 
+        getGroupPosts();
+
         showGroupMembers();
+        showGroupPosts();
+    }
+
+    private void getGroupPosts() {
+
+        Set<String> userIDList  = getUserIDs();
+        if (userIDList == null) {
+            return;
+        }
+
+        DatabaseReference ref = databaseReference.child(databaseUserPosts);
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                mPosts.clear();
+
+                for (DataSnapshot subSnapshot : snapshot.getChildren()) {
+                    for (String followingID : userIDList) {
+                        if (!subSnapshot.getKey().equals(followingID)) {
+                            continue;
+                        }
+
+                        for (DataSnapshot postSnapshot : subSnapshot.getChildren()) {
+                            Post post = postSnapshot.getValue(Post.class);
+
+                            mPosts.add(post);
+                        }
+                    }
+                }
+
+                Collections.sort(mPosts);
+                postAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Get all posts from all following:onCancelled", error.toException());
+            }
+        };
+
+        ref.addValueEventListener(listener);
     }
 
     private void showGroupMembers() {
@@ -108,6 +154,15 @@ public class GroupDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 enableGroupMembers(true);
+            }
+        });
+    }
+
+    private void showGroupPosts() {
+        groupPostsImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                enableGroupMembers(false);
             }
         });
     }
@@ -175,7 +230,7 @@ public class GroupDetailActivity extends AppCompatActivity {
             }
         };
 
-        ref.addListenerForSingleValueEvent(listener);
+        ref.addValueEventListener(listener);
         return result;
     }
 
