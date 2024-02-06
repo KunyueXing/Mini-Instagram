@@ -12,7 +12,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 
 import com.example.miniinstagram.Adapter.PostAdapter;
 import com.example.miniinstagram.R;
@@ -39,6 +41,8 @@ public class HomeFragment extends Fragment {
     private DatabaseReference databaseReference;
     private String databaseFollowing = "User-following";
     private String databaseUserPosts = "User-Posts";
+    private String databaseUserGroups = "User-groups";
+    private String defaultGroup = "All followings";
     private String TAG = "HomeFragment: ";
 
     private ValueEventListener allFollowingListener;

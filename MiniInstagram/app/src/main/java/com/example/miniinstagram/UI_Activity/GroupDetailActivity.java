@@ -10,14 +10,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.miniinstagram.Adapter.GroupAdapter;
+import com.example.miniinstagram.Adapter.PostAdapter;
 import com.example.miniinstagram.Adapter.UserAdapter;
 import com.example.miniinstagram.R;
 import com.example.miniinstagram.model.Group;
 import com.example.miniinstagram.model.GroupAdapterCode;
+import com.example.miniinstagram.model.Post;
 import com.example.miniinstagram.model.User;
 import com.example.miniinstagram.model.UserAdapterCode;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,11 +41,16 @@ public class GroupDetailActivity extends AppCompatActivity {
     public TextView groupMemberNumTextView;
     public Button editGroupButton;
     public TextView descriptionTextView;
+    public ImageButton groupPostsImageButton;
+    public ImageButton groupMemberImageButton;
+    public RecyclerView recycler_view_posts;
     public RecyclerView recyclerView;
     public ImageView closeImageView;
     private UserAdapter userAdapter;
+    private PostAdapter postAdapter;
 
     private List<User> mUsers;
+    private List<Post> mPosts;
     private String groupID;
     private FirebaseUser fbUser;
 
@@ -63,6 +71,16 @@ public class GroupDetailActivity extends AppCompatActivity {
         descriptionTextView = findViewById(R.id.descriptionTextView);
         recyclerView = findViewById(R.id.recycler_view);
         closeImageView = findViewById(R.id.closeImageView);
+        groupMemberImageButton = findViewById(R.id.groupMemberImageButton);
+        groupPostsImageButton = findViewById(R.id.groupPostsImageButton);
+        recycler_view_posts = findViewById(R.id.recycler_view_posts);
+
+        recycler_view_posts.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManagerPost = new LinearLayoutManager(this);
+        recycler_view_posts.setLayoutManager(linearLayoutManagerPost);
+        mPosts = new ArrayList<>();
+        postAdapter = new PostAdapter(this, mPosts);
+        recycler_view_posts.setAdapter(postAdapter);
 
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManagerGroup = new LinearLayoutManager(this);
@@ -70,6 +88,8 @@ public class GroupDetailActivity extends AppCompatActivity {
         mUsers = new ArrayList<>();
         userAdapter = new UserAdapter(this, mUsers, UserAdapterCode.USER_ADAPTER_CODE_GENERAL);
         recyclerView.setAdapter(userAdapter);
+
+        enableGroupMembers(false);
 
         fbUser = FirebaseAuth.getInstance().getCurrentUser();
         databaseReference = FirebaseDatabase.getInstance().getReference();
@@ -79,6 +99,27 @@ public class GroupDetailActivity extends AppCompatActivity {
 
         getGroupInfo();
         getUserList();
+
+        showGroupMembers();
+    }
+
+    private void showGroupMembers() {
+        groupMemberImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                enableGroupMembers(true);
+            }
+        });
+    }
+
+    private void enableGroupMembers(boolean isEnabled) {
+        if (isEnabled) {
+            recycler_view_posts.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.GONE);
+            recycler_view_posts.setVisibility(View.VISIBLE);
+        }
     }
 
     private void getUserList() {
