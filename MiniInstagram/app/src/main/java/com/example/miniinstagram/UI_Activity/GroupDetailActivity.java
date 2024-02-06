@@ -54,6 +54,7 @@ public class GroupDetailActivity extends AppCompatActivity {
     private List<Post> mPosts;
     private String groupID;
     private FirebaseUser fbUser;
+    private ValueEventListener getGroupMembersIDListener;
 
     private ValueEventListener getGroupInfoListener;
     private DatabaseReference databaseReference;
@@ -146,7 +147,7 @@ public class GroupDetailActivity extends AppCompatActivity {
             }
         };
 
-        ref.addValueEventListener(listener);
+        ref.addListenerForSingleValueEvent(listener);
     }
 
     private void showGroupMembers() {
@@ -215,7 +216,7 @@ public class GroupDetailActivity extends AppCompatActivity {
 
         DatabaseReference ref = databaseReference.child(databaseGroups).child(groupID);
 
-        ValueEventListener listener = new ValueEventListener() {
+        getGroupMembersIDListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Group group = snapshot.getValue(Group.class);
@@ -230,7 +231,7 @@ public class GroupDetailActivity extends AppCompatActivity {
             }
         };
 
-        ref.addValueEventListener(listener);
+        ref.addValueEventListener(getGroupMembersIDListener);
         return result;
     }
 
@@ -279,6 +280,12 @@ public class GroupDetailActivity extends AppCompatActivity {
             databaseReference.child(databaseGroups)
                              .child(groupID)
                              .removeEventListener(getGroupInfoListener);
+        }
+
+        if (getGroupMembersIDListener != null) {
+            databaseReference.child(databaseGroups)
+                             .child(groupID)
+                             .removeEventListener(getGroupMembersIDListener);
         }
     }
 }
