@@ -80,6 +80,10 @@ public class GroupDetailActivity extends AppCompatActivity {
 
         recycler_view_posts.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManagerPost = new LinearLayoutManager(this);
+        // Latest post will be on the top
+        linearLayoutManagerPost.setStackFromEnd(true);
+        linearLayoutManagerPost.setReverseLayout(true);
+        
         recycler_view_posts.setLayoutManager(linearLayoutManagerPost);
         mPosts = new ArrayList<>();
         postAdapter = new PostAdapter(this, mPosts);
@@ -137,6 +141,7 @@ public class GroupDetailActivity extends AppCompatActivity {
                     }
                 }
 
+                // sort the posts according to its creation time.
                 Collections.sort(mPosts);
                 postAdapter.notifyDataSetChanged();
             }
