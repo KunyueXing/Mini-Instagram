@@ -121,7 +121,7 @@
 5. following / follower list
 <br>
 <picture>
- <img alt="following / follower list" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Ffollowing%20list.png?alt=media&token=d2d399f6-3606-4cc2-b8be-7e3a1e8cdaa3" width="800" height="600">
+ <img alt="following / follower list" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Ffollowing%20list.png?alt=media&token=d2d399f6-3606-4cc2-b8be-7e3a1e8cdaa3" width="750" height="600">
 </picture>
 <br>
 
@@ -213,10 +213,16 @@ The database has eight "root" nodes
      - key: post ID, 
      - `/Post-comments/<POST-ID>/` is a list of all comments on a certain post with id `<POST-ID>`, keyed by the same push ID usded in the `Comments` tree.
      - Similarly, this is designed to accelerate query "all comments under a specific user" without filtering through all `Comment` objects. By keeping this data in its own tree rather than nesting it under `Posts`, we make it possible to load a post without loading all comments while still having a known path to access all comments for a particular post.
-6. `Comment-comments`
-     - a list of comments under the comment
-     - key: comment ID
-     - `/Comment-comments/<Comment-ID>/` is a list of all comments under a certain comment, keyed by the same push ID usded in the `Comments` tree.
+6. `Groups`
+     - a list of `group` objects
+     - key: group ID
+     - value: a hashmap contains information such as groupID, name, members, etc.
+        | key       |     value     |
+        |-----:     |---------------|
+        | groupID   |               |
+        |   name    |               |
+        | ownerID   |               |
+        |   ...     |               |
 7. `User-following`
      - a list of users followed by the user
      - key: userID
@@ -229,12 +235,11 @@ The database has eight "root" nodes
      - key: userID
        - key: userID
        - value: true      
-9. `User-group`
+9. `User-groups`
      - a list of users following the specific user under a certain group
      - key: userID
        - key: groupID
-         - key: userID
-         - value: true    
+         - value: a hashmap contains all group members' `ID` as key and true or null as value   
     - This makes it easy to query " a list of users followed and grouped by a specific user", etc.
 10. `Likes`
     * a list of users liked a specific post
