@@ -83,7 +83,7 @@ public class GroupDetailActivity extends AppCompatActivity {
         // Latest post will be on the top
         linearLayoutManagerPost.setStackFromEnd(true);
         linearLayoutManagerPost.setReverseLayout(true);
-        
+
         recycler_view_posts.setLayoutManager(linearLayoutManagerPost);
         mPosts = new ArrayList<>();
         postAdapter = new PostAdapter(this, mPosts);
@@ -113,6 +113,9 @@ public class GroupDetailActivity extends AppCompatActivity {
         showGroupPosts();
     }
 
+    /**
+     * Get all posts that are posted by the group members.
+     */
     private void getGroupPosts() {
 
         Set<String> userIDList  = getUserIDs();
@@ -155,6 +158,9 @@ public class GroupDetailActivity extends AppCompatActivity {
         ref.addListenerForSingleValueEvent(listener);
     }
 
+    /**
+     * When click on the groupMember ImageButton, show group member user list
+     */
     private void showGroupMembers() {
         groupMemberImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -164,6 +170,9 @@ public class GroupDetailActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * When click on the groupPosts ImageButton, show group posts list
+     */
     private void showGroupPosts() {
         groupPostsImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,6 +182,10 @@ public class GroupDetailActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Show either group members user list or group posts list
+     * @param isEnabled
+     */
     private void enableGroupMembers(boolean isEnabled) {
         if (isEnabled) {
             recycler_view_posts.setVisibility(View.GONE);
@@ -183,6 +196,9 @@ public class GroupDetailActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * According to userID, find the user (in type User) and saved it in @mUsers list
+     */
     private void getUserList() {
         Set<String> userIDList  = getUserIDs();
         if (userIDList == null) {
@@ -216,6 +232,11 @@ public class GroupDetailActivity extends AppCompatActivity {
         ref.addListenerForSingleValueEvent(listener);
     }
 
+    /**
+     * Get all users that are stored in this group (group members). The userID is saved and returned
+     * in a set.
+     * @return
+     */
     private Set<String> getUserIDs() {
         Set<String> result = new HashSet<>();
 
