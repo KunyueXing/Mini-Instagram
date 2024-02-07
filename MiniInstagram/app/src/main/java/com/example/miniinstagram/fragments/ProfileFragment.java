@@ -381,6 +381,7 @@ public class ProfileFragment extends Fragment {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
+                                sendNotifications();
                                 return;
                             }
 
@@ -401,7 +402,7 @@ public class ProfileFragment extends Fragment {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                sendNotifications();
+
                                 return;
                             }
 
