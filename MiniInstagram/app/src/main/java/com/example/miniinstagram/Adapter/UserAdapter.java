@@ -3,7 +3,6 @@ package com.example.miniinstagram.Adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.view.ContentInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,16 +14,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.miniinstagram.R;
-import com.example.miniinstagram.UI_Activity.GroupDetailActivity;
 import com.example.miniinstagram.UI_Activity.GroupListActivity;
 import com.example.miniinstagram.UI_Activity.HomepageActivity;
+import com.example.miniinstagram.model.Group;
 import com.example.miniinstagram.model.Notification;
 import com.example.miniinstagram.model.NotificationType;
 import com.example.miniinstagram.model.User;
 import com.example.miniinstagram.model.UserAdapterCode;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -36,6 +33,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,11 +48,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     private Context mContext;
     private List<User> mUsers;
     private UserAdapterCode code;
-    private FirebaseUser firebaseUser;
-    private DatabaseReference databaseReference;
+    private FirebaseUser fbUser;
+    private DatabaseReference databaseRef;
     private String databaseUserFollowing = "User-following";
     private String databaseUserFollowedby = "User-followedby";
     private String databaseNotifications = "Notifications";
+    private String databaseUserGroups = "User-groups";
+    private String databaseGroups = "Groups";
     private String TAG = "UserAdapter: ";
 
     /**
@@ -69,8 +69,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         this.mContext = mContext;
         this.mUsers = mUsers;
         this.code = code;
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        databaseReference = FirebaseDatabase.getInstance().getReference();
+        fbUser = FirebaseAuth.getInstance().getCurrentUser();
+        databaseRef = FirebaseDatabase.getInstance().getReference();
     }
 
     /**
@@ -140,7 +140,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         isFollowed(user.getUserID(), holder.followButton, holder.addToGroupImageView);
 
         // If user in search results is the current user herself, the follow button would disappear
-        if (user.getUserID().equals(firebaseUser.getUid())) {
+        if (user.getUserID().equals(fbUser.getUid())) {
             holder.followButton.setVisibility(View.GONE);
         }
 
@@ -195,14 +195,15 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
      */
     private void removeUserFollow(User user) {
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + databaseUserFollowing + "/" + firebaseUser.getUid() + "/" + user.getUserID(), null);
-        childUpdates.put("/" + databaseUserFollowedby + "/" + user.getUserID() + "/" + firebaseUser.getUid(), null);
+        childUpdates.put("/" + databaseUserFollowing + "/" + fbUser.getUid() + "/" + user.getUserID(), null);
+        childUpdates.put("/" + databaseUserFollowedby + "/" + user.getUserID() + "/" + fbUser.getUid(), null);
 
         OnCompleteListener completeListener = new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull Task task) {
                 if (task.isSuccessful()) {
                     Log.i(TAG, "onSuccess: unfollow success!");
+                    removeFromGroups(user);
                     return;
                 }
 
@@ -211,7 +212,60 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             }
         };
 
-        databaseReference.updateChildren(childUpdates).addOnCompleteListener(completeListener);
+        databaseRef.updateChildren(childUpdates).addOnCompleteListener(completeListener);
+    }
+
+    /**
+     * When unfollow a user, find which group it is in and store the groupID in a list
+     * @param user
+     */
+    private void removeFromGroups(User user) {
+        List<String> groupIDList = new ArrayList<>();
+        DatabaseReference ref = databaseRef.child(databaseUserGroups).child(fbUser.getUid());
+
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot subSnapshot : dataSnapshot.getChildren()) {
+                    Group group = subSnapshot.getValue(Group.class);
+
+                    if (group.getMembers().containsKey(user.getUserID())) {
+                        groupIDList.add(group.getGroupID());
+                    }
+                }
+
+                if (groupIDList.size() != 0) {
+                    uploadToDB(user, groupIDList);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e(TAG, "Fail removing from groups and user-groups " + databaseError.toString());
+            }
+        };
+        ref.addValueEventListener(listener);
+    }
+
+    /**
+     * Remove the user from the corresponding group
+     * @param user
+     * @param groupIDList
+     */
+    private void uploadToDB(User user, List<String> groupIDList) {
+        for(String groupID : groupIDList) {
+            databaseRef.child(databaseUserGroups)
+                       .child(fbUser.getUid())
+                       .child(groupID)
+                       .child("members")
+                       .child(user.getUserID())
+                       .setValue(null);
+            databaseRef.child(databaseGroups)
+                       .child(groupID)
+                       .child("members")
+                       .child(user.getUserID())
+                       .setValue(null);
+        }
     }
 
     /**
@@ -223,8 +277,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
      */
     private void addUserFollow(User user) {
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + databaseUserFollowing + "/" + firebaseUser.getUid() + "/" + user.getUserID(), true);
-        childUpdates.put("/" + databaseUserFollowedby + "/" + user.getUserID() + "/" + firebaseUser.getUid(), true);
+        childUpdates.put("/" + databaseUserFollowing + "/" + fbUser.getUid() + "/" + user.getUserID(), true);
+        childUpdates.put("/" + databaseUserFollowedby + "/" + user.getUserID() + "/" + fbUser.getUid(), true);
 
         OnCompleteListener completeListener = new OnCompleteListener() {
             @Override
@@ -242,7 +296,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             }
         };
 
-        databaseReference.updateChildren(childUpdates).addOnCompleteListener(completeListener);
+        databaseRef.updateChildren(childUpdates).addOnCompleteListener(completeListener);
     }
 
     /**
@@ -251,10 +305,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
      * @param user, to whom the notification will be send
      */
     private void sendNotifications(User user) {
-        DatabaseReference ref = databaseReference.child(databaseNotifications).child(user.getUserID());
+        DatabaseReference ref = databaseRef.child(databaseNotifications).child(user.getUserID());
         String notificationID = ref.push().getKey();
 
-        Notification notification = new Notification(notificationID, firebaseUser.getUid(), NotificationType.NOTIFICATION_TYPE_FOLLOWERS);
+        Notification notification = new Notification(notificationID, fbUser.getUid(), NotificationType.NOTIFICATION_TYPE_FOLLOWERS);
 
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put(notificationID, notification.toMap());
@@ -297,7 +351,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         DatabaseReference userFollowingRef = FirebaseDatabase.getInstance()
                                                              .getReference()
                                                              .child("User-following")
-                                                             .child(firebaseUser.getUid());
+                                                             .child(fbUser.getUid());
 
         ValueEventListener listener = new ValueEventListener() {
             @Override
