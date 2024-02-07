@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -266,6 +267,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                        .child(user.getUserID())
                        .setValue(null);
         }
+        Toast.makeText(mContext, "Unfollowed this user and removed it from all groups!", Toast.LENGTH_SHORT).show();
     }
 
     /**

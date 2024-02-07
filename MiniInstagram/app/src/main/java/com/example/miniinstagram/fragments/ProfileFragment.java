@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -86,7 +85,7 @@ public class ProfileFragment extends Fragment {
 
     private FirebaseUser fbUser;
     private StorageReference storageReference;
-    private DatabaseReference databaseReference;
+    private DatabaseReference databaseRef;
     private String profileUserID;
     private SharedPreferences transferredID;
     private ValueEventListener followingNumListener;
@@ -94,6 +93,7 @@ public class ProfileFragment extends Fragment {
     private ValueEventListener getUserInfoListener;
     private ValueEventListener postsNumListener;
     private ValueEventListener getGroupsListener;
+    private ValueEventListener toRemoveFromGroupListener;
 
     private String TAG = "Profile fragment: ";
     private String storagePostsImage = "Posts_Image";
@@ -114,7 +114,7 @@ public class ProfileFragment extends Fragment {
 
         fbUser = FirebaseAuth.getInstance().getCurrentUser();
         storageReference = FirebaseStorage.getInstance().getReference();
-        databaseReference = FirebaseDatabase.getInstance().getReference();
+        databaseRef = FirebaseDatabase.getInstance().getReference();
 
         // If userData is not null. It stores a userID of whose profile will be visited.
         // If userData is null, go to user's own profile page.
@@ -186,7 +186,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void getAllGroups() {
-        DatabaseReference ref = databaseReference.child(databaseUserGroups).child(fbUser.getUid());
+        DatabaseReference ref = databaseRef.child(databaseUserGroups).child(fbUser.getUid());
 
         getGroupsListener = new ValueEventListener() {
             @Override
@@ -229,7 +229,7 @@ public class ProfileFragment extends Fragment {
      * Upload the group content to database.
      */
     private void uploadGroup() {
-        String groupID = databaseReference.child(databaseGroups).push().getKey();
+        String groupID = databaseRef.child(databaseGroups).push().getKey();
 
         Group group = new Group(groupID, newGroupEditText.getText().toString(), fbUser.getUid());
         Map<String, Object> groupValues = group.toMap();
@@ -253,7 +253,7 @@ public class ProfileFragment extends Fragment {
             }
         };
 
-        databaseReference.updateChildren(childUpdates)
+        databaseRef.updateChildren(childUpdates)
                          .addOnCompleteListener(listener);
 
         newGroupEditText.setText("");
@@ -331,7 +331,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void getPostsList() {
-        DatabaseReference ref = databaseReference.child(databaseUserPosts).child(profileUserID);
+        DatabaseReference ref = databaseRef.child(databaseUserPosts).child(profileUserID);
 
         ValueEventListener listener = new ValueEventListener() {
             @Override
@@ -390,7 +390,7 @@ public class ProfileFragment extends Fragment {
                         }
                     };
 
-                    databaseReference.updateChildren(childUpdates)
+                    databaseRef.updateChildren(childUpdates)
                                      .addOnCompleteListener(listener);
 
                     editProfileButton.setText("Following");
@@ -402,7 +402,7 @@ public class ProfileFragment extends Fragment {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-
+                                removeFromGroups();
                                 return;
                             }
 
@@ -411,7 +411,7 @@ public class ProfileFragment extends Fragment {
                         }
                     };
 
-                    databaseReference.updateChildren(childUpdates)
+                    databaseRef.updateChildren(childUpdates)
                                      .addOnCompleteListener(listener);
                     editProfileButton.setText("Follow");
                 }
@@ -419,8 +419,60 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    /**
+     * When unfollow a user, find which group it is in and store the groupID in a list
+     */
+    private void removeFromGroups() {
+        List<String> groupIDList = new ArrayList<>();
+        DatabaseReference ref = databaseRef.child(databaseUserGroups).child(fbUser.getUid());
+
+        toRemoveFromGroupListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot subSnapshot : dataSnapshot.getChildren()) {
+                    Group group = subSnapshot.getValue(Group.class);
+
+                    if (group.getMembers().containsKey(profileUserID)) {
+                        groupIDList.add(group.getGroupID());
+                    }
+                }
+
+                if (groupIDList.size() != 0) {
+                    uploadToDB(groupIDList);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e(TAG, "Fail removing from groups and user-groups " + databaseError.toString());
+            }
+        };
+        ref.addValueEventListener(toRemoveFromGroupListener);
+    }
+
+    /**
+     * Remove the user from the corresponding group
+     * @param groupIDList
+     */
+    private void uploadToDB(List<String> groupIDList) {
+        for(String groupID : groupIDList) {
+            databaseRef.child(databaseUserGroups)
+                       .child(fbUser.getUid())
+                       .child(groupID)
+                       .child("members")
+                       .child(profileUserID)
+                       .setValue(null);
+            databaseRef.child(databaseGroups)
+                       .child(groupID)
+                       .child("members")
+                       .child(profileUserID)
+                       .setValue(null);
+        }
+        Toast.makeText(getContext(), "Unfollowed this user and removed it from all groups!", Toast.LENGTH_SHORT).show();
+    }
+
     private void sendNotifications() {
-        DatabaseReference ref = databaseReference.child(databaseNotifications).child(profileUserID);
+        DatabaseReference ref = databaseRef.child(databaseNotifications).child(profileUserID);
         String notificationID = ref.push().getKey();
 
         Notification notification = new Notification(notificationID, fbUser.getUid(), NotificationType.NOTIFICATION_TYPE_FOLLOWERS);
@@ -451,7 +503,7 @@ public class ProfileFragment extends Fragment {
     private void checkFollowingStatus() {
         String userID = fbUser.getUid();
 
-        DatabaseReference ref = databaseReference.child(databaseFollowing).child(userID);
+        DatabaseReference ref = databaseRef.child(databaseFollowing).child(userID);
 
         ValueEventListener listener = new ValueEventListener() {
             @Override
@@ -487,7 +539,7 @@ public class ProfileFragment extends Fragment {
      * Get the number of followers the profile owner has.
      */
     private void getFollowerNum() {
-        DatabaseReference ref = databaseReference.child(databaseFollowedby).child(profileUserID);
+        DatabaseReference ref = databaseRef.child(databaseFollowedby).child(profileUserID);
 
         followedbyNumListener = new ValueEventListener() {
             @Override
@@ -507,7 +559,7 @@ public class ProfileFragment extends Fragment {
      * Get the number of users the profile owner is following.
      */
     private void getFollowingNum() {
-        DatabaseReference ref = databaseReference.child(databaseFollowing).child(profileUserID);
+        DatabaseReference ref = databaseRef.child(databaseFollowing).child(profileUserID);
 
         followingNumListener = new ValueEventListener() {
             @Override
@@ -527,7 +579,7 @@ public class ProfileFragment extends Fragment {
      * Get the number of posts the profile owner had posted
      */
     private void getNumOfPosts() {
-        DatabaseReference postsRef = databaseReference.child(databaseUserPosts).child(profileUserID);
+        DatabaseReference postsRef = databaseRef.child(databaseUserPosts).child(profileUserID);
 
         postsNumListener = new ValueEventListener() {
             @Override
@@ -549,7 +601,7 @@ public class ProfileFragment extends Fragment {
 
     // Retrieve username， name， bio from database and show them on user profile
     private void getUserInfo() {
-        DatabaseReference usersRef = databaseReference.child(databaseUsers).child(profileUserID);
+        DatabaseReference usersRef = databaseRef.child(databaseUsers).child(profileUserID);
 
         getUserInfoListener = new ValueEventListener() {
             @Override
@@ -593,33 +645,39 @@ public class ProfileFragment extends Fragment {
         super.onStop();
 
         if (followedbyNumListener != null) {
-            databaseReference.child(databaseFollowedby)
+            databaseRef.child(databaseFollowedby)
                              .child(profileUserID)
                              .removeEventListener(followedbyNumListener);
         }
 
         if (followingNumListener != null) {
-            databaseReference.child(databaseFollowing)
+            databaseRef.child(databaseFollowing)
                              .child(profileUserID)
                              .removeEventListener(followingNumListener);
         }
 
         if (postsNumListener != null) {
-            databaseReference.child(databaseUserPosts)
+            databaseRef.child(databaseUserPosts)
                              .child(profileUserID)
                              .removeEventListener(postsNumListener);
         }
 
         if (getUserInfoListener != null) {
-            databaseReference.child(databaseUsers)
+            databaseRef.child(databaseUsers)
                              .child(profileUserID)
                              .removeEventListener(getUserInfoListener);
         }
 
         if (getGroupsListener != null) {
-            databaseReference.child(databaseUserGroups)
+            databaseRef.child(databaseUserGroups)
                              .child(fbUser.getUid())
                              .removeEventListener(getGroupsListener);
+        }
+
+        if (toRemoveFromGroupListener != null) {
+            databaseRef.child(databaseUserGroups)
+                       .child(fbUser.getUid())
+                       .removeEventListener(toRemoveFromGroupListener);
         }
 
         transferredID.edit().clear().commit();
