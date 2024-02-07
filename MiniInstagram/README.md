@@ -93,17 +93,17 @@
 </picture>
 <br>
 
-4. Person fragment
+4. Profile fragment
 <br>
-   User's own page:
+   User's own page, there are two parts of the main content. One is the user's posts in grid layout, and the other one is groups. User can create, delete and check the detail of the group.
 <br>
 <picture>
- <img alt="person" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fprofile.png?alt=media&token=6f81b0a9-58c0-4db4-9e7c-9953a76521b3" width="300" height="600">
+ <img alt="person" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fprofile.png?alt=media&token=6f81b0a9-58c0-4db4-9e7c-9953a76521b3" width="800" height="600">
 </picture>
 <br>
 
 <br>
-    When checking other users page, there's a menu pop up when clicking follow/following (to be finished)
+    When checking other users page, shows follow status and the user's posts
 <br>
 <picture>
  <img alt="person" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fother%20user%20profile.png?alt=media&token=b134a87f-e0da-4c77-89e4-33c593d4516b" width="300" height="600">
@@ -125,10 +125,19 @@
 </picture>
 <br>
 
-6. Search fragment
+6. Search fragment and group list page
 <br>
 <picture>
  <img alt="search" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fsearch.png?alt=media&token=52e90f44-8d2f-4792-a252-4bd6ed0999c9" width="300" height="600">
+</picture>
+<br>
+
+<br>
+When the account is followed by the current user, there's an icon shown to add to a group. When click on the icon, will open the group list page. User can create a new group, add / remove the account to / from this group. 
+The circle or star means added to this group or already in this group, accordingly.
+<br>
+<picture>
+  <img alt="group list page" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fuser-group%20list.png?alt=media&token=f9e1b98c-9882-4a9b-b959-4c45ae58b205" width="300" height="600">
 </picture>
 <br>
 
@@ -152,6 +161,17 @@
  <img alt="Comment page" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fcomments.png?alt=media&token=0623ebcb-d734-47c1-9ce0-a24057b939dd" width="300" height="600">
 </picture>
 <br>
+
+10. Group in user profile
+<picture>
+ <img alt="profile page - group" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fprofile2.png?alt=media&token=e9ea2d9d-95e2-4521-bae6-aff8ed6009e0" width="300" height="600">
+</picture>
+<br>
+User can delete, create a group and check the group details. The group detail page have two content list. One is all posts from the accounts in this group, the other is the list of the accounts.
+<br>
+<picture>
+ <img alt="group detail page" src="https://firebasestorage.googleapis.com/v0/b/mini-instagram-1.appspot.com/o/Doc%2Fgroup%20detail.png?alt=media&token=14b6de70-0a29-4070-8a73-49a15b0c0938" width="700" height="600">
+</picture>
 
 ## Data model
 The images of the application stored in Firebase Storage. All data is stored in Firebase realtime database.\
