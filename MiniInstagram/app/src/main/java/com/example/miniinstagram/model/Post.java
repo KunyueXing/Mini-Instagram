@@ -110,6 +110,7 @@ public class Post implements  Comparable<Post> {
         return result;
     }
 
+    // When sort the Posts, it will follow chronological order. That first created comes first.
     public int compareTo(Post post2) {
         if (getCreateTime() == null || post2.getCreateTime() == null) {
             return 0;

@@ -12,6 +12,7 @@ public class Group {
     private String description;
     private Map<String, Object> members = new HashMap<>();
 
+    // Default constructor required for calls to DataSnapshot.getValue(User.class)
     public Group() {
     }
 

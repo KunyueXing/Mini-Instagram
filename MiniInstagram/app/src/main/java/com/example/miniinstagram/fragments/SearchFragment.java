@@ -123,6 +123,8 @@ public class SearchFragment extends Fragment {
 
             }
 
+            // The method is called after the text changes. The charSequence is the text after
+            // changes have been applied.
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 searchUser(charSequence.toString());
@@ -144,6 +146,13 @@ public class SearchFragment extends Fragment {
     private void searchUser(String target) {
         recyclerView.setVisibility(View.VISIBLE);
 
+        // startAt() -- Return items greater than or equal to the specified key or value depending
+        // on the order-by method chosen.
+        // endAt() -- Return items less than or equal to the specified key or value depending on
+        // the order-by method chosen.
+        // The \uf8ff character used in the query is a very high code point in the Unicode range.
+        // Because it is after most regular characters in Unicode, the query matches all values
+        // that start with the target.
         Query query = userDatabaseRef.orderByChild("username")
                                      .startAt(target)
                                      .endAt(target + "\uf8ff");

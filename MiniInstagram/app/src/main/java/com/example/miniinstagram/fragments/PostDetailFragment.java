@@ -77,6 +77,9 @@ public class PostDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 FragmentManager fragmentManager = ((FragmentActivity)getContext()).getSupportFragmentManager();
+                // Sets whether or not to allow optimizing operations within and across
+                // transactions. This will remove redundant operations, eliminating operations
+                // that cancel.
                 fragmentManager.beginTransaction()
                                .replace(R.id.fragment_container, ProfileFragment.class, null)
                                .setReorderingAllowed(true).commit();

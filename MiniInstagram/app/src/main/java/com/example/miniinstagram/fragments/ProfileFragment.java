@@ -118,6 +118,8 @@ public class ProfileFragment extends Fragment {
 
         // If userData is not null. It stores a userID of whose profile will be visited.
         // If userData is null, go to user's own profile page.
+        // MODE_PRIVATE -- File creation mode: the default mode, where the created file can only
+        // be accessed by the calling application (or all applications sharing the same user ID).
         transferredID = getContext().getSharedPreferences("PROFILE", Context.MODE_PRIVATE);
         String transferredIDStr = transferredID.getString("profileUserID", "none");
         if (transferredIDStr.equals("none")) {

@@ -329,6 +329,13 @@ public class MainActivity extends AppCompatActivity {
     // Go to Homepage
     private void goToHomePage() {
         Intent intent = new Intent(MainActivity.this, HomepageActivity.class);
+        // FLAG_ACTIVITY_CLEAR_TASK - If set in an Intent passed to Context.startActivity(), this
+        // flag will cause any existing task that would be associated with the activity to be
+        // cleared before the activity is started.
+        // FLAG_ACTIVITY_CLEAR_TOP - If set, and the activity being launched is already running in
+        // the current task, then instead of launching a new instance of that activity, all of the
+        // other activities on top of it will be closed and this Intent will be delivered to the
+        // (now on top) old activity as a new Intent.
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();

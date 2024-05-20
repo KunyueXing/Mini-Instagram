@@ -86,10 +86,15 @@ public class NewPostActivity extends AppCompatActivity {
         ActivityResultCallback<Uri> choosePhotoCallback = new ActivityResultCallback<Uri>() {
             @Override
             public void onActivityResult(Uri result) {
+                // Handle the returned Uri
                 displayPhoto(result);
             }
         };
 
+        // GetContent() creates an ActivityResultLauncher<String> to let you pass in the mime type
+        // you want to let the user select
+        // If input exists, the launcher takes the input that matches the type of the
+        // ActivityResultContract. Calling launch() starts the process of producing the result.
         choosePhoto = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 choosePhotoCallback);
