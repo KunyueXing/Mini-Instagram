@@ -140,7 +140,7 @@ public class CommentActivity extends AppCompatActivity {
      * When click on goBack imageview, go back
      * @param view
      */
-    public void goBackImageViewOnclick(View view) {
+    public void goBackImageViewOnClick(View view) {
         finish();
     }
 

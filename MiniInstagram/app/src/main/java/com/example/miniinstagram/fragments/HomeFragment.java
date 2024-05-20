@@ -59,11 +59,12 @@ public class HomeFragment extends Fragment {
         databaseReference = FirebaseDatabase.getInstance().getReference();
 
         recyclerView = view.findViewById(R.id.recycler_view_posts);
+        // @param hasFixedSize true if adapter changes cannot affect the size of the RecyclerView.
         recyclerView.setHasFixedSize(true);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         // Latest post will be on the top
-        linearLayoutManager.setStackFromEnd(true);
+        // Used to reverse item traversal and layout order.
         linearLayoutManager.setReverseLayout(true);
         recyclerView.setLayoutManager(linearLayoutManager);
 
